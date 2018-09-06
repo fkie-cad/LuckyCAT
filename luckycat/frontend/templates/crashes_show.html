@@ -78,9 +78,9 @@
       {% for crash in crashes[1] %}
         <tr>
           <td align="center">
-            <a href="/crashes/show/{{ crash.id }}"><img src="/static/new-edit-find.png" title="View crash" alt="View crash"></a>
-            <a href="/download/crash/{{ crash.id }}"><img src="/static/download.png" title="Download sample" alt="Download sample"></a>
-                        <a href="/crashes/original/{{ crash.id }}"><img width="16" src="/static/find-original.png" title="Find original" alt="Find original"></a>
+            <a href="/crashes/show/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+            <a href="/download/crash/{{ crash.id }}"><span class="glyphicon glyphicon-download"></span></a>
+                        <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
           </td>
           
           <td>
