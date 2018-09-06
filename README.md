@@ -2,7 +2,7 @@
 
 ## What is Lucky CAT?
 
-Lucky CAT (**C**rash **A**ll the **T**hings!) is distributed fuzzing testing suite with an easy to use web interface. It allows to manage several fuzzing jobs on several remote machines concurrently. Lucky CAT aims to be easily usable, scaleable, extensible, and fun.
+Lucky CAT (**C**rash **A**ll the **T**hings!) is a distributed fuzzing testing suite with an easy to use web interface. It allows to manage several fuzzing jobs on several remote machines concurrently. Lucky CAT aims to be easily usable, scaleable, extensible, and fun.
 
 Lucky CAT's origin is Joxean Koret's [Nightmare Fuzzing Project](https://github.com/joxeankoret/nightmare). However, there may be only traces of Nightmare and Lucky CAT is more 2018-ish by relaying, amongst others, on [Bootstrap](https://github.com/twbs/bootstrap), [Docker](https://www.docker.com), [MongoDB](https://www.mongodb.com), [Python 3](https://www.python.org/), and [RabbitMQ](https://github.com/rabbitmq).
 
