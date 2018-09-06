@@ -41,5 +41,5 @@ No matter how you would like to contribute: If you have any question, do not hes
 # Contact
 If you have any further questions, write a [mail](mailto:firmware-security@fkie.fraunhofer.de).
 # Authors and Acknowledgment
-FACT is developed by [Fraunhofer FKIE](https://www.fkie.fraunhofer.de).
+Lucky CAT is developed by [Fraunhofer FKIE](https://www.fkie.fraunhofer.de).
 Development is partly financed by [German Federal Office for Information Security (BSI)](https://www.bsi.bund.de).
