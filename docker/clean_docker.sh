@@ -6,8 +6,8 @@ then
     docker rm $(docker ps -a -q) 
     docker rmi $(docker images -q)
     docker system prune
-    docker volume rm -f f3c_db_data
-    docker volume rm -f f3c_backend_data
+    docker volume rm -f luckycat_db_data
+    docker volume rm -f luckycat_backend_data
 else
     echo "Aborting..."
 fi
