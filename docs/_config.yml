@@ -1,0 +1,3 @@
+theme: jekyll-theme-slate
+title: Lucky CAT - Crash All the Things!
+description: Lucky CAT manges your fuzzing jobs. It is easy to setup and use, to extend with your own fuzzers and verifieres as well as to integrate via its REST API.

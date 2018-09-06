@@ -1,0 +1,51 @@
+version: '3'
+services:
+  
+  frontend:
+    depends_on:
+      - backend
+    hostname: 'frontend'
+    volumes:
+      - backend_data:/opt/f3c/results/crashes
+    build: 
+      context: ./
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - '5000:5000'
+    
+  database:
+    image: mongo
+    restart: always
+    hostname: 'database'
+    volumes:
+      - db_data:/var/lib/mongo
+
+  backend:
+    depends_on:
+      - queue
+      - database
+    hostname: 'backend'
+    volumes:
+      - backend_data:/opt/f3c/results/crashes
+    build:
+      context: ./
+      dockerfile: ./docker/backend/Dockerfile
+
+  queue:
+    image: "rabbitmq:3-management"
+    hostname: 'queue'
+    volumes:
+      - queue:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=s3cr3tc00ki3
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    logging:
+      driver: none
+
+
+volumes:
+  db_data:
+  backend_data:
+  queue:

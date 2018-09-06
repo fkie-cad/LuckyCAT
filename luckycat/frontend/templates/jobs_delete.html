@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% set active_page = "DeleteJobs" %}
+
+{% block content %}
+<h2>Delete job</h2>
+  <table>
+    <form action="/jobs/delete/{{ id }}" method="POST">
+      <tr><td>Are you sure that you want to delete the job?</td></tr>
+      <tr><td>I'm sure <input type="checkbox" name="sure"/></td></tr>
+      <tr><td><input type="submit" value="Delete project"/></td></tr>
+    </form>
+  </table>
+{% endblock %}

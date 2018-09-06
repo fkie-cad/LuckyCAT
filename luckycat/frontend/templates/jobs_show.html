@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% set active_page = "ShowJobs" %}
+
+{% block content %}
+<table class="table table-responsive table-hover" style="border-spacing: 10px; width: 100%;">
+<tr><td>
+    <h2>Jobs</h2>
+<table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
+  <tr>
+    <th>Action</th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Max. samples</th>
+    <th>Max. iterations</th>
+    <th>Enabled</th>
+    <th>Archived</th>
+    <th>Ignore duplicates?</th>
+    <th>Mutation engine</th>
+    <th>Start date</th>
+  </tr>
+  {% for job in jobs %}
+    <tr>
+      <td align="center">
+        <a href="/jobs/edit/{{ job.id }}"><img src="/static/new-edit-find.png"></a>
+        <a href="/jobs/delete/{{ job.id }}"><img src="/static/list-remove.png"></a>
+        <a href="/jobs/download/{{ job.id }}"><img src="/static/download.png" title="Download job results"></a>
+      </td>
+      <td>{{ job.name }}</td>
+      <td>{{ job.description }}</td>
+      <td>{{ job.maximum_samples}}</td>
+      <td> {{ job.maximum_iteration }} </td>
+      <td>
+        {{ job.enabled }}
+      </td>
+      <td>
+        {{ job.archived }}
+      </td>
+      <td>
+        {{ job.ignore_duplicates }}
+      </td>
+      <td>{{ job.mutation_engine }}</td>
+      <td>{{ job.date }}</td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+

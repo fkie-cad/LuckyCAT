@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% set active_page = "Results" %}
+
+{% block content %}
+
+<tr><td>
+<h2>Fuzzing results</h2>
+<form name="fmFilter">
+  <label><b class="label">Show</b> results matching field</label>
+  <input type="hidden" id="idSelected" value="">
+  <select name="field" id="idSelect">
+    <option value="date">Date</option>
+    <option value="exploitability">Exploitable</option>
+    <option value="disassembly">Disassembly</option>
+    <option value="program_counter">Program counter</option>
+    <option value="crash_signal">Signal</option>
+    <option value="crash_hash">Crash hash</option>
+  </select>
+  <label for="fieldValue">with value similar to</label>
+  <input type="text" name="fieldValue" id="idFieldValue" value="">
+  <input type="submit" value="Apply">
+  <input type="button" value="Reset" onclick="javascript:window.location.href='/results';">
+
+  <br/>
+
+  <label><b class="label">Hide</b> results matching field</label>
+  <input type="hidden" id="idNoSelected" value="">
+  <select name="no_field" id="idNoSelect">
+    <option value="crash_signal">Signal</option>
+    <option value="exploitability">Exploitable</option>
+    <option value="date">Date</option>
+    <option value="disassembly">Disassembly</option>
+    <option value="program_counter">Program counter</option>
+    <option value="crash_hash">Crash hash</option>
+  </select>
+  <label for="no_fieldValue">with value similar to</label>
+  <input type="text" name="no_fieldValue" id="idNoFieldValue" value="">
+
+ 
+  <input type="checkbox" name="hideDup" id="hideDup" ""/>
+  <label for"hideDup">Hide duplicates</label>
+  <input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>
+  <label for"hideNonVerified">Hide Non Verified Crashes</label>
+  <br/>
+  
+  <label><b class="label">Sort</b> results matching field</label>
+  <input type="hidden" id="idSavedSort" value="$sort_value">
+  <select name="sortValue" id="idSortSelect">
+    <option value="crash_signal">Signal</option>
+    <option value="exploitability">Exploitable</option>
+    <option value="date" selected>Date</option>
+    <option value="disassembly">Disassembly</option>
+    <option value="program_counter">Program counter</option>
+    <option value="crash_hash">Crash hash</option>
+  </select>
+  
+  
+</form>
+<table border="0">
+  {% if results|length > 0 %}
+    {% for crashes in results %}
+     {% if crashes|length > 0 %}
+       <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
+
+    <tr>
+      
+          <th colspan="6">Project {{crashes[0]}} - {{ crashes[1]|length }} crashes [<a href="/download/job/{{ crashes[1][0].job_id }}">Download project results</a>]</th>
+      </tr>
+      <tr>
+        <th>Action</th>
+        <th>Exploitable</th>
+	<th>Description</th>
+	 <th>Signal</th>
+	<th>Crash Hash</th>
+        <th>Date</th>
+      </tr>
+      {% for crash in crashes[1] %}
+        <tr>
+          <td align="center">
+            <a href="/crashes/show/{{ crash.id }}"><img src="/static/new-edit-find.png" title="View crash" alt="View crash"></a>
+            <a href="/download/crash/{{ crash.id }}"><img src="/static/download.png" title="Download sample" alt="Download sample"></a>
+                        <a href="/crashes/original/{{ crash.id }}"><img width="16" src="/static/find-original.png" title="Find original" alt="Find original"></a>
+          </td>
+          
+          <td>
+          {{crash.exploitability}}
+          </td>
+	  <td>{{crash.additional}}</td>
+         <td>{{crash.crash_signal}}</td>
+          <td>{{crash.crash_hash}}</td>
+          <td>{{crash.date}}</td>
+        </tr>
+{% endfor %}
+
+
+       </table>  
+     {% endif %}
+    {% endfor %}
+  {% else %}
+    No results yet. You may want to check the <a href="/statistics">statistics</a> meanwhile.
+  {% endif %}
+</td></tr>
+</table>
+{% endblock %}

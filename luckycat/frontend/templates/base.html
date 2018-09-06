@@ -1,0 +1,121 @@
+<html>
+<head>
+    <link href="/static/nightmare.css" rel="stylesheet" type="text/css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="../static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../static/bootstrap/css/bootstrap-theme.css">
+    <script src="../static/bootstrap/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../static/Chart.bundle.js"></script>
+    <!-- update url-->
+    <script type="text/javascript" src="../static/js/update_url_variables.js"></script>
+
+    <style>
+        body{
+            padding-top: 70px;
+        }
+        a:link{
+            color:#2b669a;
+            text-decoration:none;
+        }
+        td.clickable {
+            cursor:pointer;
+        }
+        .navbar-inner {
+            background-color: #255e54; /*#607873; /* background color will be black for all browsers */
+            background-image: none;
+            background-repeat: no-repeat;
+            filter: none;
+        }
+            .navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a {
+            color: #ddd;
+        }
+            .navbar-default .navbar-brand:hover, .navbar-default .navbar-nav > li > a:hover {
+            color: #fff;
+        }
+        .tooltip > .tooltip-inner {
+            background-color: #2b669a;
+            color: #FFFFFF;
+            border: 1px solid #2b669a;
+            padding: 5px;
+            font-size: 15px;
+        }
+        .tooltip.top > .tooltip-arrow {
+            border-top: 5px solid #2b669a;
+        }
+    </style>
+</head>
+<body>
+
+
+<nav role="navigation" class="navbar navbar-default navbar-fixed-top navbar-inner" style="margin-bottom:0; padding: 0">
+  <div class="container-fluid" style="padding: 0">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+        </button>
+        <div class="navbar-brand hidden-sm" style="vertical-align: middle; margin-right: 10px">
+            Fraunhofer FKIE Fuzzing Cluster
+        </div>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li>
+            <a href="/"><span class="glyphicon glyphicon-home"></span> Index <span class="sr-only">(current)</span></a>
+        </li>
+        <li {% if caption == active_page %} class="active"{% endif  %}>
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-tasks"></span> Jobs<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/jobs/show"><span class="glyphicon glyphicon-list"></span> Show</a></li>
+            <li><a href="/jobs/add"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
+          </ul>
+        </li>
+        <li>
+            <a href="/crashes/show"><span class="glyphicon glyphicon-flash"></span> Crashes</a>
+        </li>
+        <li>
+            <a href="/statistics/show"><span class="glyphicon glyphicon-stats"></span> Statistics</a>
+        </li>
+        <li class="dropdown {% if caption == active_page %}active{% endif  %}">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-cog"></span> Settings<span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/user/manage"> Manage Users</a></li>
+                                    </ul>
+        </li>
+         <li>
+            <a href="/about"><span class="glyphicon glyphicon-globe"></span> About</a>
+        </li>
+        <li {% if caption == active_page %} class="active"{% endif  %}>
+                                {% if current_user.is_authenticated %}
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span>&nbsp;{{ current_user.email }}<span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/user/profile"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                                        <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                                    </ul>
+                                {% else %}
+                                    <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a>
+                                {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="content" style="width:90%; margin: 0 auto;">{% block content %}{% endblock %}</div>
+
+<hr style="margin-top: 30px;">
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4" style="text-align:center;">
+        &copy; 2013-2015 Joxean Koret, 2018 Fraunhofer FKIE
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+</body>
+</html>
