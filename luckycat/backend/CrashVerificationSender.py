@@ -44,9 +44,9 @@ class CrashVerificationSender(Process):
                     if os.path.exists(crash['crash_path']):
                         try:
                             buf = open(crash['crash_path'], "rb").read()
-                            crash = {'data': str(base64.b64encode(buf)),
-                                     'program': '/home/thomas/code/aimf/f3c/src/fuzzers/cfuzz/test/build/broken_buffer ',
+                            crash = {'data': base64.b64encode(buf).decode(),
                                      'args': '',
+                                     'program': '',
                                      'crash_id': str(crash.id),
                                      'remote': current_project.fuzzer == "cfuzz"}
                             self.wq.publish(self.ver_queue, json.dumps(crash))

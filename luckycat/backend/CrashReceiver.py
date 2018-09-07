@@ -2,7 +2,7 @@ import base64
 import datetime
 import hashlib
 import json
-import logging.config
+import logging
 import os
 import shutil
 from multiprocessing import Process
@@ -23,7 +23,7 @@ class CrashReceiver(Process):
             self.wq.create_queue(self.queue_name)
         self.channel = self.wq.get_channel()
 
-    def insert_crash_cfuzz(self, crash_data):
+    def _insert_crash_cfuzz(self, crash_data):
         crash_path = os.path.join(f3c_global_config.samples_path, "crashes")
         temp_file = crash_data['filename']
         if not os.path.exists(temp_file):
@@ -79,7 +79,7 @@ class CrashReceiver(Process):
         if crash_info['fuzzer'] == "afl":
             self._insert_crash_afl(crash_info)
         elif crash_info['fuzzer'] == "cfuzz":
-            self.insert_crash_cfuzz(crash_info)
+            self._insert_crash_cfuzz(crash_info)
         else:
             logger.error("Unknown fuzzer %s" % crash_info['fuzzer'])
 

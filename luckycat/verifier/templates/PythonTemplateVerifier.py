@@ -47,7 +47,7 @@ class PythonTemplateVerifier(multiprocessing.Process):
         conn = pika.BlockingConnection(pika.ConnectionParameters(
             self.config['DEFAULT']['queue_host']))
         channel = conn.channel()
-        channel.basic_publish(exchange='',
+        channel.basic_publish(exchange='luckycat',
                               routing_key=self.config['DEFAULT']['out_queue'],
                               body=json.dumps(crash))
         conn.close()

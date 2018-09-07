@@ -28,27 +28,28 @@ class StatsCollector(Process):
         #                           execs_per_sec=0,
         #                           date=datetime.datetime.now())
         # TODO
-        logger.warn('Received stats %s' % str(stats))
+        pass
 
     def update_afl_stats(self, stats):
+        pass
         # FIXME use mongoengine
-        vars = {"job_id": stats['job_id']}
-        where = "job_id = $job_id"
-        res = self.db.select("statistics", where=where, vars=vars)
-        res = list(res)
+        # vars = {"job_id": stats['job_id']}
+        # where = "job_id = $job_id"
+        # res = self.db.select("statistics", where=where, vars=vars)
+        # res = list(res)
 
-        with self.db.transaction():
-            if len(res) == 0:
-                self.db.insert("statistics", project_id=stats['project_id'],
-                               runtime=stats['runtime'],
-                               iteration=stats['total_execs'],
-                               execs_per_sec=stats['cumulative_speed'])
+        # with self.db.transaction():
+        #     if len(res) == 0:
+        #         self.db.insert("statistics", project_id=stats['project_id'],
+        #                        runtime=stats['runtime'],
+        #                        iteration=stats['total_execs'],
+        #                        execs_per_sec=stats['cumulative_speed'])
 
-            else:
-                self.db.update("statistics", runtime=stats['runtime'],
-                               iteration=stats['total_execs'],
-                               execs_per_sec=stats['cumulative_speed'],
-                               where="project_id = $project_id", vars={"project_id": stats['project_id']})
+        #     else:
+        #         self.db.update("statistics", runtime=stats['runtime'],
+        #                        iteration=stats['total_execs'],
+        #                        execs_per_sec=stats['cumulative_speed'],
+        #                        where="project_id = $project_id", vars={"project_id": stats['project_id']})
 
     def on_message(self, channel, method_frame, header_frame, body):
         stats = json.loads(body.decode("utf-8"))

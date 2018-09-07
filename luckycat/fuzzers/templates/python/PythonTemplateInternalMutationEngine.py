@@ -37,7 +37,7 @@ class PythonFuzzer(object):
 
     def _send_crash(self, crash_json):
         channel, conn = self.create_queue_host_channel()
-        channel.basic_publish(exchange='',
+        channel.basic_publish(exchange='luckycat',
                               routing_key=self.config['DEFAULT']['crash_queue'],
                               body=json.dumps(crash_json))
         channel.basic_ack()
@@ -45,7 +45,7 @@ class PythonFuzzer(object):
 
     def _send_stats(self, stats_json):
         channel, conn = self.create_queue_host_channel()
-        channel.basic_publish(exchange='',
+        channel.basic_publish(exchange='luckycat',
                               routing_key=self.config['DEFAULT']['stats_queue'],
                               body=json.dumps(stats_json))
         channel.basic_ack()
