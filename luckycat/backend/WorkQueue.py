@@ -31,6 +31,7 @@ class WorkQueue(object):
         channel = conn.channel()
         logger.debug("Creating queue %s." % prefix)
         try:
+            channel.exchange_declare(exchange='luckycat', durable=True)
             channel.queue_declare(queue=prefix)
             channel.queue_bind(exchange='luckycat', queue=prefix)
             conn.close()
