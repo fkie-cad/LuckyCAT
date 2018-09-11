@@ -17,7 +17,7 @@ def clean_up():
     p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
     out, err = p.communicate()
     for line in out.splitlines():
-        if 'afl-fuzz' in line:
+        if b'afl-fuzz' in line:
             pid = int(line.split(None, 1)[0])
             os.kill(pid, signal.SIGKILL)
 
@@ -26,7 +26,7 @@ def check_afl_runs():
     p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
     out, err = p.communicate()
     for line in out.splitlines():
-        if 'afl-fuzz' in line:
+        if b'afl-fuzz' in line:
             return True
     return False
 
@@ -49,48 +49,48 @@ class AflFuzzer(PythonFuzzer):
 
     def start_fuzzers(self):
         # TODO check output !!!!
-        logging.info("Starting afl-fuzz with %i fuzzers" % config.fuzzers)
+        logging.info('Starting afl-fuzz with %i fuzzers' % config.fuzzers)
         for fuzzer_id in range(config.fuzzers):
             afl_cmd = self.build_afl_command(fuzzer_id)
-            logging.debug("Starting: %s" % afl_cmd)
+            logging.debug('Starting: %s' % afl_cmd)
             subprocess.Popen(afl_cmd, shell=True)
 
     # TODO use screen
     def build_afl_command(self, fuzzer_id):
         if fuzzer_id == 0:
-            return "afl-fuzz -i %s -o %s -M master -- %s > /dev/null" % (config.input_dir, config.output_dir,
+            return 'afl-fuzz -i %s -o %s -M master -- %s > /dev/null' % (config.input_dir, config.output_dir,
                                                                          config.cmd)
         else:
-            return "afl-fuzz -i %s -o %s -S slave%i -- %s > /dev/null " % (config.input_dir, config.output_dir,
+            return 'afl-fuzz -i %s -o %s -S slave%i -- %s > /dev/null ' % (config.input_dir, config.output_dir,
                                                                            fuzzer_id, config.cmd)
 
     def build_afl_collect_command(self):
-        crashes_db = os.path.join(config.crashes_dir, "crashes.db")
-        cmd = "afl-collect -d %s -e gdb_script -r -rr %s %s -j %i -- %s" % (crashes_db, config.output_dir,
+        crashes_db = os.path.join(config.crashes_dir, 'crashes.db')
+        cmd = 'afl-collect -d %s -e gdb_script -r -rr %s %s -j %i -- %s' % (crashes_db, config.output_dir,
                                                                             config.crashes_dir, config.collect_threads,
                                                                             config.cmd)
         return cmd
 
     def whats_up(self):
         stats = {}
-        cmd = "afl-whatsup %s" % config.output_dir
+        cmd = 'afl-whatsup %s' % config.output_dir
         output = subprocess.check_output(cmd, shell=True)
         for line in output.splitlines():
-            if ":" in line:
-                split_line = line.strip().split(":")
+            if b':' in line:
+                split_line = line.strip().split(b':')
                 self.parse_stats(split_line, stats)
         logging.debug(stats)
         stats['fuzzer'] = 'afl'
         return stats
 
     def parse_stats(self, split_line, stats):
-        if "Total run time" in split_line[0]:
-            tmp = split_line[1].strip().split(",")
-            stats["runtime"] = str(int(tmp[0].strip().split(" ")[0]) * 24 + int(tmp[1].strip().split(" ")[0]))
-        elif "Total execs" in split_line[0]:
-            stats["total_execs"] = str(int(split_line[1].strip().split(" ")[0]) * 1000000)
-        elif "Cumulative speed" in split_line[0]:
-            stats["cumulative_speed"] = str(int(split_line[1].strip().split(" ")[0]))
+        if b'Total run time' in split_line[0]:
+            tmp = split_line[1].strip().split(b',')
+            stats['runtime'] = str(int(tmp[0].strip().split(b' ')[0]) * 24 + int(tmp[1].strip().split(b' ')[0]))
+        elif b'Total execs' in split_line[0]:
+            stats['total_execs'] = str(int(split_line[1].strip().split(b' ')[0]) * 1000000)
+        elif b'Cumulative speed' in split_line[0]:
+            stats['cumulative_speed'] = str(int(split_line[1].strip().split(b' ')[0]))
 
     def collect(self):
         res = []
@@ -99,35 +99,36 @@ class AflFuzzer(PythonFuzzer):
         subprocess.call(afl_collect_cmd, shell=True)
         crashes = os.listdir(self.full_path(config.crashes_dir))
         for crash in crashes:
-            if ".db" not in crash and "gdb" not in crash:
+            if '.db' not in crash and 'gdb' not in crash:
                 if crash not in self.CRASHES:
-                    logging.debug("Found new crash %s" % crash)
+                    logging.debug('Found new crash %s' % crash)
                     self.CRASHES.append(crash)
                     res.append(os.path.join(self.full_path(config.crashes_dir), crash))
         return res
 
     def get_signal(self, filename):
-        return int(filename.split("sig:")[1].split(",")[0]) + 128
+        return int(filename.split('sig:')[1].split(',')[0]) + 128
 
     def _fuzz(self):
+        print('Starting afl-fuzz with %i fuzzers' % config.fuzzers)
         self.start_fuzzers()
-        logging.debug("Sleeping for %i seconds..." % config.sleep)
+        logging.debug('Sleeping for %i seconds...' % config.sleep)
         time.sleep(config.sleep)
         stats = self.whats_up()
         new_crashes = self.collect()
         if len(new_crashes) > 0:
             for crash in new_crashes:
-                with open(crash, "rb") as fp:
+                with open(crash, 'rb') as fp:
                     crash_info, filename = self.populate_crash_info_data(crash, fp)
-                    crashes_db = self.full_path(os.path.join(config.crashes_dir, "crashes.db"))
+                    crashes_db = self.full_path(os.path.join(config.crashes_dir, 'crashes.db'))
                     if os.path.exists(crashes_db):
                         self.connect_to_crashDB(crash_info, crashes_db, filename)
+                    print(crash_info)
                     self.send_crash_info(crash_info)
         self.send_stats_data(stats)
 
     def send_stats_data(self, stats):
         try:
-            print(json.dumps(stats))
             self._send_stats(stats)
         except ConnectionError:
             raise
@@ -142,8 +143,9 @@ class AflFuzzer(PythonFuzzer):
     def populate_crash_info_data(self, crash, fp):
         crash_data = base64.b64encode(fp.read())
         filename = os.path.split(crash)[-1]
-        crash_info = {'fuzzer': 'afl',
-                      'timestamp': strftime("%Y-%m-%d_%H:%M:%S", gmtime()),
+        crash_info = {'job': config.job_name,
+                      'fuzzer': 'afl',
+                      'timestamp': strftime('%Y-%m-%d_%H:%M:%S', gmtime()),
                       'crash_data': crash_data,
                       'signal': self.get_signal(filename),
                       'verified': 1,
@@ -161,7 +163,7 @@ class AflFuzzer(PythonFuzzer):
         conn.close()
 
     def add_additional_info_to_crash(self, crash_info, verified_crash):
-        logging.debug("Adding additional info to crash")
+        logging.debug('Adding additional info to crash')
         crash_info['classification'] = verified_crash[1]
         crash_info['description'] = verified_crash[2]
         crash_info['hash'] = verified_crash[3]
@@ -169,16 +171,15 @@ class AflFuzzer(PythonFuzzer):
 
 def main():
     if check_afl_runs():
-        print("Seems that AFL session is already running.")
-        print("I am going to kill them all, OK?")
-        print("Press any key or abort with ctrl+c...")
+        print('Seems that AFL session is already running.')
+        print('I am going to kill them all, OK?')
+        print('Press any key or abort with ctrl+c...')
         input()
         clean_up()
     signal.signal(signal.SIGINT, signal_handler)
     logging.basicConfig(level=config.log_level)
     afl_fuzzer = AflFuzzer()
-    afl_fuzzer.start()
-    afl_fuzzer.join()
+    afl_fuzzer.run()
 
 
 if __name__ == '__main__':

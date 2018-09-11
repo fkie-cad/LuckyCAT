@@ -1,6 +1,7 @@
 import json
 import configparser
 import pika
+import logging
 
 
 class PythonFuzzer(object):
@@ -12,12 +13,12 @@ class PythonFuzzer(object):
     mutation engine like afl.
     '''
 
-    def __init__(self, config_path="fuzzer.cfg"):
+    def __init__(self, config_path='fuzzer.cfg'):
         super(PythonFuzzer, self).__init__()
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
 
-    def fuzz(self):
+    def _fuzz(self):
         '''
         Implement this method in your fuzzer class.
         For a demonstration see luckycat/fuzzers/dummy_fuzzer.py.
@@ -30,23 +31,28 @@ class PythonFuzzer(object):
         pass
 
     def create_queue_host_channel(self):
-        conn = pika.BlockingConnection(pika.ConnectionParameters(
-            self.config['DEFAULT']['queue_host']))
-        channel = conn.channel()
-        return channel, conn
+        # NOTE: self.config[...] is not parsed correctly when executing the afl script from the LuckyCAT root dir
+        # connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
+        connection = pika.BlockingConnection(pika.ConnectionParameters('127.0.0.1'))
+        channel = connection.channel()
+        return channel, connection
 
     def _send_crash(self, crash_json):
         channel, conn = self.create_queue_host_channel()
         channel.basic_publish(exchange='luckycat',
-                              routing_key=self.config['DEFAULT']['crash_queue'],
+                              routing_key='crashes',
                               body=json.dumps(crash_json))
-        channel.basic_ack()
+        # channel.basic_ack()
         conn.close()
 
     def _send_stats(self, stats_json):
+        logging.info(stats_json)
         channel, conn = self.create_queue_host_channel()
         channel.basic_publish(exchange='luckycat',
-                              routing_key=self.config['DEFAULT']['stats_queue'],
+                              routing_key='stats',
                               body=json.dumps(stats_json))
-        channel.basic_ack()
+        # channel.basic_ack()
         conn.close()
+ 
+    def run(self):
+        self._fuzz()
