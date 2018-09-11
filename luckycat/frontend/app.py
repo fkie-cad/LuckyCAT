@@ -7,6 +7,7 @@ from luckycat.frontend.JobsApi import jobs_api
 from luckycat.frontend.Crashes import crashes
 from luckycat.frontend.Jobs import jobs
 from luckycat.frontend.Users import users
+from luckycat.frontend.Statistics import statistics
 
 from luckycat import f3c_global_config
 from luckycat.database.database import db
@@ -32,6 +33,7 @@ app.register_blueprint(jobs_api)
 app.register_blueprint(jobs)
 app.register_blueprint(crashes)
 app.register_blueprint(users)
+app.register_blueprint(statistics)
 
 
 @app.before_first_request
@@ -54,3 +56,4 @@ def about():
 @login_required
 def logout():
     return redirect("/home")
+
