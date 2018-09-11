@@ -45,8 +45,7 @@ class PythonFuzzer(multiprocessing.Process):
             self._send_crash(res)
 
     def _send_crash(self, crash):
-        conn = pika.BlockingConnection(pika.ConnectionParameters(
-            self.config['DEFAULT']['queue_host']))
+        conn = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
         channel = conn.channel()
         channel.basic_publish(exchange='luckycat',
                               routing_key=self.config['DEFAULT']['crash_queue'],
@@ -54,8 +53,7 @@ class PythonFuzzer(multiprocessing.Process):
         conn.close()
 
     def run(self):
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
         channel = connection.channel()
         channel.basic_consume(self._on_test_case,
                               self.config['DEFAULT']['sample_queue'])
