@@ -8,8 +8,6 @@ from luckycat.backend import SampleGenerator
 from luckycat.backend import StatsCollector
 from luckycat.backend import SampleCleaner
 
-logging.config.fileConfig("luckycat/logging.conf")
-
 
 def main():
 
