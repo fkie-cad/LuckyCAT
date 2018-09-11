@@ -6,7 +6,7 @@ echo "Installing Lucky CAT"
 cd /opt/luckycat
 ln -s /opt/luckycat/luckycat/frontend/nginx.conf /etc/nginx/sites-enabled
 service nginx restart
-python3 /opt/luckycat/setup.py install
+python3 /opt/luckycat/setup.py install &> /dev/null
 
 echo "Starting Lucky CAT frontend"
 uwsgi --ini /opt/luckycat/luckycat/frontend/uwsgi.ini

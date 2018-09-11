@@ -5,8 +5,6 @@ from luckycat import f3c_global_config
 
 logger = logging.getLogger(os.path.basename(__file__).split(".")[0])
 
-logging.getLogger("pika").setLevel(logging.ERROR)
-
 
 class WorkQueue(object):
 
@@ -34,6 +32,7 @@ class WorkQueue(object):
         logger.debug("Creating queue %s." % prefix)
         try:
             channel.queue_declare(queue=prefix)
+            channel.queue_bind(exchange='luckycat', queue=prefix)
             conn.close()
             logger.info("Queue created.")
         except:
@@ -72,7 +71,7 @@ class WorkQueue(object):
     def publish(self, queue_name, body):
         conn = pika.BlockingConnection(pika.ConnectionParameters(self._host))
         channel = conn.channel()
-        channel.basic_publish(exchange='',
+        channel.basic_publish(exchange='luckycat',
                               routing_key=queue_name,
                               body=body.encode('utf-8'))
         conn.close()
