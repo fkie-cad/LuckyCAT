@@ -2,6 +2,7 @@ import json
 import configparser
 import pika
 import logging
+import os
 
 
 class PythonFuzzer(object):
@@ -13,7 +14,9 @@ class PythonFuzzer(object):
     mutation engine like afl.
     '''
 
-    def __init__(self, config_path='fuzzer.cfg'):
+    def __init__(self, config_path=os.path.join(os.path.dirname(
+            os.path.abspath('fuzzer.cfg')),
+            'luckycat/fuzzers/templates/python/fuzzer.cfg')):
         super(PythonFuzzer, self).__init__()
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
@@ -31,9 +34,8 @@ class PythonFuzzer(object):
         pass
 
     def create_queue_host_channel(self):
-        # NOTE: self.config[...] is not parsed correctly when executing the afl script from the LuckyCAT root dir
-        # connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
-        connection = pika.BlockingConnection(pika.ConnectionParameters('127.0.0.1'))
+        # NOTE: self.config[...] is not parsed correctly when executing PYTHONPATH=. python3 luckycat/fuzzers/aflfuzz/afl-luckycat.py from the LuckyCAT root dir
+        connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
         channel = connection.channel()
         return channel, connection
 
