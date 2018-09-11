@@ -3,6 +3,56 @@
 {% set active_page = "Results" %}
 
 {% block content %}
-{{ results }}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+            <div class="form-group">
+                <select class="form-control" onchange="window.location=update_url_variables(window.location.toString(), 'project', this.value)">
+                    <option selected value="1"></option>
+                for project_name in project_names
+                    <option>project_name</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <h3><span class="glyphicon glyphicon-stats"></span> General</h3>
+            <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
+                  <tr>
+                      <td class="active" style="text-align: left; padding:5px">projects</td>
+                      <td class="active" style="text-align: right; padding:5px">?</td>
+                  </tr>
+                <tr>
+                    <td class="active" style="text-align: left; padding:5px">crashes</td>
+                    <td class="active" style="text-align: right; padding:5px">?</td>
+                </tr>
+                <tr>
+                    <td class="active" style="text-align: left; padding:5px">unique crashes</td>
+                    <td class="active" style="text-align: right; padding:5px">?</td>
+                </tr>
+                <tr>
+                    <td class="active" style="text-align: left; padding:5px">unique exploitable crashes</td>
+                    <td class="active" style="text-align: right; padding:5px">?</td>
+                </tr>
+                <tr>
+                    <td class="active" style="text-align: left; padding:5px">iterations</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ results['project_statistics']['iteration'] }}</td>
+                </tr>
+                <tr>
+                    <td class="active" style="text-align: left; padding:5px">execs_per_sec</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ results['project_statistics']['execs_per_sec'] }}</td>
+                </tr>
+                <tr>
+                    <td class="active" style="text-align: left; padding:5px">runtime</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ results['project_statistics']['runtime'] }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-4">
+        </div>
+    </div>
+</div>
 
 {% endblock %}
