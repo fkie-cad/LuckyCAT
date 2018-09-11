@@ -19,6 +19,8 @@ services:
     hostname: 'database'
     volumes:
       - db_data:/var/lib/mongo
+    ports:
+      - '27017:27017'
 
   backend:
     depends_on:
