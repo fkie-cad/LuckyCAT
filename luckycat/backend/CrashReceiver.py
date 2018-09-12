@@ -24,27 +24,43 @@ class CrashReceiver(Process):
         self.channel = self.wq.get_channel()
 
     def _insert_crash_cfuzz(self, crash_data):
-        crash_path = os.path.join(f3c_global_config.samples_path, "crashes")
-        temp_file = crash_data['filename']
-        if not os.path.exists(temp_file):
-            logger.error("Test case file %s does not exists!" % temp_file)
-            return False
+        if crash_data['crash']:
 
-        buf = open(temp_file, "rb").read()
-        file_hash = hashlib.sha1(buf).hexdigest()
-        new_path = os.path.join(crash_path, file_hash)
+            crash_path = os.path.join(f3c_global_config.samples_path, "crashes")
+            # FIXME: do not rely on data from client, santanize!
+            temp_file = crash_data['filename']
+            if not os.path.exists(temp_file):
+                logger.error("Test case file %s does not exists!" % temp_file)
+                return False
 
-        logger.info("Saving test file %s" % new_path)
-        shutil.move(temp_file, new_path)
+            buf = open(temp_file, "rb").read()
+            file_hash = hashlib.sha1(buf).hexdigest()
+            new_path = os.path.join(crash_path, file_hash)
 
-        logger.debug("Inserting crash: %s." % str(crash_data))
-        cfuzz_crash = Crash(job_id=crash_data['job_id'],
-                            crash_signal=crash_data['signal'],
-                            crash_path=new_path,
-                            date=datetime.datetime.now(),
-                            verified=False)
-        cfuzz_crash.save()
-        logger.debug("Crash stored")
+            logger.info("Saving test file %s" % new_path)
+            shutil.move(temp_file, new_path)
+
+            logger.debug("Inserting crash: %s." % str(crash_data))
+            cfuzz_crash = Crash(job_id=crash_data['job_id'],
+                                crash_signal=crash_data['signal'],
+                                crash_path=new_path,
+                                date=datetime.datetime.now(),
+                                verified=False)
+            cfuzz_crash.save()
+            logger.warn('Crash stored')
+        else:
+            logger.warn('No crash clean up')
+
+        try:
+            os.remove(crash_data['filename'])
+        except OSError as e:
+            print ("Error: %s - %s." % (e.filename, e.strerror))
+
+        stats = {'fuzzer': 'cfuzz',
+                 'job_id': crash_data['job_id'],
+                 'runtime': 0,
+                 'total_execs': "+1"}
+        self.wq.publish("stats", json.dumps(stats))
 
     def _insert_crash_afl(self, crash_data):
         logger.info("Inserting AFL crash: %s" % crash_data['filename'])
