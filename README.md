@@ -38,7 +38,7 @@ Just use docker-compose to build the app.
 ``` bash
 docker-compose build && docker-compose up
 ```
-or just use the script `start_cluster.sh``. Afterwards navigate to https://localhost:5000 and create a new user.
+or just use the script `start_cluster.sh`. Afterwards navigate to https://localhost:5000 and create a new user.
 
 ### Requirements
 
