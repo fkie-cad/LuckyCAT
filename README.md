@@ -30,7 +30,7 @@ And because it finds bugs:
 
 ## How to install Lucky CAT?
 
-Pull the whole project including submodules:
+Pull the whole project:
 ``` bash
 git clone https://github.com/fkie-cad/luckycat.git
 ```
