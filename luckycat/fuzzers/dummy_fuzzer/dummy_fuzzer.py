@@ -15,13 +15,17 @@ class DummyFuzzer(PythonFuzzer):
         time.sleep(0.25)
         if random.randint(1, 10) == 1:
             print("CRASH!")
-            return {'fuzzer': 'cfuzz',
+            return {'crash': True,
+                    'fuzzer': 'cfuzz',
                     'filename': test_case_info['filename'],
                     'signal': '139',
                     'job_id': test_case_info['job_id']}
         else:
             print("Nothing...")
-            return None
+            return {'crash': False,
+                    'fuzzer': 'cfuzz',
+                    'filename': test_case_info['filename'],
+                    'job_id': test_case_info['job_id']}
 
 
 def main():
