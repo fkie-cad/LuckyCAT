@@ -9,7 +9,6 @@ import zipfile
 import hashlib
 from multiprocessing import Process
 from mongoengine import connect
-from luckycat.database import database
 from luckycat.database.models.Job import Job
 from luckycat import f3c_global_config
 from luckycat.backend import WorkQueue
@@ -114,12 +113,6 @@ class SampleGenerator(Process):
                 os.remove(temp_file)
             except:
                 pass
-
-        stats = {'fuzzer': 'cfuzz',
-                 'job_id': str(job.id),
-                 'runtime': 0,
-                 'total_execs': "+1"}
-        self.wq.publish("stats", json.dumps(stats))
 
     def run(self):
         logger.info("Starting SampleGenerator...")
