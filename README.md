@@ -1,5 +1,7 @@
 # Lucky CAT - Crash All the Things!
 
+[![BCH compliance](https://bettercodehub.com/edge/badge/fkie-cad/LuckyCAT?branch=master)](https://bettercodehub.com/)
+
 ## What is Lucky CAT?
 
 Lucky CAT (**C**rash **A**ll the **T**hings!) is a distributed fuzzing testing suite with an easy to use web interface. It allows to manage several fuzzing jobs on several remote machines concurrently. Lucky CAT aims to be easily usable, scaleable, extensible, and fun.
