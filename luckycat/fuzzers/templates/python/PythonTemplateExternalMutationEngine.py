@@ -38,7 +38,7 @@ class PythonFuzzer(multiprocessing.Process):
         pass
 
     def _on_test_case(self, channel, method_frame, header_frame, body):
-        test_case_info = json.loads(body)
+        test_case_info = json.loads(body.decode())
         res = self._fuzz_one_test_case(test_case_info)
         channel.basic_ack(delivery_tag=method_frame.delivery_tag)
         if res:
