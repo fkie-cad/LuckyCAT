@@ -6,13 +6,11 @@ from luckycat.backend import CrashVerificationSender
 from luckycat.backend import JobScheduler
 from luckycat.backend import SampleGenerator
 from luckycat.backend import StatsCollector
-from luckycat.backend import SampleCleaner
 
 
 def main():
 
     generator = SampleGenerator.SampleGenerator()
-    sample_cleaner = SampleCleaner.SampleCleaner()
     crash_verification_sender = CrashVerificationSender.CrashVerificationSender()
     crash_verification_collector = CrashVerificationCollector.CrashVerificationCollector()
     stats_collector = StatsCollector.StatsCollector()
@@ -20,7 +18,6 @@ def main():
     job_scheduler = JobScheduler.JobScheduler()
 
     generator.start()
-    sample_cleaner.start()
     crash_verification_collector.start()
     crash_verification_sender.start()
     stats_collector.start()
@@ -28,7 +25,6 @@ def main():
     job_scheduler.start()
 
     generator.join()
-    sample_cleaner.join()
     crash_verification_collector.join()
     crash_verification_sender.join()
     stats_collector.join()
