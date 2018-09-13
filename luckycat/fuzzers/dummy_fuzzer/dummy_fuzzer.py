@@ -19,13 +19,13 @@ class DummyFuzzer(PythonFuzzer):
                     'fuzzer': 'cfuzz',
                     'filename': test_case_info['filename'],
                     'signal': '139',
-                    'job_id': test_case_info['job_id']}
+                    'job_name': self.config['DEFAULT']['job_name']}
         else:
             print("Nothing...")
             return {'crash': False,
                     'fuzzer': 'cfuzz',
                     'filename': test_case_info['filename'],
-                    'job_id': test_case_info['job_id']}
+                    'job_name': self.config['DEFAULT']['job_name']}
 
 
 def main():

@@ -56,7 +56,7 @@ class PythonFuzzer(multiprocessing.Process):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
         channel = connection.channel()
         channel.basic_consume(self._on_test_case,
-                              self.config['DEFAULT']['sample_queue'])
+                              '%s-%s' % (self.config['DEFAULT']['job_name'], 'samples'))
         try:
             channel.start_consuming()
         except KeyboardInterrupt:

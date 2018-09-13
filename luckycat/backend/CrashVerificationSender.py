@@ -41,21 +41,16 @@ class CrashVerificationSender(Process):
                 for crash in crashes:
                     # TODO determine verifier from project table
                     current_project = self._get_job_from_crash(crash)
-                    if os.path.exists(crash['crash_path']):
-                        try:
-                            buf = open(crash['crash_path'], "rb").read()
-                            crash = {'data': base64.b64encode(buf).decode(),
-                                     'args': '',
-                                     'program': '',
-                                     'crash_id': str(crash.id),
-                                     'remote': current_project.fuzzer == "cfuzz"}
-                            self.wq.publish(self.ver_queue, json.dumps(crash))
-                        except Exception as e:
-                            logger.warn("Failed verification of %s with %s. Deleting crash!" % (crash['crash_path'], str(e)))
-                            crash.delete()
-
-                    else:
-                        logger.warn('crash %s does not exist. Deleting crash!' % crash.crash_path)
+                    try:
+                        buf = crash.crash_data
+                        crash = {'data': base64.b64encode(buf).decode(),
+                                 'args': '',
+                                 'program': '',
+                                 'crash_id': str(crash.id),
+                                 'remote': current_project.fuzzer == "cfuzz"}
+                        self.wq.publish(self.ver_queue, json.dumps(crash))
+                    except Exception as e:
+                        logger.warn("Failed verification of %s with %s. Deleting crash!" % (crash['crash_path'], str(e)))
                         crash.delete()
 
             time.sleep(f3c_global_config.crash_verification_sender_sleeptime)
