@@ -37,7 +37,7 @@ class CrashReceiver(Process):
             file_hash = hashlib.sha1(buf).hexdigest()
             new_path = os.path.join(crash_path, file_hash)
 
-            logger.info("Saving test file %s" % new_path)
+            logger.debug("Saving test file %s" % new_path)
             shutil.move(temp_file, new_path)
 
             logger.debug("Inserting crash: %s." % str(crash_data))
@@ -47,9 +47,9 @@ class CrashReceiver(Process):
                                 date=datetime.datetime.now(),
                                 verified=False)
             cfuzz_crash.save()
-            logger.warn('Crash stored')
+            logger.debug('Crash stored')
         else:
-            logger.warn('No crash clean up')
+            logger.debug('No crash clean up')
 
         try:
             os.remove(crash_data['filename'])
