@@ -120,15 +120,12 @@ class SampleGenerator(Process):
         while 1:
             jobs = self._get_active_jobs()
             for job in jobs:
-                samples_queue = "%s-%s" % (job.name, "samples")
-                maximum = job.maximum_samples
-                if not self.wq.queue_exists(samples_queue):
-                    self.wq.create_queue(samples_queue)
+                if job.mutation_engine != 'external':
+                    samples_queue = "%s-%s" % (job.name, "samples")
+                    maximum = job.maximum_samples
+                    if not self.wq.queue_exists(samples_queue):
+                        self.wq.create_queue(samples_queue)
 
-                # abort if fuzzer does not need an external mutation engine
-                # there is no need to generate samples for fuzzer
-                if job.mutation_engine != '':
-                    # FIXME stop pumping samples to sufficiently filled queue
                     if not self.wq.queue_is_full(samples_queue, maximum):
                         for i in range(self.wq.get_pending_elements(samples_queue, maximum)):
                             try:
