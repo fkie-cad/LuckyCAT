@@ -80,39 +80,29 @@ class SampleGenerator(Process):
         for e in f3c_global_config.mutation_engines:
             if e['name'] == engine_name:
                 return e['command']
-        return ""
+        return None
 
     def create_sample(self, job):
         command = self._get_mutation_engine_template_command(job.mutation_engine)
-        fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job.name)
+        if command is None:
+            raise Exception('No mutation engine command defined for engine %s' % job.mutation_engine)
 
+        fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job.name)
         if not os.path.exists(fuzz_job_basepath) or len(os.listdir(fuzz_job_basepath)) == 0:
             self._create_samples_dir(job)
 
         filename = self.read_random_file(fuzz_job_basepath)
         if filename is None:
-            # TODO: maybe throw an execption??
-            return
+            raise Exception('Could not get test case.')
 
-        logger.debug("Random template file %s" % filename)
         cmd, temp_file = self.build_mutation_engine_command(command, filename, fuzz_job_basepath)
-        logger.debug("Generating mutated file %s" % temp_file)
-        logger.debug("*** Command: %s" % cmd)
         os.system(cmd)
 
-        try:
-            buf = open(temp_file, "rb").read()
-            sample = {'payload': base64.b64encode(buf).decode('utf-8'),
-                      'filename': temp_file,
-                      'job_id': str(job.id)}
-            self.wq.publish("%s-samples" % job.name, json.dumps(sample))
-        except:
-            logger.error("Error putting job in queue: %s" % str(sys.exc_info()[1]))
-            logger.error("Removing temporary file %s" % temp_file)
-            try:
-                os.remove(temp_file)
-            except:
-                pass
+        buf = open(temp_file, "rb").read()
+        sample = {'payload': base64.b64encode(buf).decode('utf-8'),
+                  'filename': temp_file,
+                  'job_id': str(job.id)}
+        self.wq.publish("%s-samples" % job.name, json.dumps(sample))
 
     def run(self):
         logger.info("Starting SampleGenerator...")

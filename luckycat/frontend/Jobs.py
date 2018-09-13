@@ -1,10 +1,14 @@
 import datetime
+import json
+import os
+import base64
 import flask
 from flask_security import login_required
 
 from luckycat import f3c_global_config
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Crash import Crash
+from luckycat.frontend.InMemoryZip import InMemoryZip
 
 jobs = flask.Blueprint('jobs', __name__)
 
@@ -30,7 +34,7 @@ def add_job():
         data = flask.request.form
         files = flask.request.files
 
-        engine = data.get('engine')
+        engine = data.get('mutation_engine')
         if data.get('fuzzer') == "afl":
             engine = 'external'
 
@@ -146,57 +150,38 @@ def delete_job(job_id):
     #         fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
     #         return render.edit_project(res[0], engines, fuzzers)
 
-    # class download_project:
-#     def get_summary_for_crash(self, crash):
-#         res = {}
-#         res['program_counter'] = crash.program_counter
-#         res['crash_signal'] = crash.crash_signal
-#         res['exploitability'] = crash.exploitability
-#         res['disassembly'] = crash.disassembly
-#         res['date'] = crash.date.strftime("%Y-%m-%d %H:%M:%S")
-#         res['additional'] = crash.additional
-#         res['crash_hash'] = crash.crash_hash
-#         res['verfied'] = crash.verified
-#         res['filename'] = os.path.split(crash.crash_path)[-1]
-#         return res
 
-#     def GET(self):
-#         if not 'user' in session or session.user is None:
-#             f = register_form()
-#             return render.login(f)
+def _get_summary_for_crash(crash):
+    res = {}
+    res['crash_signal'] = crash.crash_signal
+    res['exploitability'] = crash.exploitability
+    res['date'] = crash.date.strftime("%Y-%m-%d %H:%M:%S")
+    res['additional'] = crash.additional
+    res['crash_hash'] = crash.crash_hash
+    res['verfied'] = crash.verified
+    res['filename'] = str(crash.id)
+    return res
 
-#         i = web.input()
-#         if not "id" in i:
-#             return render.error("No project identifier given")
 
-#         db = init_web_db()
-#         sql = """ select *
-#                 from crashes c
-#                where project_id = $id """
-#         res = db.query(sql, vars={"id": i.id})
+@jobs.route("/jobs/download/<job_id>")
+@login_required
+def jobs_download(job_id):
+    if job_id is None:
+        flask.abort(400, description="Invalid job ID")
 
-#         imz = InMemoryZip()
-#         i = 0
-#         summary = {}
-#         for row in res:
-#             i += 1
-#             sample = row.crash_path
-#             summary[os.path.split(sample)[1]] = self.get_summary_for_crash(row)
-#             try:
-#                 imz.append("%s" % os.path.split(sample)[1], open(sample, "rb").read())
-#             except:
-#                 imz.append("error_%s.txt" % os.path.split(sample)[1], "Error reading file: %s" % str(sys.exc_info()[1]))
-#         imz.append("summary.json", json.dumps(summary, indent=4))
+    # TODO validate job_id
+    job_crashes = Crash.objects(job_id=job_id)
 
-#         if i == 0:
-#             return render.error("There are no results for the specified project")
+    # TODO check if there are crashes
+    imz = InMemoryZip()
+    summary = {}
+    for c in job_crashes:
+        summary[str(c.id)] = _get_summary_for_crash(c)
+        imz.append("%s" % str(c.id), c.crash_data)
+    imz.append("summary.json", json.dumps(summary, indent=4))
 
-#         # This is horrible
-#         file_handle, filename = mkstemp()
-#         imz.writetofile(filename)
-#         buf = open(filename, "rb").read()
-#         os.remove(filename)
-#         filename = sha1(buf).hexdigest()
-#         web.header("Content-type", "application/octet-stream")
-#         web.header("Content-disposition", "attachment; filename=%s.zip" % filename)
-#         return buf
+    filename = os.path.join('/tmp', '%s.zip' % job_id)
+    if os.path.exists(filename):
+        os.remove(filename)
+    imz.writetofile(filename)
+    return flask.send_file(filename, as_attachment=True)
