@@ -30,6 +30,7 @@ mutation_engines = [{'name': 'radamsa',
                     {'name': 'external',
                      'description': 'fuzzer comes with its own external mutation engine',
                      'command': ''}]
+maximum_samples = 4
 
 # fuzzer configuration
 fuzzers = [{'name': 'afl', 'description': 'AFL is a mutator and fuzzer'},
