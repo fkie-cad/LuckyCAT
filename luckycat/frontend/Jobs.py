@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-import base64
 import flask
 from flask_security import login_required
 
@@ -85,70 +84,35 @@ def delete_job(job_id):
     else:
         return flask.render_template('jobs_delete.html', id=job_id)
 
-# TODO reimplement as /edit/job
-# class edit_project:
-    #     def POST(self):
-    #         if not 'user' in session or session.user is None:
-    #             f = register_form()
-    #             return render.login(f)
-    #         i = web.input(id=-1, name="", description="",
-    #                       enabled="", archived="",
-    #                       ignore_duplicates=0, mutation_engine="")
-    #         if i.id == -1:
-    #             return render.error("Invalid project identifier")
-    #         elif i.name == "":
-    #             return render.error("No project name specified")
-    #         elif i.description == "":
-    #             return render.error("No project description specified")
 
-    #         if i.enabled == "on":
-    #             enabled = 1
-    #         else:
-    #             enabled = 0
+@jobs.route('/jobs/edit/<job_id>', methods=['GET', 'POST'])
+@login_required
+def edit_job(job_id):
+    job = Job.objects.get(id=job_id)
+    if job:
+        if flask.request.method == 'POST':
+            data = flask.request.form
+            engine = data.get('mutation_engine')
+            if data.get('fuzzer') == "afl":
+                engine = 'external'
 
-    #         if i.archived == "on":
-    #             archived = 1
-    #         else:
-    #             archived = 0
+            Job.objects(id=job_id).update(**{
+                'name': data.get('name'),
+                'description': data.get('description'),
+                'fuzzer': data.get('fuzzer'),
+                'mutation_engine': engine,
+            })
 
-    #         if i.ignore_duplicates == "on":
-    #             ignore_duplicates = 1
-    #         else:
-    #             ignore_duplicates = 0
-
-    #         db = init_web_db()
-    #         with db.transaction():
-    #             enabled = i.enabled == "on"
-    #             archived = i.archived == "on"
-    #             db.update("projects", name=i.name, description=i.description,
-    #                       maximum_samples=i.max_files, enabled=enabled,
-    #                       maximum_iteration=i.max_iteration,
-    #                       archived=archived, where="project_id = $project_id",
-    #                       ignore_duplicates=ignore_duplicates, mutation_engine=i.mutation_engine,
-    #                       vars={"project_id": i.id})
-    #         return web.redirect("/projects")
-
-    #     def GET(self):
-    #         if not 'user' in session or session.user is None:
-    #             f = register_form()
-    #             return render.login(f)
-    #         i = web.input(id=-1)
-    #         if i.id == -1:
-    #             return render.error("Invalid project identifier")
-
-    #         db = init_web_db()
-    #         what = """project_id, name, description, subfolder, tube_prefix,
-    #               maximum_samples, enabled, date, archived,
-    #               maximum_iteration, ignore_duplicates, mutation_engine """
-    #         where = "project_id = $project_id"
-    #         vars = {"project_id": i.id}
-    #         res = db.select("projects", what=what, where=where, vars=vars)
-    #         res = list(res)
-    #         if len(res) == 0:
-    #             return render.error("Invalid project identifier")
-    #         engines = [x['name'] for x in f3c_global_config.mutation_engines]
-    #         fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
-    #         return render.edit_project(res[0], engines, fuzzers)
+            return flask.redirect("/jobs/show")
+        else:
+            engines = [x['name'] for x in f3c_global_config.mutation_engines]
+            fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
+            return flask.render_template('jobs_edit.html',
+                                         job=job,
+                                         engines=engines,
+                                         fuzzers=fuzzers)
+    else:
+        flask.abort(400, description="Invalid job ID")
 
 
 def _get_summary_for_crash(crash):
@@ -169,19 +133,17 @@ def jobs_download(job_id):
     if job_id is None:
         flask.abort(400, description="Invalid job ID")
 
-    # TODO validate job_id
     job_crashes = Crash.objects(job_id=job_id)
+    if job_crashes:
+        imz = InMemoryZip()
+        summary = {}
+        for c in job_crashes:
+            summary[str(c.id)] = _get_summary_for_crash(c)
+            imz.append("%s" % str(c.id), c.crash_data)
+        imz.append("summary.json", json.dumps(summary, indent=4))
 
-    # TODO check if there are crashes
-    imz = InMemoryZip()
-    summary = {}
-    for c in job_crashes:
-        summary[str(c.id)] = _get_summary_for_crash(c)
-        imz.append("%s" % str(c.id), c.crash_data)
-    imz.append("summary.json", json.dumps(summary, indent=4))
-
-    filename = os.path.join('/tmp', '%s.zip' % job_id)
-    if os.path.exists(filename):
-        os.remove(filename)
-    imz.writetofile(filename)
-    return flask.send_file(filename, as_attachment=True)
+        filename = os.path.join('/tmp', '%s.zip' % job_id)
+        if os.path.exists(filename):
+            os.remove(filename)
+        imz.writetofile(filename)
+        return flask.send_file(filename, as_attachment=True)
