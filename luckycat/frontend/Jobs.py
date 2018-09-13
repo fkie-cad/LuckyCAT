@@ -30,18 +30,16 @@ def add_job():
         data = flask.request.form
         files = flask.request.files
 
-        if not data.get('name'):
-            flask.abort(400, description="No fuzz job name specified")
-        elif not data.get('description'):
-            flask.abort(400, description="No fuzz job description specified")
+        engine = data.get('engine')
+        if data.get('fuzzer') == "afl":
+            engine = 'external'
 
-        if data.get('fuzzer') == "afl" and data.get('engine') is not None:
-            flask.abort(400,
-                        description="The fuzzer afl contains a mutation engine. No need to select a mutation engine")
+        if not ('fuzzing_target' in files):
+            flask.abort(400, description='Please provide a fuzzing target.')
 
-        if not ('samples' in files) or not ('fuzzing_target' in files):
+        if engine != 'external' and not ('samples' in files):
             flask.abort(400,
-                        description="Please provide a fuzzing target AND some initial test cases.")
+                        description='If mutation engine is not external then you must provide some initial test cases.')
 
         firmware_root = None
         if 'firmware_root' in files:
@@ -49,13 +47,13 @@ def add_job():
 
         new_job = Job(name=data.get('name'),
                       description=data.get('description'),
-                      maximum_samples=int(data.get('maximum_samples')),
+                      maximum_samples=f3c_global_config.maximum_samples,
                       archived=False,
                       enabled=True,
                       maximum_iteration=int(data.get('maximum_iteration')),
                       timeout=int(data.get('timeout')),
                       date=datetime.datetime.now().strftime('%Y-%m-%d'),
-                      mutation_engine=data.get('mutation_engine'),
+                      mutation_engine=engine,
                       fuzzer=data.get('fuzzer'),
                       samples=files['samples'].stream.read(),
                       fuzzing_target=files['fuzzing_target'].stream.read(),
@@ -77,7 +75,7 @@ def delete_job(job_id):
             crashes.delete()
         return flask.redirect('/jobs/show')
     else:
-        return flask.render_template("jobs_delete.html", id=job_id)
+        return flask.render_template('jobs_delete.html', id=job_id)
 
 # TODO reimplement as /edit/job
 # class edit_project:
