@@ -1,5 +1,6 @@
 import collections
 import flask
+import os
 from flask_security import login_required
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
@@ -29,6 +30,18 @@ def show_crashes():
     return flask.render_template("crashes_show.html",
                                  results=final_res.items())
 
+
+@crashes.route('/crashes/download/<crash_id>')
+@login_required
+def download_crash(crash_id):
+    crash = Crash.objects.get(id=crash_id)
+    if crash:
+        filename = os.path.join('/tmp', crash_id)
+        with open(filename, 'wb') as f:
+            f.write(crash.crash_data)
+        return flask.send_file(filename, as_attachment=True)
+    else:
+        flask.abort(400, description='Unknown crash ID: %s' % crash_id)
 
 # def map_signal_to_sting(self, signal):
 #     # TODO make a jinja filter!
