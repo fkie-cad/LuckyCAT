@@ -3,7 +3,7 @@
 ELF Fuzzer is a wrapper of [Melkor_ELF_Fuzzer](https://github.com/IOActive/Melkor_ELF_Fuzzer). We utilized it in order to fuzz the syscall sys_execve of BSD-based systems. Therefore, we added support for FreeBSD, OpenBSD, and NetBSD to Melkor_ELF_Fuzzer (currently an [open pull request](https://github.com/IOActive/Melkor_ELF_Fuzzer/pull/2)). We found with it the following bugs:
 
 - [OpenBSD 6.3 errata 012](https://ftp.openbsd.org/pub/OpenBSD/patches/6.3/common/012_execsize.patch.sig) / [OpenBSD 6.2 errata 018](https://ftp.openbsd.org/pub/OpenBSD/patches/6.2/common/018_execsize.patch.sig): OpenBSD x64 kernel
-- ???: ??? x64 kernel
+- [CVE-2018-6924](https://cve.mitre.org/cgi-bin/cvename.cgi?name=2018-6924) / [FreeBSD-SA-18:12.elf](https://www.freebsd.org/security/advisories/FreeBSD-SA-18:12.elf.asc): FreeBSD x64 kernel
 
 Note that there are many operating systems other than Linux and BSD-based ones that utilize the ELF format. We believe that there are still many lurking in the ELF header parser of the kernels that can be easily found with this fuzzer. There are many code paths to be explored: think of 32/64 bit ELFs or compatibility modes.
 
