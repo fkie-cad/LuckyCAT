@@ -41,6 +41,10 @@ def add_job():
             flask.abort(400,
                         description='If mutation engine is not external then you must provide some initial test cases.')
 
+        samples = None
+        if 'samples' in files:
+            samples = files['samples'].stream.read()
+
         firmware_root = None
         if 'firmware_root' in files:
             firmware_root = files['firmware_root'].stream.read()
@@ -55,7 +59,7 @@ def add_job():
                       date=datetime.datetime.now().strftime('%Y-%m-%d'),
                       mutation_engine=engine,
                       fuzzer=data.get('fuzzer'),
-                      samples=files['samples'].stream.read(),
+                      samples=samples,
                       fuzzing_target=files['fuzzing_target'].stream.read(),
                       firmware_root=firmware_root)
         new_job.save()
