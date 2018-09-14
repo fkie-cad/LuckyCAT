@@ -1,6 +1,6 @@
 from mongoengine import Document
 from mongoengine.fields import IntField, StringField, DateTimeField,\
-    BooleanField, ObjectIdField
+    BooleanField, ObjectIdField, BinaryField
 
 
 class Crash(Document):
@@ -10,5 +10,5 @@ class Crash(Document):
     date = DateTimeField()
     crash_hash = StringField()
     verified = BooleanField()
-    crash_path = StringField()
     additional = StringField()
+    crash_data = BinaryField()

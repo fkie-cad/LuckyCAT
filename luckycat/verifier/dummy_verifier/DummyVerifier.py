@@ -23,8 +23,7 @@ class DummyVerifier(PythonTemplateVerifier):
 
 def main():
     dummy = DummyVerifier()
-    dummy.start()
-    dummy.join()
+    dummy.run()
 
 
 if __name__ == '__main__':

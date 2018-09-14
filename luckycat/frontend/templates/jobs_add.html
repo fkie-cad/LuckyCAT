@@ -11,33 +11,28 @@
   <table>
    <tr>
     <td><label for="name">Name</label></td>
-    <td><input type="text" name="name" size="50"></td>
+    <td><input type="text" name="name" size="50" required></td>
     <td><i>Short name of the new project.</i></td>
    </tr>
    <tr>
     <td valign="top"><label for="description">Description</label></td>
-    <td><textarea rows="10" cols="50" name="description"></textarea></td>
+    <td><textarea rows="10" cols="50" name="description" required></textarea></td>
     <td valign="top"><i>Description of the project. Use this field to specify the version, operating systems, CPU, etc...</i></td>
    </tr>
    <tr>
-    <td><label for="maximum_samples">Maximum samples</label></td>
-    <td><input type="number" name="maximum_samples" value="4"></td>
-    <td><i>Maximum number of samples per tube. If the queue is full the daemon will wait until the number decreases before pushing more samples.</i></td> 
-   </tr>
-   <tr>
     <td><label for="maximum_iteration">Maximum iteration</label></td>
-    <td><input type="number" name="maximum_iteration" value="1000000"></td>
+    <td><input type="number" name="maximum_iteration" value="1000000" required></td>
     <td><i>Maximum number of iterations per fuzz job. Afterwards the fuzz job is disabled.</i></td>
    </tr>
    <tr>
     <td><label for="timeout">Timeout</label></td>
-    <td><input type="number" name="timeout" value="24"></td>
+    <td><input type="number" name="timeout" value="24" required></td>
     <td><i>Timeout fuzz job after X hours. Afterwards the fuzz job is disabled.</i></td>
    </tr>
    <tr>
      <td><label for="fuzzer">Fuzzer</label></td>
       <td>
-        <select multiple name="fuzzer" size="{{fuzzers|length}}">
+        <select required name="fuzzer" size="{{fuzzers|length}}">
           {% for fuzzer in fuzzers %}
             <option value="{{fuzzer}}">{{fuzzer}}</option>
           {% endfor %}
@@ -48,7 +43,7 @@
    <tr>
      <td><label for="project_engine">Mutation engine</label></td>
       <td>
-        <select multiple name="mutation_engine" size="{{engines|length}}">
+        <select required name="mutation_engine" size="{{engines|length}}">
 	   {% for engine in engines %}
        <option value="{{engine}}">{{engine}}</option>
        {% endfor %}
@@ -58,7 +53,7 @@
    </tr>
     <tr>
     <td><label for="fuzzing_target">Fuzzing Target</label></td>
-    <td><input type="file" name="fuzzing_target"></td>
+    <td><input type="file" name="fuzzing_target" required></td>
     <td><i>The executable to fuzz</i></td>
    </tr>
    <tr>

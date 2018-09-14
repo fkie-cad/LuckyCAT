@@ -32,7 +32,7 @@ class StatsCollector(Process):
                                       execs_per_sec=0,
                                       date=datetime.datetime.now())
             current_stats.save()
-        logger.warn('Received stats %s' % str(stats))
+        logger.debug('Received stats %s' % str(stats))
 
     def update_afl_stats(self, stats):
         try:
@@ -46,7 +46,7 @@ class StatsCollector(Process):
                                       iteration=stats['total_execs'],
                                       execs_per_sec=stats['cumulative_speed'])
             current_stats.save()
-        logger.warn('Received stats %s' % str(stats))
+        logger.debug('Received stats %s' % str(stats))
 
     def on_message(self, channel, method_frame, header_frame, body):
         stats = json.loads(body.decode("utf-8"))

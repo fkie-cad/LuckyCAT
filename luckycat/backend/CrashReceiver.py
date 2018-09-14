@@ -8,6 +8,7 @@ import shutil
 from multiprocessing import Process
 from mongoengine import connect
 from luckycat.database.models.Crash import Crash
+from luckycat.database.models.Job import Job
 from luckycat.backend import WorkQueue
 from luckycat import f3c_global_config
 
@@ -24,50 +25,51 @@ class CrashReceiver(Process):
         self.channel = self.wq.get_channel()
 
     def _insert_crash_cfuzz(self, crash_data):
-        crash_path = os.path.join(f3c_global_config.samples_path, "crashes")
-        temp_file = crash_data['filename']
-        if not os.path.exists(temp_file):
-            logger.error("Test case file %s does not exists!" % temp_file)
-            return False
+        # FIXME validate user provided data
+        job = Job.objects.get(name=crash_data['job_name'])
+        if crash_data['crash']:
+            with open(crash_data['filename'], 'rb') as f:
+                data = f.read()
+            logger.debug("Inserting crash: %s." % str(crash_data))
+            cfuzz_crash = Crash(job_id=job.id,
+                                crash_signal=crash_data['signal'],
+                                crash_data=data,
+                                date=datetime.datetime.now(),
+                                verified=False)
+            cfuzz_crash.save()
+            logger.debug('Crash stored')
+        else:
+            logger.debug('No crash clean up')
 
-        buf = open(temp_file, "rb").read()
-        file_hash = hashlib.sha1(buf).hexdigest()
-        new_path = os.path.join(crash_path, file_hash)
+        try:
+            os.remove(crash_data['filename'])
+        except OSError as e:
+            print ("Error: %s - %s." % (e.filename, e.strerror))
 
-        logger.info("Saving test file %s" % new_path)
-        shutil.move(temp_file, new_path)
-
-        logger.debug("Inserting crash: %s." % str(crash_data))
-        cfuzz_crash = Crash(job_id=crash_data['job_id'],
-                            crash_signal=crash_data['signal'],
-                            crash_path=new_path,
-                            date=datetime.datetime.now(),
-                            verified=False)
-        cfuzz_crash.save()
-        logger.debug("Crash stored")
+        stats = {'fuzzer': 'cfuzz',
+                 'job_id': str(job.id),
+                 'runtime': 0,
+                 'total_execs': "+1"}
+        self.wq.publish("stats", json.dumps(stats))
 
     def _insert_crash_afl(self, crash_data):
-        logger.info("Inserting AFL crash: %s" % crash_data['filename'])
-        crash_path = os.path.join(f3c_global_config.samples_path, "crashes")
-        new_path = os.path.join(crash_path, crash_data['filename'])
-        with open(new_path, 'wb') as fp:
-            fp.write(base64.b64decode(crash_data['crash_data']))
-
         logger.debug("Inserting AFL crash with signal %i." % crash_data['signal'])
+        job = Job.objects.get(name=crash_data['job_name'])
+        with open(crash_data['filename'], 'rb') as f:
+            data = f.read()
         if 'classification' in crash_data:
-            # TODO ensure that verified is a boolean
-            afl_crash = Crash(job_id=crash_data['job_id'],
+            afl_crash = Crash(job_id=job.id,
                               crash_signal=crash_data['signal'],
-                              crash_path=new_path,
+                              crash_data=data,
                               verified=crash_data['verified'],
                               date=datetime.datetime.now(),
                               crash_hash=crash_data['hash'],
                               exploitability=crash_data['classification'],
                               additional=crash_data['description'])
         else:
-            afl_crash = Crash(job_id=crash_data['job_id'],
+            afl_crash = Crash(job_id=crash_data['job_name'],
                               crash_signal=crash_data['signal'],
-                              crash_path=new_path,
+                              crash_data=data,
                               date=datetime.datetime.now(),
                               verified=crash_data['verified'])
 

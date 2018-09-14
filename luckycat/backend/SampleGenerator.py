@@ -9,7 +9,6 @@ import zipfile
 import hashlib
 from multiprocessing import Process
 from mongoengine import connect
-from luckycat.database import database
 from luckycat.database.models.Job import Job
 from luckycat import f3c_global_config
 from luckycat.backend import WorkQueue
@@ -81,45 +80,29 @@ class SampleGenerator(Process):
         for e in f3c_global_config.mutation_engines:
             if e['name'] == engine_name:
                 return e['command']
-        return ""
+        return None
 
     def create_sample(self, job):
         command = self._get_mutation_engine_template_command(job.mutation_engine)
-        fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job.name)
+        if command is None:
+            raise Exception('No mutation engine command defined for engine %s' % job.mutation_engine)
 
+        fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job.name)
         if not os.path.exists(fuzz_job_basepath) or len(os.listdir(fuzz_job_basepath)) == 0:
             self._create_samples_dir(job)
 
         filename = self.read_random_file(fuzz_job_basepath)
         if filename is None:
-            # TODO: maybe throw an execption??
-            return
+            raise Exception('Could not get test case.')
 
-        logger.debug("Random template file %s" % filename)
         cmd, temp_file = self.build_mutation_engine_command(command, filename, fuzz_job_basepath)
-        logger.debug("Generating mutated file %s" % temp_file)
-        logger.debug("*** Command: %s" % cmd)
         os.system(cmd)
 
-        try:
-            buf = open(temp_file, "rb").read()
-            sample = {'payload': base64.b64encode(buf).decode('utf-8'),
-                      'filename': temp_file,
-                      'job_id': str(job.id)}
-            self.wq.publish("%s-samples" % job.name, json.dumps(sample))
-        except:
-            logger.error("Error putting job in queue: %s" % str(sys.exc_info()[1]))
-            logger.error("Removing temporary file %s" % temp_file)
-            try:
-                os.remove(temp_file)
-            except:
-                pass
-
-        stats = {'fuzzer': 'cfuzz',
-                 'job_id': str(job.id),
-                 'runtime': 0,
-                 'total_execs': "+1"}
-        self.wq.publish("stats", json.dumps(stats))
+        buf = open(temp_file, "rb").read()
+        sample = {'payload': base64.b64encode(buf).decode('utf-8'),
+                  'filename': temp_file,
+                  'job_id': str(job.id)}
+        self.wq.publish("%s-samples" % job.name, json.dumps(sample))
 
     def run(self):
         logger.info("Starting SampleGenerator...")
@@ -127,15 +110,12 @@ class SampleGenerator(Process):
         while 1:
             jobs = self._get_active_jobs()
             for job in jobs:
-                samples_queue = "%s-%s" % (job.name, "samples")
-                maximum = job.maximum_samples
-                if not self.wq.queue_exists(samples_queue):
-                    self.wq.create_queue(samples_queue)
+                if job.mutation_engine != 'external':
+                    samples_queue = "%s-%s" % (job.name, "samples")
+                    maximum = job.maximum_samples
+                    if not self.wq.queue_exists(samples_queue):
+                        self.wq.create_queue(samples_queue)
 
-                # abort if fuzzer does not need an external mutation engine
-                # there is no need to generate samples for fuzzer
-                if job.mutation_engine != '':
-                    # FIXME stop pumping samples to sufficiently filled queue
                     if not self.wq.queue_is_full(samples_queue, maximum):
                         for i in range(self.wq.get_pending_elements(samples_queue, maximum)):
                             try:

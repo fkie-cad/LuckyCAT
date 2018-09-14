@@ -44,7 +44,6 @@ class PythonFuzzer(object):
         channel.basic_publish(exchange='luckycat',
                               routing_key='crashes',
                               body=json.dumps(crash_json))
-        # channel.basic_ack()
         conn.close()
 
     def _send_stats(self, stats_json):
@@ -53,8 +52,7 @@ class PythonFuzzer(object):
         channel.basic_publish(exchange='luckycat',
                               routing_key='stats',
                               body=json.dumps(stats_json))
-        # channel.basic_ack()
         conn.close()
- 
+
     def run(self):
         self._fuzz()
