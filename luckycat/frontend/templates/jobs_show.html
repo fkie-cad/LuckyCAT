@@ -11,11 +11,10 @@
     <th>Action</th>
     <th>Name</th>
     <th>Description</th>
-    <th>Max. samples</th>
     <th>Max. iterations</th>
     <th>Enabled</th>
     <th>Archived</th>
-    <th>Ignore duplicates?</th>
+    <th>Fuzzer</th>
     <th>Mutation engine</th>
     <th>Start date</th>
   </tr>
@@ -28,7 +27,6 @@
       </td>
       <td>{{ job.name }}</td>
       <td>{{ job.description }}</td>
-      <td>{{ job.maximum_samples}}</td>
       <td> {{ job.maximum_iteration }} </td>
       <td>
         {{ job.enabled }}
@@ -36,9 +34,7 @@
       <td>
         {{ job.archived }}
       </td>
-      <td>
-        {{ job.ignore_duplicates }}
-      </td>
+      <td>{{ job.fuzzer }}</td>
       <td>{{ job.mutation_engine }}</td>
       <td>{{ job.date }}</td>
     </tr>

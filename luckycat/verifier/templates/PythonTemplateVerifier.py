@@ -4,7 +4,7 @@ import multiprocessing
 import pika
 
 
-class PythonTemplateVerifier(multiprocessing.Process):
+class PythonTemplateVerifier(object):
     '''
     Use this base class to derive your
     Python-based verifier from. It allows

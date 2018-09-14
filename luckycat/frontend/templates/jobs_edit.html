@@ -1,99 +1,57 @@
-$def with(row, engines, fuzzers)
+{% extends "base.html" %}
 
-<div align="center">
-<h2>Edit project</h2>
-  <form action="/edit_project" method="POST">
-  <input type="hidden" name="id" value="$row.project_id"/>
+{% set active_page = "EditJob" %}
+
+{% block content %}
+<table>
+<h2>Edit Job</h2>
+  <form action="/jobs/edit/{{ job.id }}" method="POST">
+  <input type="hidden" name="id" value="{{ job.id }}"/>
   <table>
    <tr>
     <td><label for="name">Name</label></td>
-    <td><input type="text" name="name" size="50" value="$row.name"></td>
+    <td><input type="text" name="name" size="50" value="{{ job.name }}"></td>
     <td><i>Short name of the new project.</i></td>
    </tr>
    <tr>
     <td valign="top"><label for="description">Description</label></td>
-    <td><textarea rows="10" cols="50" name="description">$row.description</textarea></td>
+    <td><textarea rows="10" cols="50" name="description">{{ job.description }}</textarea></td>
     <td valign="top"><i>Description of the project. Use this field to specify the version, operating systems, CPU, etc...</i></td>
    </tr>
    <tr>
-    <td><label for="subfolder">Subfolder</label></td>
-    <td><input type="text" name="subfolder" value="$row.subfolder"></td>
-    <td><i>Subfolder to store template files, network packets, etc...</i></td>
-   </tr>
-   <tr>
-    <td><label for="tube_prefix">Tube prefix</label></td>
-    <td><input type="text" name="tube_prefix" value="$row.tube_prefix"></td>
-    <td><i>Prefix for the queue tubes to be used.</i></td>
-   </tr>
-   <tr>
-    <td><label for="max_files">Maximum samples</label></td>
-    <td><input type="number" name="max_files" value="$row.maximum_samples"></td>
-    <td><i>Maximum number of samples per tube. If the queue is full the daemon will wait until the number decrease before pushing more samples.</i></td> 
-   </tr>
-   <tr>
-    <td><label for="max_iteration">Maximum iterations</label></td>
-    <td><input type="number" name="max_iteration" value="$row.maximum_iteration"></td>
-    <td><i>Maximum number of iterations per project. No more samples will be generated when the number of maximum iterations (without crashes) is reached.</i></td>
-   </tr>
-   <tr>
-    <td><label for="enabled">Enabled?</label></td>
-    $if row.enabled == 1:
-      <td><input type="checkbox" name="enabled" checked></td>
-    $else:
-      <td><input type="checkbox" name="enabled"></td>
-    <td><i>Is the project enabled?</i></td> 
-   </tr>
-   <tr>
-    <td><label for="enabled">Archived?</label></td>
-    $if row.archived == 1:
-      <td><input type="checkbox" name="archived" checked></td>
-    $else:
-      <td><input type="checkbox" name="archived"></td>
-    <td><i>Is the project archived? Archived projects are not visible in "Project Engines".</i></td> 
-   </tr>
-   <tr>
-    <td><label for="enabled">Ignore duplicates?</label></td>
-    $if row.ignore_duplicates == 1:
-      <td><input type="checkbox" name="ignore_duplicates" checked></td>
-    $else:
-      <td><input type="checkbox" name="ignore_duplicates"></td>
-    <td><i>Ignore duplicated crashes? The generated "crash hash" is used to determine if is a duplicate or not.</i></td> 
-   </tr>
-    <tr>
      <td><label for="fuzzer">Fuzzer</label></td>
       <td>
-        $ size = len(fuzzers)
-        <select multiple name="fuzzer" size="$size">
-	  $for f in fuzzers:
-            <option value="$f">$f</option>
+        <select required name="fuzzer" size="{{fuzzers|length}}">
+          {% for fuzzer in fuzzers %}
+            <option value="{{fuzzer}}">{{fuzzer}}</option>
+          {% endfor %}
         </select>
       </td>
       <td><i>The fuzzer to use for fuzzing.</i></td>
    </tr>
-   <tr>
+    <tr>
      <td><label for="project_engine">Mutation engine</label></td>
       <td>
-        $ size = len(engines)
-        <select multiple name="mutation_engine" size="$size">
-	  $for engine in engines:
-            <option value="$engine">$engine</option>
+        <select required name="mutation_engine" size="{{engines|length}}">
+	   {% for engine in engines %}
+       <option value="{{engine}}">{{engine}}</option>
+       {% endfor %}
         </select>
       </td>
       <td><i>The mutation engine to use for sample generation.</i></td>
-     </tr>
+   </tr>
    <tr>
     <td>Start date</td>
-    <td>$row.date</td>
+    <td>{{ job.date }}</td>
     <td><i>Date when the project was created.</i></td>
    </tr>
    <tr>
      <td colspan="3">
-      <input type="submit" value="Update project">
-      <input type="button" value="Cancel" onclick="javascript:location.href='/projects'"/>
+      <input type="submit" value="Update Job">
+      <input type="button" value="Cancel" onclick="javascript:location.href='/jobs/show'"/>
      </td>
    </tr>
   </table>
   </form>
-</td></tr>
 </table>
-</div>
+{% endblock %}
