@@ -54,8 +54,38 @@
             </table>
         </div>
         <div class="col-sm-4">
+            <canvas id="different_crashes" width="400" height="400"></canvas>
         </div>
     </div>
+    <script>
+        var data = [];
+        var label = [];
+        {% for crash_signal, quantity in results['diffierent_crash_signals'].items() %}
+            data.push({{ quantity }});
+            label.push('{{ crash_signal }}');
+        {% endfor %}
+
+        data = {
+            datasets: [{
+                label: 'Different Signals received',
+                data: data,
+                backgroundColor: ["#1F82C0", "#D6F1F4", "#85D4DF", "#D6F14", "#6DBFA9", "#79B4D9"]
+            }],
+            labels: label
+        };
+
+        var ctx = document.getElementById("different_crashes");
+        var different_crashes = new Chart(ctx, {
+            type: 'pie',
+            data: data,
+            options: {
+                title: {
+                    display: true,
+                    text: 'Different Crash Signals'
+                }
+            },
+        });
+    </script>
 </div>
 
 {{ results["test"] }}
