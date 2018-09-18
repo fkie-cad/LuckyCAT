@@ -18,11 +18,41 @@ class StatisticCalculator:
         if selected_project:
             project_statistics.update(self.calculate_general_statistics_for_specific_project(selected_project))
             statistic["project_statistics"] = project_statistics
+            statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals_for_selected_project(selected_project)
         else:
             project_statistics = self.calculate_general_statistics(project_statistics)
             statistic["project_statistics"] = project_statistics
-        statistic["test"] = "test"
+            statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals()
+        statistic["test"] = "In progress..."
         return statistic
+
+    def calculate_different_crash_signals_for_selected_project(self, selected_project):
+        different_crashes = Crash.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_project}
+            },
+            {
+                "$group": {"_id": "$crash_signal", "quantity": {"$sum": 1}}
+            }
+        ])
+        different_crashes_with_quantity = {}
+        for different_crash in different_crashes:
+            different_crashes_with_quantity[different_crash["_id"]] = different_crash["quantity"]
+        return different_crashes_with_quantity
+
+    def calculate_different_crash_signals(self):
+        distinct_crash_signals = Crash.objects.distinct('crash_signal')
+        distinct_crash_signals_with_quantity = {}
+        for crash_signal in distinct_crash_signals:
+            distinct_crash_signals_with_quantity[crash_signal] = Crash.objects(crash_signal=crash_signal).count()
+        return distinct_crash_signals_with_quantity
 
     def summarize_individual_project_statistics(self):
         iteration = 0
