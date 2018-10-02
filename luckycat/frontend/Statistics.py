@@ -19,11 +19,11 @@ class StatisticCalculator:
         if selected_job:
             statistic = self.calculate_statistic_for_selected_job(selected_job)
         else:
-            statistic = self.calculate_statistic_in_general()
+            statistic = self.calculate_statistic_for_all_jobs()
         statistic["test"] = "In progress..."
         return statistic
 
-    def calculate_statistic_in_general(self):
+    def calculate_statistic_for_all_jobs(self):
         statistic = {}
         statistic["job_statistics"] = self.calculate_general_statistics()
         statistic["job_names"] = self.list_job_names()
@@ -338,8 +338,16 @@ class StatisticCalculator:
                 "execs_per_sec": execs_per_sec,
                 "number_of_job_names": Job.objects.count(),
                 "number_of_crashes": Crash.objects().count(),
-                "number_of_unique_crashes": len(Crash.objects.distinct('crash_hash')),
+                "number_of_unique_crashes": self.calculate_number_of_unique_crashes(),
                 "number_of_unique_exploitable_crashes": self.calculate_number_of_unique_and_exploitable_crashes()}
+
+    def calculate_number_of_unique_crashes(self):
+        unique_crashes = Crash.objects.aggregate(*[
+            {
+                "$group": {"_id": "$crash_hash"}
+            }
+        ])
+        return len(list(unique_crashes))
 
     def calculate_number_of_unique_and_exploitable_crashes(self):
         unique_exploitable_crashes = Crash.objects.aggregate(*[
@@ -470,4 +478,4 @@ class StatisticCalculator:
 def show_statistics():
     statistic = StatisticCalculator().calculate_statistics()
     return flask.render_template("stats_show.html",
-                                 results=statistic)
+                                 statistics=statistic)
