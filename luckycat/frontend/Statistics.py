@@ -1,11 +1,13 @@
+import collections
+import datetime
+from datetime import timedelta
+
 import flask
 from flask_security import login_required
-import collections
-from datetime import timedelta
-from luckycat.database.models.Statistic import Statistic
-from luckycat.database.models.Job import Job
 from luckycat.database.models.Crash import Crash
-import datetime
+from luckycat.database.models.Job import Job
+from luckycat.database.models.Statistic import Statistic
+
 statistics = flask.Blueprint('statistics', __name__)
 
 class StatisticCalculator:
@@ -13,65 +15,45 @@ class StatisticCalculator:
     date_now = datetime.datetime.now()
 
     def calculate_statistics(self):
-        statistic = {}
-        selected_project = self.get_selected_project()
-        job_names = self.list_job_names()
-        project_statistics = {"job_names": job_names}
-        if selected_project:
-            project_statistics.update(self.calculate_general_statistics_for_specific_project(selected_project))
-            statistic["project_statistics"] = project_statistics
-            statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals_for_selected_project(selected_project)
-            statistic["crashes_over_time"] = {}
-            statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["unique_crashes"] = self.calculate_crashes_over_time_for_selected_project(selected_project)
+        selected_job = self.get_selected_job()
+        if selected_job:
+            statistic = self.calculate_statistic_for_selected_job(selected_job)
         else:
-            project_statistics = self.calculate_general_statistics(project_statistics)
-            statistic["project_statistics"] = project_statistics
-            statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals()
-            statistic["crashes_over_time"] = {}
-            statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["unique_crashes"] = self.calculated_crashes_over_time()
-
+            statistic = self.calculate_statistic_in_general()
         statistic["test"] = "In progress..."
         return statistic
 
-    def calculated_crashes_over_time(self):
-        crashes = {}
-        all_crashes = Crash.objects().only("date").order_by("date")
-        all_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_crashes))
-        crashes["all_time"] = all_crashes_per_time_interval
-        last_24_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=1)).only("date").order_by("date")
-        last_24_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_24_hours_crashes))
-        crashes["last_24_hours"] = last_24_hours_crashes_per_time_interval
-        last_72_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=3)).only("date").order_by("date")
-        last_72_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_72_hours_crashes))
-        crashes["last_72_hours"] = last_72_hours_crashes_per_time_interval
+    def calculate_statistic_in_general(self):
+        statistic = {}
+        statistic["job_statistics"] = self.calculate_general_statistics()
+        statistic["job_names"] = self.list_job_names()
+        statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals()
+        statistic["crashes_over_time"] = {}
+        statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["unique_crashes"] = self.calculate_crashes_over_time()
+        return statistic
 
-        self.crash_counter = 1
+    def calculate_statistic_for_selected_job(self, selected_job):
+        statistic = {}
+        statistic["job_statistics"] = self.calculate_general_statistics_for_specific_job(selected_job)
+        statistic["job_names"] = self.list_job_names()
+        statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals_for_selected_job(selected_job)
+        statistic["crashes_over_time"] = {}
+        statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["unique_crashes"] = self.calculate_crashes_over_time_for_selected_job(selected_job)
+        return statistic
+
+    def calculate_crashes_over_time(self):
+        crashes = self.calculate_normal_crashes_over_time()
+        unique_crashes = self.calculate_unique_crashes_over_time()
+        return crashes, unique_crashes
+
+    def calculate_unique_crashes_over_time(self):
         unique_crashes = {}
-        all_unique_crashes = Crash.objects.aggregate(*[
-            {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
-            },
-            {
-                "$sort": {"date": 1}
-            }
-        ])
-        all_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_unique_crashes))
-        unique_crashes["all_time"] = all_unique_crashes_per_time_interval
+        unique_crashes["all_time"] = self.calculate_all_unique_crashes_per_time_interval()
+        unique_crashes["last_72_hours"] = self.calculate_last_72_hours_uniqe_crashes_per_time_interval()
+        unique_crashes["last_24_hours"] = self.calculate_last_24_hours_unique_crashes_per_time_interval()
+        return unique_crashes
 
-        last_24_hours_unique_crashes = Crash.objects.aggregate(*[
-            {
-                "$match": { "date": {"$gte": self.date_now - timedelta(days=1)}}
-            },
-            {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
-            },
-            {
-                "$sort": {"date": 1}
-            }
-        ])
-        last_24_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_24_hours_unique_crashes))
-        unique_crashes["last_24_hours"] = last_24_hours_unique_crashes_per_time_interval
-
+    def calculate_last_72_hours_uniqe_crashes_per_time_interval(self):
         last_72_hours_unique_crashes = Crash.objects.aggregate(*[
             {
                 "$match": {"date": {"$gte": self.date_now - timedelta(days=1)}}
@@ -83,91 +65,30 @@ class StatisticCalculator:
                 "$sort": {"date": 1}
             }
         ])
-        last_72_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_72_hours_unique_crashes))
-        unique_crashes["last_72_hours"] = last_72_hours_unique_crashes_per_time_interval
+        last_72_hours_unique_crashes = list(last_72_hours_unique_crashes)
+        self.crash_counter -= len(last_72_hours_unique_crashes)
+        last_72_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_72_hours_unique_crashes)
+        return last_72_hours_unique_crashes_per_time_interval
 
-        return crashes, unique_crashes
-
-    def calculate_crashes_over_time_for_selected_project(self, selected_project):
-        crashes = {}
-        all_crashes = Crash.objects.aggregate(*[
+    def calculate_last_24_hours_unique_crashes_per_time_interval(self):
+        last_24_hours_unique_crashes = Crash.objects.aggregate(*[
             {
-                '$lookup':
-                    {'from': Job._get_collection_name(),
-                     'localField': 'job_id',
-                     'foreignField': '_id',
-                     'as': 'relation'}
+                "$match": {"date": {"$gte": self.date_now - timedelta(days=1)}}
             },
             {
-                "$match": {"relation.name": selected_project}
+                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
             },
             {
                 "$sort": {"date": 1}
-            },
-            {
-                "$project": {"date": 1}
             }
         ])
-        all_crashes = list(all_crashes)
-        all_crashes_per_time_interval = self.calculate_crashes_per_time_interval(all_crashes)
-        crashes["all_time"] = all_crashes_per_time_interval
-        last_24_hours_crashes = Crash.objects.aggregate(*[
-            {
-                '$lookup':
-                    {'from': Job._get_collection_name(),
-                     'localField': 'job_id',
-                     'foreignField': '_id',
-                     'as': 'relation'}
-            },
-            {
-                "$match": {"relation.name": selected_project, "date": {"$gte": self.date_now - timedelta(days=1)}}
-            },
-            {
-                "$sort": {"date": 1}
-            },
-            {
-                "$project": {"date": 1}
-            }
-        ])
-        last_24_hours_crashes = list(last_24_hours_crashes)
-        last_24_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_24_hours_crashes)
-        crashes["last_24_hours"] = last_24_hours_crashes_per_time_interval
-        last_72_hours_crashes = Crash.objects.aggregate(*[
-            {
-                '$lookup':
-                    {'from': Job._get_collection_name(),
-                     'localField': 'job_id',
-                     'foreignField': '_id',
-                     'as': 'relation'}
-            },
-            {
-                "$match": {"relation.name": selected_project, "date": {"$gte": self.date_now - timedelta(days=3)}}
-            },
-            {
-                "$sort": {"date": 1}
-            },
-            {
-                "$project": {"date": 1}
-            }
-        ])
-        last_72_hours_crashes = list(last_72_hours_crashes)
-        last_72_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_72_hours_crashes)
-        crashes["last_72_hours"] = last_72_hours_crashes_per_time_interval
+        last_24_hours_unique_crashes = list(last_24_hours_unique_crashes)
+        self.crash_counter -= len(last_24_hours_unique_crashes)
+        last_24_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_24_hours_unique_crashes)
+        return last_24_hours_unique_crashes_per_time_interval
 
-        self.crash_counter = 1
-        unique_crashes = {}
-
+    def calculate_all_unique_crashes_per_time_interval(self):
         all_unique_crashes = Crash.objects.aggregate(*[
-            {
-                '$lookup':
-                    {'from': Job._get_collection_name(),
-                     'localField': 'job_id',
-                     'foreignField': '_id',
-                     'as': 'relation'}
-            },
-            {
-                "$match": {"relation.name": selected_project}
-            },
             {
                 "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
             },
@@ -176,29 +97,49 @@ class StatisticCalculator:
             }
         ])
         all_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_unique_crashes))
-        unique_crashes["all_time"] = all_unique_crashes_per_time_interval
+        return all_unique_crashes_per_time_interval
 
-        last_24_hours_unique_crashes = Crash.objects.aggregate(*[
-            {
-                '$lookup':
-                    {'from': Job._get_collection_name(),
-                     'localField': 'job_id',
-                     'foreignField': '_id',
-                     'as': 'relation'}
-            },
-            {
-                "$match": {"relation.name": selected_project, "date": {"$gte": self.date_now - timedelta(days=1)}}
-            },
-            {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
-            },
-            {
-                "$sort": {"date": 1}
-            }
-        ])
-        last_24_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_24_hours_unique_crashes))
-        unique_crashes["last_24_hours"] = last_24_hours_unique_crashes_per_time_interval
+    def calculate_normal_crashes_over_time(self):
+        crashes = {}
+        crashes["all_time"] = self.calculate_all_crashes_per_time_interval()
+        crashes["last_72_hours"] = self.calculate_last_72_hours_crashes_per_time_interval()
+        crashes["last_24_hours"] = self.calculate_last_24_hours_crashes_per_time_interval()
+        self.crash_counter = 1
+        return crashes
 
+    def calculate_last_72_hours_crashes_per_time_interval(self):
+        last_72_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=3)).only("date").order_by("date")
+        last_72_hours_crashes = list(last_72_hours_crashes)
+        self.crash_counter -= len(last_72_hours_crashes)
+        last_72_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_72_hours_crashes))
+        return last_72_hours_crashes_per_time_interval
+
+    def calculate_last_24_hours_crashes_per_time_interval(self):
+        last_24_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=1)).only("date").order_by("date")
+        last_24_hours_crashes = list(last_24_hours_crashes)
+        self.crash_counter -= len(last_24_hours_crashes)
+        last_24_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_24_hours_crashes))
+        return last_24_hours_crashes_per_time_interval
+
+    def calculate_all_crashes_per_time_interval(self):
+        all_crashes = Crash.objects().only("date").order_by("date")
+        all_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_crashes))
+        return all_crashes_per_time_interval
+
+    def calculate_crashes_over_time_for_selected_job(self, selected_job):
+        crashes = self.calculate_normal_crashes_over_time_for_selected_job(selected_job)
+        unique_crashes = self.calculate_unique_crashes_over_time_for_selected_job(selected_job)
+
+        return crashes, unique_crashes
+
+    def calculate_unique_crashes_over_time_for_selected_job(self, selected_job):
+        unique_crashes = {}
+        unique_crashes["all_time"] = self.calculate_all_unique_crashes_per_time_interval_for_selected_job(selected_job)
+        unique_crashes["last_72_hours"] = self.calculate_last_72_hours_uniqe_crashes_per_time_interval_for_selected_job(selected_job)
+        unique_crashes["last_24_hours"] = self.calculate_last_24_hours_unique_crashes_per_time_interval_for_selected_job(selected_job)
+        return unique_crashes
+
+    def calculate_last_72_hours_uniqe_crashes_per_time_interval_for_selected_job(self, selected_job):
         last_72_hours_unique_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -208,7 +149,7 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_project, "date": {"$gte": self.date_now - timedelta(days=3)}}
+                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=3)}}
             },
             {
                 "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
@@ -217,12 +158,136 @@ class StatisticCalculator:
                 "$sort": {"date": 1}
             }
         ])
-        last_72_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(last_72_hours_unique_crashes))
-        unique_crashes["last_72_hours"] = last_72_hours_unique_crashes_per_time_interval
+        last_72_hours_unique_crashes = list(last_72_hours_unique_crashes)
+        self.crash_counter -= len(last_72_hours_unique_crashes)
+        last_72_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_72_hours_unique_crashes)
+        return last_72_hours_unique_crashes_per_time_interval
 
-        return crashes, unique_crashes
+    def calculate_last_24_hours_unique_crashes_per_time_interval_for_selected_job(self, selected_job):
+        last_24_hours_unique_crashes = Crash.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=1)}}
+            },
+            {
+                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+            },
+            {
+                "$sort": {"date": 1}
+            }
+        ])
+        last_24_hours_unique_crashes = list(last_24_hours_unique_crashes)
+        self.crash_counter -= len(last_24_hours_unique_crashes)
+        last_24_hours_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_24_hours_unique_crashes)
+        return last_24_hours_unique_crashes_per_time_interval
 
-    def calculate_different_crash_signals_for_selected_project(self, selected_project):
+    def calculate_all_unique_crashes_per_time_interval_for_selected_job(self, selected_job):
+        all_unique_crashes = Crash.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_job}
+            },
+            {
+                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+            },
+            {
+                "$sort": {"date": 1}
+            }
+        ])
+        all_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_unique_crashes))
+        return all_unique_crashes_per_time_interval
+
+    def calculate_normal_crashes_over_time_for_selected_job(self, selected_job):
+        crashes = {}
+        crashes["all_time"] = self.calculate_all_crashes_per_time_interval_for_selected_job(selected_job)
+        crashes["last_72_hours"] = self.calculate_last_72_hours_crashes_per_time_interval_for_selected_job(selected_job)
+        crashes["last_24_hours"] = self.calculate_last_24_hours_crashes_per_time_interval_for_selected_job(selected_job)
+        self.crash_counter = 1
+        return crashes
+
+    def calculate_last_72_hours_crashes_per_time_interval_for_selected_job(self, selected_job):
+        last_72_hours_crashes = Crash.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=3)}}
+            },
+            {
+                "$sort": {"date": 1}
+            },
+            {
+                "$project": {"date": 1}
+            }
+        ])
+        last_72_hours_crashes = list(last_72_hours_crashes)
+        self.crash_counter -= len(last_72_hours_crashes)
+        last_72_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_72_hours_crashes)
+        return last_72_hours_crashes_per_time_interval
+
+    def calculate_last_24_hours_crashes_per_time_interval_for_selected_job(self, selected_job):
+        last_24_hours_crashes = Crash.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=1)}}
+            },
+            {
+                "$sort": {"date": 1}
+            },
+            {
+                "$project": {"date": 1}
+            }
+        ])
+        last_24_hours_crashes = list(last_24_hours_crashes)
+        self.crash_counter -= len(last_24_hours_crashes)
+        last_24_hours_crashes_per_time_interval = self.calculate_crashes_per_time_interval(last_24_hours_crashes)
+        return last_24_hours_crashes_per_time_interval
+
+    def calculate_all_crashes_per_time_interval_for_selected_job(self, selected_job):
+        all_crashes = Crash.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_job}
+            },
+            {
+                "$sort": {"date": 1}
+            },
+            {
+                "$project": {"date": 1}
+            }
+        ])
+        all_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_crashes))
+        return all_crashes_per_time_interval
+
+    def calculate_different_crash_signals_for_selected_job(self, selected_job):
         different_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -232,7 +297,7 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_project}
+                "$match": {"relation.name": selected_job}
             },
             {
                 "$group": {"_id": "$crash_signal", "quantity": {"$sum": 1}}
@@ -250,15 +315,15 @@ class StatisticCalculator:
             distinct_crash_signals_with_quantity[crash_signal] = Crash.objects(crash_signal=crash_signal).count()
         return distinct_crash_signals_with_quantity
 
-    def summarize_individual_project_statistics(self):
+    def summarize_individual_job_statistics(self):
         iteration = 0
         runtime = 0
         execs_per_sec = 0
-        for project_statistic in Statistic.objects:
-            iteration += project_statistic.iteration
-            runtime += project_statistic.runtime
-            execs_per_sec += project_statistic.execs_per_sec
-        return {"iteration": iteration, "runtime": runtime, "execs_per_sec": execs_per_sec}
+        for job_statistic in Statistic.objects:
+            iteration += job_statistic.iteration
+            runtime += job_statistic.runtime
+            execs_per_sec += job_statistic.execs_per_sec
+        return iteration, runtime, execs_per_sec
 
     def list_job_names(self):
         job_names = []
@@ -266,12 +331,17 @@ class StatisticCalculator:
             job_names.append(job.name)
         return job_names
 
-    def calculate_general_statistics(self, project_statistics):
-        project_statistics.update(self.summarize_individual_project_statistics())
-        number_of_job_names = Job.objects.count()
-        project_statistics["number_of_job_names"] = number_of_job_names
-        project_statistics["number_of_crashes"] = Crash.objects().count()
-        project_statistics["number_of_unique_crashes"] = len(Crash.objects.distinct('crash_hash'))
+    def calculate_general_statistics(self):
+        iteration, runtime, execs_per_sec = self.summarize_individual_job_statistics()
+        return {"iteration": iteration,
+                "runtime": runtime,
+                "execs_per_sec": execs_per_sec,
+                "number_of_job_names": Job.objects.count(),
+                "number_of_crashes": Crash.objects().count(),
+                "number_of_unique_crashes": len(Crash.objects.distinct('crash_hash')),
+                "number_of_unique_exploitable_crashes": self.calculate_number_of_unique_and_exploitable_crashes()}
+
+    def calculate_number_of_unique_and_exploitable_crashes(self):
         unique_exploitable_crashes = Crash.objects.aggregate(*[
             {
                 "$match": {"exploitability": "EXPLOITABLE"}
@@ -280,12 +350,20 @@ class StatisticCalculator:
                 "$group": {"_id": "$crash_hash"}
             }
         ])
-        project_statistics["number_of_unique_exploitable_crashes"] = len(list(unique_exploitable_crashes))
-        return project_statistics
+        return len(list(unique_exploitable_crashes))
 
-    def calculate_general_statistics_for_specific_project(self, selected_project):
-        # what to do if two projects have the same name. which one should be selected?
-        project_statistic = Statistic.objects.aggregate(*[
+    def calculate_general_statistics_for_specific_job(self, selected_job):
+        # what to do if two jobs have the same name. which one should be selected?
+        job_statistic = self.get_job_information_from_Statistic_table(selected_job)
+        return {"iteration": job_statistic["iteration"],
+                "runtime": job_statistic["runtime"],
+                "execs_per_sec": job_statistic["execs_per_sec"],
+                "number_of_crashes": self.calculate_number_of_crashes_for_selected_job(selected_job),
+                "number_of_unique_crashes": self.calculate_number_of_unique_crashes_for_selected_job(selected_job),
+                "number_of_unique_exploitable_crashes": self.calculate_number_of_unique_and_exploitable_crashes_for_selected_job(selected_job)}
+
+    def calculate_number_of_unique_and_exploitable_crashes_for_selected_job(self, selected_job):
+        unique_exploitable_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
                     {'from': Job._get_collection_name(),
@@ -294,24 +372,15 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_project}
-            },
-        ])
-        project_statistic = list(project_statistic)[0]
-        all_crashes = Crash.objects.aggregate(*[
-            {
-                '$lookup':
-                    {'from': Job._get_collection_name(),
-                     'localField': 'job_id',
-                     'foreignField': '_id',
-                     'as': 'relation'}
+                "$match": {"relation.name": selected_job, "exploitability": "EXPLOITABLE"}
             },
             {
-                "$match": {"relation.name": selected_project}
+                "$group": {"_id": "$crash_hash"}
             }
         ])
-        all_crashes = list(all_crashes)
-        number_of_all_crashes = len(all_crashes)
+        return len(list(unique_exploitable_crashes))
+
+    def calculate_number_of_unique_crashes_for_selected_job(self, selected_job):
         unique_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -321,14 +390,16 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_project}
+                "$match": {"relation.name": selected_job}
             },
             {
                 "$group": {"_id": "$crash_hash"}
             }
         ])
-        number_of_unique_crashes = len(list(unique_crashes))
-        unique_exploitable_crashes = Crash.objects.aggregate(*[
+        return len(list(unique_crashes))
+
+    def calculate_number_of_crashes_for_selected_job(self, selected_job):
+        all_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
                     {'from': Job._get_collection_name(),
@@ -337,21 +408,28 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_project, "exploitability": "EXPLOITABLE"}
-            },
-            {
-                "$group": {"_id": "$crash_hash"}
+                "$match": {"relation.name": selected_job}
             }
         ])
-        return {"iteration": project_statistic["iteration"],
-                "runtime": project_statistic["runtime"],
-                "execs_per_sec": project_statistic["execs_per_sec"],
-                "number_of_crashes": number_of_all_crashes,
-                "number_of_unique_crashes": number_of_unique_crashes,
-                "number_of_unique_exploitable_crashes": len(list(unique_exploitable_crashes))}
+        return len(list(all_crashes))
 
-    def get_selected_project(self):
-        return flask.request.args.get("project")
+    def get_job_information_from_Statistic_table(self, selected_job):
+        job_statistic = Statistic.objects.aggregate(*[
+            {
+                '$lookup':
+                    {'from': Job._get_collection_name(),
+                     'localField': 'job_id',
+                     'foreignField': '_id',
+                     'as': 'relation'}
+            },
+            {
+                "$match": {"relation.name": selected_job}
+            },
+        ])
+        return list(job_statistic)[0]
+
+    def get_selected_job(self):
+        return flask.request.args.get("job")
 
     def calculate_crashes_per_time_interval(self, crashes, time_intervall=10):
         if crashes:
