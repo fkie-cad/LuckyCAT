@@ -7,7 +7,6 @@ import signal
 import sys
 import subprocess
 import sqlite3
-import json
 from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
 import shutil
 import config
@@ -21,7 +20,11 @@ def clean_up():
         if b'afl-fuzz' in line:
             pid = int(line.split(None, 1)[0])
             os.kill(pid, signal.SIGKILL)
-
+    try:
+        subprocess.Popen('tmux kill-session -t luckycatAFL', shell=True, stdout=subprocess.PIPE)
+    except ChildProcessError:
+        pass
+    
 
 def check_if_afl_output_dir_is_empty():
     afl_outout_dir = full_path(config.output_dir)
@@ -46,7 +49,7 @@ def check_afl_runs():
     return False
 
 
-def signal_handler():
+def signal_handler(sig, frame):
     clean_up()
     sys.exit(0)
 
@@ -59,7 +62,6 @@ def full_path(dir_):
 
 
 def build_tmux_session():
-    # TODO redirect python/pika stdout to separate window...
     subprocess.Popen('tmux new -d -s luckycatAFL', shell=True, start_new_session=True, stdout=subprocess.DEVNULL)
     
 
@@ -71,44 +73,42 @@ class AflFuzzer(PythonFuzzer):
     @staticmethod
     def build_afl_command(fuzzer_id):
         if fuzzer_id == 0:
-            return 'afl-fuzz -i %s -o %s -M master -- %s' % (config.input_dir, config.output_dir,
-                                                             config.cmd)
+            return 'afl-fuzz -i {} -o {} -M master -- {}'.format(config.input_dir, config.output_dir, config.cmd)
         else:
-            return 'afl-fuzz -i %s -o %s -S slave%i -- %s' % (config.input_dir, config.output_dir,
-                                                              fuzzer_id, config.cmd)
+            return 'afl-fuzz -i {} -o {} -S slave{} -- {}'.format(config.input_dir, config.output_dir, fuzzer_id,
+                                                                  config.cmd)
         
     @staticmethod
     def build_new_tmux_window():
-        subprocess.call('tmux new-window -n console -t luckycatAFL', shell=True)
+        subprocess.call('tmux new-window -t luckycatAFL', shell=True)
 
     def start_fuzzers(self):
-        logging.debug('Starting afl-fuzz with %i fuzzers' % config.fuzzers)
+        logging.debug('Starting afl-fuzz with {} processes'.format(config.fuzzers))
         for fuzzer_id in range(config.fuzzers):
             self.build_new_tmux_window()
             afl_cmd = self.build_afl_command(fuzzer_id)
-            logging.debug('Starting: %s' % afl_cmd)
             fuzz_task = subprocess.Popen('tmux send-keys -t luckycatAFL "{}" C-m'.format(afl_cmd), shell=True, stdout=subprocess.PIPE)
             if fuzz_task.poll() is not None:
                 logging.debug('Failed to spawn at least one subprocess. Aborting!')
                 sys.exit(1)
+        logging.debug('Success!')
 
     @staticmethod
     def build_afl_collect_command():
         crashes_db = os.path.join(config.crashes_dir, 'crashes.db')
-        cmd = 'afl-collect -d %s -e gdb_script -r -rr %s %s -j %i -- %s' % (crashes_db, config.output_dir,
-                                                                            config.crashes_dir, config.collect_threads,
-                                                                            config.cmd)
+        cmd = 'afl-collect -d {} -e gdb_script -r -rr {} {} -j {} -- {}'.format(crashes_db, config.output_dir,
+                                                                                config.crashes_dir,
+                                                                                config.collect_threads, config.cmd)
         return cmd
 
     def whats_up(self):
         stats = {}
-        cmd = 'afl-whatsup %s' % config.output_dir
+        cmd = 'afl-whatsup {}'.format(config.output_dir)
         output = subprocess.check_output(cmd, shell=True)
         for line in output.splitlines():
             if b':' in line:
                 split_line = line.strip().split(b':')
                 self.parse_stats(split_line, stats)
-        logging.debug(stats)
         stats['fuzzer'] = 'afl'
         stats['job_name'] = config.job_name
         return stats
@@ -132,7 +132,7 @@ class AflFuzzer(PythonFuzzer):
         for crash in crashes:
             if '.db' not in crash and 'gdb' not in crash:
                 if crash not in self.CRASHES:
-                    logging.debug('Found new crash %s' % crash)
+                    logging.debug('Found new crash {}'.format(crash))
                     self.CRASHES.append(crash)
                     res.append(os.path.join(full_path(config.crashes_dir), crash))
         return res
@@ -142,7 +142,7 @@ class AflFuzzer(PythonFuzzer):
         return int(filename.split('sig:')[1].split(',')[0]) + 128
 
     def _fuzz(self):
-        logging.debug('Sleeping for %i seconds...' % config.sleep)
+        logging.debug('Sleeping for {} seconds...'.format(config.sleep))
         time.sleep(config.sleep)
         stats = self.whats_up()
         new_crashes = self.collect()
@@ -153,7 +153,6 @@ class AflFuzzer(PythonFuzzer):
                     crashes_db = full_path(os.path.join(config.crashes_dir, 'crashes.db'))
                     if os.path.exists(crashes_db):
                         self.connect_to_crash_db(crash_info, crashes_db, filename)
-                    print(crash_info)
                     self.send_crash_info(crash_info)
         self.send_stats_data(stats)
 
@@ -165,7 +164,6 @@ class AflFuzzer(PythonFuzzer):
 
     def send_crash_info(self, crash_info):
         try:
-            print(json.dumps(crash_info))
             self._send_crash(crash_info)
         except ConnectionError:
             raise
@@ -211,8 +209,9 @@ def main():
     logging.basicConfig(level=config.log_level)
     check_if_afl_output_dir_is_empty()
     afl_fuzzer = AflFuzzer()
-    print('Starting afl-fuzz with %i fuzzers' % config.fuzzers)
-    print('\x1b[6;30;42m' + 'Attach to tmux sessions via "{}"!'.format('tmux attach-session -t luckycatAFL') + '\x1b[0m')
+    logging.debug('\x1b[6;30;42m' +
+                  'Attach to tmux session via "{}"!'.format('tmux attach-session -t luckycatAFL') +
+                  '\x1b[0m')
     build_tmux_session()
     afl_fuzzer.start_fuzzers()
     while True:

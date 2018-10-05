@@ -49,7 +49,6 @@ class PythonFuzzer(object):
         conn.close()
 
     def _send_stats(self, stats_json):
-        logging.info(stats_json)
         channel, conn = self.create_queue_host_channel()
         channel.basic_publish(exchange='luckycat',
                               routing_key='stats',
@@ -57,4 +56,5 @@ class PythonFuzzer(object):
         conn.close()
 
     def run(self):
+        logging.getLogger("pika").setLevel(logging.WARNING)
         self._fuzz()
