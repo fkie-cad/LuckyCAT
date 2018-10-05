@@ -8,10 +8,10 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
             <div class="form-group">
-                <select class="form-control" onchange="window.location=update_url_variables(window.location.toString(), 'project', this.value)">
+                <select class="form-control" onchange="window.location=update_url_variables(window.location.toString(), 'job', this.value)">
                     <option selected value="1"></option>
-                {% for project_name in results["project_statistics"]["job_names"] %}
-                    <option>{{ project_name }}</option>
+                {% for job_name in statistics["job_names"] %}
+                    <option>{{ job_name }}</option>
                 {% endfor %}
                 </select>
             </div>
@@ -21,35 +21,35 @@
         <div class="col-sm-8">
             <h3><span class="glyphicon glyphicon-stats"></span> General</h3>
             <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
-                {% if results["project_statistics"]["number_of_job_names"] %}
+                {% if statistics["job_statistics"]["number_of_job_names"] %}
                     <tr>
-                      <td class="active" style="text-align: left; padding:5px">projects</td>
-                      <td class="active" style="text-align: right; padding:5px">{{ results["project_statistics"]["number_of_job_names"] }}</td>
+                      <td class="active" style="text-align: left; padding:5px">jobs</td>
+                      <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_job_names"] }}</td>
                     </tr>
                 {% endif -%}
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ results["project_statistics"]["number_of_crashes"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_crashes"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">unique crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">?</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_unique_crashes"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">unique exploitable crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">?</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_unique_exploitable_crashes"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">iterations</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ results["project_statistics"]["iteration"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["iteration"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">execs_per_sec</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ results["project_statistics"]["execs_per_sec"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["execs_per_sec"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">runtime</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ results["project_statistics"]["runtime"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["runtime"] }}</td>
                 </tr>
             </table>
         </div>
@@ -73,7 +73,7 @@
         function display_different_Crashes() {
             var data = [];
             var label = [];
-            {% for crash_signal, quantity in results["diffierent_crash_signals"].items() %}
+            {% for crash_signal, quantity in statistics["diffierent_crash_signals"].items() %}
                 data.push({{ quantity }});
                 label.push("{{ crash_signal }}");
             {% endfor %}
@@ -107,13 +107,13 @@
 
             var crash_time = [];
             var last_24_hours_crashes = [];
-            {% for crash_time, quantity in results["crashes_over_time"]["crashes"]["last_24_hours"].items() %}
+            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["last_24_hours"].items() %}
                 crash_time.push("{{ crash_time }}");
                 last_24_hours_crashes.push("{{ quantity }}");
             {% endfor %}
 
             last_72_hours_crashes = [
-            {% for crash_time, quantity in results["crashes_over_time"]["crashes"]["last_72_hours"].items() %}
+            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["last_72_hours"].items() %}
                 {
                 x: "{{ crash_time }}",
                 y: "{{ quantity }}"
@@ -122,7 +122,7 @@
             ];
 
             all_crashes = [
-            {% for crash_time, quantity in results["crashes_over_time"]["crashes"]["all_time"].items() %}
+            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["all_time"].items() %}
                 {
                 x: "{{ crash_time }}",
                 y: "{{ quantity }}"
@@ -133,7 +133,7 @@
 
 
             all_unique_crashes = [
-            {% for crash_time, quantity in results["crashes_over_time"]["unique_crashes"]["all_time"].items() %}
+            {% for crash_time, quantity in statistics["crashes_over_time"]["unique_crashes"]["all_time"].items() %}
                 {
                 x: "{{ crash_time }}",
                 y: "{{ quantity }}"
@@ -142,7 +142,7 @@
             ];
 
             last_72_hours_unique_crashes = [
-            {% for crash_time, quantity in results["crashes_over_time"]["unique_crashes"]["last_72_hours"].items() %}
+            {% for crash_time, quantity in statistics["crashes_over_time"]["unique_crashes"]["last_72_hours"].items() %}
                 {
                 x: "{{ crash_time }}",
                 y: "{{ quantity }}"
@@ -151,7 +151,7 @@
             ];
 
             last_24_hours_unique_crashes = [
-            {% for crash_time, quantity in results["crashes_over_time"]["unique_crashes"]["last_24_hours"].items() %}
+            {% for crash_time, quantity in statistics["crashes_over_time"]["unique_crashes"]["last_24_hours"].items() %}
                 {
                 x: "{{ crash_time }}",
                 y: "{{ quantity }}"
@@ -259,6 +259,6 @@
     </script>
 </div>
 
-{{ results["test"] }}
+{{ statistics["crashes_over_time"]["unique_crashes"]["test"] }}
 
 {% endblock %}
