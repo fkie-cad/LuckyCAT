@@ -4,7 +4,6 @@ import os
 from multiprocessing import Process
 from mongoengine import connect
 from luckycat import f3c_global_config
-from luckycat.database import database
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Statistic import Statistic
 
