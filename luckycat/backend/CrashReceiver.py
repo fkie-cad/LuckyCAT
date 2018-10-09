@@ -1,10 +1,7 @@
-import base64
 import datetime
-import hashlib
 import json
 import logging
 import os
-import shutil
 from multiprocessing import Process
 from mongoengine import connect
 from luckycat.database.models.Crash import Crash

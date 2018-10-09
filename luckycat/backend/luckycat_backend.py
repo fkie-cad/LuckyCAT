@@ -1,5 +1,3 @@
-import logging
-
 from luckycat.backend import CrashReceiver
 from luckycat.backend import CrashVerificationCollector
 from luckycat.backend import CrashVerificationSender
@@ -9,7 +7,6 @@ from luckycat.backend import StatsCollector
 
 
 def main():
-
     generator = SampleGenerator.SampleGenerator()
     crash_verification_sender = CrashVerificationSender.CrashVerificationSender()
     crash_verification_collector = CrashVerificationCollector.CrashVerificationCollector()

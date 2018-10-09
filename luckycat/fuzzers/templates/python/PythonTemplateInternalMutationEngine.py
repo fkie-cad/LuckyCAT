@@ -15,8 +15,7 @@ class PythonFuzzer(object):
     '''
 
     def __init__(self, config_path=os.path.join(os.path.dirname(
-            os.path.abspath('fuzzer.cfg')),
-            'luckycat/fuzzers/templates/python/fuzzer.cfg')):
+            os.path.abspath('fuzzer.cfg')), 'luckycat/fuzzers/templates/python/fuzzer.cfg')):
         super(PythonFuzzer, self).__init__()
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
@@ -34,7 +33,10 @@ class PythonFuzzer(object):
         pass
 
     def create_queue_host_channel(self):
-        # NOTE: self.config[...] is not parsed correctly when executing PYTHONPATH=. python3 luckycat/fuzzers/aflfuzz/afl-luckycat.py from the LuckyCAT root dir
+        '''
+        NOTE: self.config[...] is not parsed correctly when executing
+        PYTHONPATH=. python3 luckycat/fuzzers/aflfuzz/afl-luckycat.py from the LuckyCAT root dir
+        '''
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
         channel = connection.channel()
         return channel, connection
@@ -47,7 +49,6 @@ class PythonFuzzer(object):
         conn.close()
 
     def _send_stats(self, stats_json):
-        logging.info(stats_json)
         channel, conn = self.create_queue_host_channel()
         channel.basic_publish(exchange='luckycat',
                               routing_key='stats',
@@ -55,4 +56,5 @@ class PythonFuzzer(object):
         conn.close()
 
     def run(self):
+        logging.getLogger("pika").setLevel(logging.WARNING)
         self._fuzz()

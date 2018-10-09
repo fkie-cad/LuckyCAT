@@ -8,6 +8,7 @@ from mongoengine.queryset import DoesNotExist
 from luckycat import f3c_global_config
 from luckycat.backend import WorkQueue
 from luckycat.database.models.Statistic import Statistic
+from luckycat.database.models.Job import Job
 
 logger = logging.getLogger(os.path.basename(__file__).split(".")[0])
 
@@ -23,10 +24,12 @@ class StatsCollector(Process):
 
     def update_stats(self, stats):
         try:
-            current_stats = Statistic.objects.get(job_id=stats['job_id'])
+            job_doc = Job.objects.get(name=stats['job_name'])
+            job_id = job_doc.id
+            current_stats = Statistic.objects.get(job_id=str(job_id))
             current_stats.update(set__iteration=current_stats['iteration'] + 1)
         except DoesNotExist:
-            current_stats = Statistic(job_id=str(stats['job_id']),
+            current_stats = Statistic(job_id=str(job_id),
                                       runtime=0,
                                       iteration=1,
                                       execs_per_sec=0,
@@ -36,12 +39,14 @@ class StatsCollector(Process):
 
     def update_afl_stats(self, stats):
         try:
-            current_stats = Statistic.objects.get(job_id=stats['job_id'])
+            job_doc = Job.objects.get(name=stats['job_name'])
+            job_id = job_doc.id
+            current_stats = Statistic.objects.get(job_id=str(job_id))
             current_stats.update(runtime=stats['runtime'],
                                  iteration=stats['total_execs'],
                                  execs_per_sec=stats['cumulative_speed'])
         except DoesNotExist:
-            current_stats = Statistic(job_id=str(stats['job_id']),
+            current_stats = Statistic(job_id=str(job_id),
                                       runtime=stats['runtime'],
                                       iteration=stats['total_execs'],
                                       execs_per_sec=stats['cumulative_speed'])
@@ -57,7 +62,7 @@ class StatsCollector(Process):
         elif stats['fuzzer'] == 'elf_fuzzer':
             self.update_stats(stats)
         else:
-            logger.warn("Unknown fuzzer %s" % stats['fuzzer'])
+            logger.warning("Unknown fuzzer %s" % stats['fuzzer'])
 
     def run(self):
         logger.info("Starting StatsCollector...")

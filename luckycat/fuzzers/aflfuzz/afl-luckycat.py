@@ -7,8 +7,8 @@ import signal
 import sys
 import subprocess
 import sqlite3
-import json
 from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
+import shutil
 import config
 
 
@@ -20,6 +20,24 @@ def clean_up():
         if b'afl-fuzz' in line:
             pid = int(line.split(None, 1)[0])
             os.kill(pid, signal.SIGKILL)
+    try:
+        subprocess.Popen('tmux kill-session -t luckycatAFL', shell=True, stdout=subprocess.PIPE)
+    except ChildProcessError:
+        pass
+    
+
+def check_if_afl_output_dir_is_empty():
+    afl_outout_dir = full_path(config.output_dir)
+    if os.path.exists(afl_outout_dir) and os.path.isdir(afl_outout_dir):
+        print('Fuzzing output directory seems to be not empty.\nDelete contents? [y/N]')
+        user_input = input()
+        if str.lower(user_input) == 'y':
+            filelist = [f for f in os.listdir(afl_outout_dir)]
+            for f in filelist:
+                shutil.rmtree(os.path.join(afl_outout_dir, f))
+        else:
+            print('Aborting...')
+            sys.exit(1)
 
 
 def check_afl_runs():
@@ -31,59 +49,72 @@ def check_afl_runs():
     return False
 
 
-def signal_handler():
+def signal_handler(sig, frame):
     clean_up()
     sys.exit(0)
 
+
+def full_path(dir_):
+    # taken from http://code.activestate.com/recipes/577270-dealing-with-directory-paths-with/
+    if dir_[0] == '~' and not os.path.exists(dir_):
+        dir_ = os.path.expanduser(dir_)
+    return os.path.abspath(dir_)
+
+
+def build_tmux_session():
+    subprocess.Popen('tmux new -d -s luckycatAFL', shell=True, start_new_session=True, stdout=subprocess.DEVNULL)
+    
 
 class AflFuzzer(PythonFuzzer):
     def __init__(self):
         PythonFuzzer.__init__(self)
         self.CRASHES = []
 
-    def full_path(self, dir_):
-        # taken from http://code.activestate.com/recipes/577270-dealing-with-directory-paths-with/
-        if dir_[0] == '~' and not os.path.exists(dir_):
-            dir_ = os.path.expanduser(dir_)
-        return os.path.abspath(dir_)
+    @staticmethod
+    def build_afl_command(fuzzer_id):
+        if fuzzer_id == 0:
+            return 'afl-fuzz -i {} -o {} -M master -- {}'.format(config.input_dir, config.output_dir, config.cmd)
+        else:
+            return 'afl-fuzz -i {} -o {} -S slave{} -- {}'.format(config.input_dir, config.output_dir, fuzzer_id,
+                                                                  config.cmd)
+        
+    @staticmethod
+    def build_new_tmux_window():
+        subprocess.call('tmux new-window -t luckycatAFL', shell=True)
 
     def start_fuzzers(self):
-        # TODO check output !!!!
-        logging.info('Starting afl-fuzz with %i fuzzers' % config.fuzzers)
+        logging.debug('Starting afl-fuzz with {} processes'.format(config.fuzzers))
         for fuzzer_id in range(config.fuzzers):
+            self.build_new_tmux_window()
             afl_cmd = self.build_afl_command(fuzzer_id)
-            logging.debug('Starting: %s' % afl_cmd)
-            subprocess.Popen(afl_cmd, shell=True)
+            fuzz_task = subprocess.Popen('tmux send-keys -t luckycatAFL "{}" C-m'.format(afl_cmd), shell=True, stdout=subprocess.PIPE)
+            if fuzz_task.poll() is not None:
+                logging.debug('Failed to spawn at least one subprocess. Aborting!')
+                sys.exit(1)
+        logging.debug('Success!')
 
-    # TODO use screen
-    def build_afl_command(self, fuzzer_id):
-        if fuzzer_id == 0:
-            return 'afl-fuzz -i %s -o %s -M master -- %s > /dev/null' % (config.input_dir, config.output_dir,
-                                                                         config.cmd)
-        else:
-            return 'afl-fuzz -i %s -o %s -S slave%i -- %s > /dev/null ' % (config.input_dir, config.output_dir,
-                                                                           fuzzer_id, config.cmd)
-
-    def build_afl_collect_command(self):
+    @staticmethod
+    def build_afl_collect_command():
         crashes_db = os.path.join(config.crashes_dir, 'crashes.db')
-        cmd = 'afl-collect -d %s -e gdb_script -r -rr %s %s -j %i -- %s' % (crashes_db, config.output_dir,
-                                                                            config.crashes_dir, config.collect_threads,
-                                                                            config.cmd)
+        cmd = 'afl-collect -d {} -e gdb_script -r -rr {} {} -j {} -- {}'.format(crashes_db, config.output_dir,
+                                                                                config.crashes_dir,
+                                                                                config.collect_threads, config.cmd)
         return cmd
 
     def whats_up(self):
         stats = {}
-        cmd = 'afl-whatsup %s' % config.output_dir
+        cmd = 'afl-whatsup {}'.format(config.output_dir)
         output = subprocess.check_output(cmd, shell=True)
         for line in output.splitlines():
             if b':' in line:
                 split_line = line.strip().split(b':')
                 self.parse_stats(split_line, stats)
-        logging.debug(stats)
         stats['fuzzer'] = 'afl'
+        stats['job_name'] = config.job_name
         return stats
 
-    def parse_stats(self, split_line, stats):
+    @staticmethod
+    def parse_stats(split_line, stats):
         if b'Total run time' in split_line[0]:
             tmp = split_line[1].strip().split(b',')
             stats['runtime'] = str(int(tmp[0].strip().split(b' ')[0]) * 24 + int(tmp[1].strip().split(b' ')[0]))
@@ -97,22 +128,21 @@ class AflFuzzer(PythonFuzzer):
         afl_collect_cmd = self.build_afl_collect_command()
         logging.debug(afl_collect_cmd)
         subprocess.call(afl_collect_cmd, shell=True)
-        crashes = os.listdir(self.full_path(config.crashes_dir))
+        crashes = os.listdir(full_path(config.crashes_dir))
         for crash in crashes:
             if '.db' not in crash and 'gdb' not in crash:
                 if crash not in self.CRASHES:
-                    logging.debug('Found new crash %s' % crash)
+                    logging.debug('Found new crash {}'.format(crash))
                     self.CRASHES.append(crash)
-                    res.append(os.path.join(self.full_path(config.crashes_dir), crash))
+                    res.append(os.path.join(full_path(config.crashes_dir), crash))
         return res
 
-    def get_signal(self, filename):
+    @staticmethod
+    def get_signal(filename):
         return int(filename.split('sig:')[1].split(',')[0]) + 128
 
     def _fuzz(self):
-        print('Starting afl-fuzz with %i fuzzers' % config.fuzzers)
-        self.start_fuzzers()
-        logging.debug('Sleeping for %i seconds...' % config.sleep)
+        logging.debug('Sleeping for {} seconds...'.format(config.sleep))
         time.sleep(config.sleep)
         stats = self.whats_up()
         new_crashes = self.collect()
@@ -120,10 +150,9 @@ class AflFuzzer(PythonFuzzer):
             for crash in new_crashes:
                 with open(crash, 'rb') as fp:
                     crash_info, filename = self.populate_crash_info_data(crash, fp)
-                    crashes_db = self.full_path(os.path.join(config.crashes_dir, 'crashes.db'))
+                    crashes_db = full_path(os.path.join(config.crashes_dir, 'crashes.db'))
                     if os.path.exists(crashes_db):
-                        self.connect_to_crashDB(crash_info, crashes_db, filename)
-                    print(crash_info)
+                        self.connect_to_crash_db(crash_info, crashes_db, filename)
                     self.send_crash_info(crash_info)
         self.send_stats_data(stats)
 
@@ -135,7 +164,6 @@ class AflFuzzer(PythonFuzzer):
 
     def send_crash_info(self, crash_info):
         try:
-            print(json.dumps(crash_info))
             self._send_crash(crash_info)
         except ConnectionError:
             raise
@@ -152,7 +180,7 @@ class AflFuzzer(PythonFuzzer):
                       'filename': filename}
         return crash_info, filename
 
-    def connect_to_crashDB(self, crash_info, crashes_db, filename):
+    def connect_to_crash_db(self, crash_info, crashes_db, filename):
         conn = sqlite3.connect(crashes_db)
         c = conn.cursor()
         cmd = 'SELECT * FROM Data'
@@ -162,7 +190,8 @@ class AflFuzzer(PythonFuzzer):
                 self.add_additional_info_to_crash(crash_info, verified_crash)
         conn.close()
 
-    def add_additional_info_to_crash(self, crash_info, verified_crash):
+    @staticmethod
+    def add_additional_info_to_crash(crash_info, verified_crash):
         logging.debug('Adding additional info to crash')
         crash_info['classification'] = verified_crash[1]
         crash_info['description'] = verified_crash[2]
@@ -178,8 +207,15 @@ def main():
         clean_up()
     signal.signal(signal.SIGINT, signal_handler)
     logging.basicConfig(level=config.log_level)
+    check_if_afl_output_dir_is_empty()
     afl_fuzzer = AflFuzzer()
-    afl_fuzzer.run()
+    logging.debug('\x1b[6;30;42m' +
+                  'Attach to tmux session via "{}"!'.format('tmux attach-session -t luckycatAFL') +
+                  '\x1b[0m')
+    build_tmux_session()
+    afl_fuzzer.start_fuzzers()
+    while True:
+        afl_fuzzer.run()
 
 
 if __name__ == '__main__':
