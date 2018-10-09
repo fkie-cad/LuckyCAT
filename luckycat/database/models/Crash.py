@@ -12,3 +12,4 @@ class Crash(Document):
     verified = BooleanField()
     additional = StringField()
     crash_data = BinaryField()
+    iteration = IntField()

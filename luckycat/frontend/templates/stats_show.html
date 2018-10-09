@@ -21,35 +21,35 @@
         <div class="col-sm-8">
             <h3><span class="glyphicon glyphicon-stats"></span> General</h3>
             <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
-                {% if statistics["job_statistics"]["number_of_job_names"] %}
+                {% if statistics["general"]["number_of_job_names"] %}
                     <tr>
                       <td class="active" style="text-align: left; padding:5px">jobs</td>
-                      <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_job_names"] }}</td>
+                      <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_job_names"] }}</td>
                     </tr>
                 {% endif -%}
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_crashes"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_crashes"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">unique crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_unique_crashes"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_unique_crashes"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">unique exploitable crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["number_of_unique_exploitable_crashes"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_unique_exploitable_crashes"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">iterations</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["iteration"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["iteration"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">execs_per_sec</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["execs_per_sec"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["execs_per_sec"] }}</td>
                 </tr>
                 <tr>
                     <td class="active" style="text-align: left; padding:5px">runtime</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["job_statistics"]["runtime"] }}</td>
+                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["runtime"] }}</td>
                 </tr>
             </table>
         </div>

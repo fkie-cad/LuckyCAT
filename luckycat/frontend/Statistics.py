@@ -25,7 +25,7 @@ class StatisticCalculator:
 
     def calculate_statistic_for_all_jobs(self):
         statistic = {}
-        statistic["job_statistics"] = self.calculate_general_statistics()
+        statistic["general"] = self.calculate_general_statistics()
         statistic["job_names"] = self.list_job_names()
         statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals()
         statistic["crashes_over_time"] = {}
@@ -34,7 +34,7 @@ class StatisticCalculator:
 
     def calculate_statistic_for_selected_job(self, selected_job):
         statistic = {}
-        statistic["job_statistics"] = self.calculate_general_statistics_for_specific_job(selected_job)
+        statistic["general"] = self.calculate_general_statistics_for_specific_job(selected_job)
         statistic["job_names"] = self.list_job_names()
         statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals_for_selected_job(selected_job)
         statistic["crashes_over_time"] = {}

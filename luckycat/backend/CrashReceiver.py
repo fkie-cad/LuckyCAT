@@ -6,6 +6,7 @@ from multiprocessing import Process
 from mongoengine import connect
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
+from luckycat.database.models.Statistic import Statistic
 from luckycat.backend import WorkQueue
 from luckycat import f3c_global_config
 
@@ -24,6 +25,7 @@ class CrashReceiver(Process):
     def _insert_crash_cfuzz(self, crash_data):
         # FIXME validate user provided data
         job = Job.objects.get(name=crash_data['job_name'])
+        iteration = Statistic.objects.get(job_id=job.id).iteration
         if crash_data['crash']:
             with open(crash_data['filename'], 'rb') as f:
                 data = f.read()
@@ -32,7 +34,8 @@ class CrashReceiver(Process):
                                 crash_signal=crash_data['signal'],
                                 crash_data=data,
                                 date=datetime.datetime.now(),
-                                verified=False)
+                                verified=False,
+                                iteration=iteration)
             cfuzz_crash.save()
             logger.debug('Crash stored')
         else:
@@ -45,6 +48,7 @@ class CrashReceiver(Process):
 
         stats = {'fuzzer': 'cfuzz',
                  'job_id': str(job.id),
+                 'job_name': job.name,
                  'runtime': 0,
                  'total_execs': '+1'}
         self.wq.publish('stats', json.dumps(stats))
@@ -52,6 +56,7 @@ class CrashReceiver(Process):
     def _insert_crash_afl(self, crash_data):
         logger.debug('Inserting AFL crash with signal %i.' % crash_data['signal'])
         job = Job.objects.get(name=crash_data['job_name'])
+        iteration = Statistic.objects.get(job_id=job.id).iteration
         if 'classification' in crash_data:
             afl_crash = Crash(job_id=job.id,
                               crash_signal=crash_data['signal'],
@@ -60,13 +65,16 @@ class CrashReceiver(Process):
                               date=datetime.datetime.now(),
                               crash_hash=crash_data['hash'],
                               exploitability=crash_data['classification'],
-                              additional=crash_data['description'])
+                              additional=crash_data['description'],
+                              iteration=iteration)
         else:
             afl_crash = Crash(job_id=crash_data['job_name'],
                               crash_signal=crash_data['signal'],
                               crash_data=crash_data['crash_data'].encode(),
                               date=datetime.datetime.now(),
-                              verified=crash_data['verified'])
+                              verified=crash_data['verified'],
+                              iteration=iteration)
+
         afl_crash.save()
         logger.debug('Crash stored')
 
