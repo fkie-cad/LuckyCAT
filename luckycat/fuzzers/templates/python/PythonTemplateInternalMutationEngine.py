@@ -56,5 +56,5 @@ class PythonFuzzer(object):
         conn.close()
 
     def run(self):
-        logging.getLogger("pika").setLevel(logging.WARNING)
+        logging.getLogger('pika').setLevel(logging.WARNING)
         self._fuzz()
