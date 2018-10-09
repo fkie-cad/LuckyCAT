@@ -48,6 +48,7 @@ class CrashReceiver(Process):
 
         stats = {'fuzzer': 'cfuzz',
                  'job_id': str(job.id),
+                 'job_name': job.name,
                  'runtime': 0,
                  'total_execs': "+1"}
         self.wq.publish("stats", json.dumps(stats))
