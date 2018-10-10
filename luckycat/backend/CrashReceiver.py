@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import os
@@ -34,7 +33,6 @@ class CrashReceiver(Process):
             cfuzz_crash = Crash(job_id=job.id,
                                 crash_signal=crash_data['signal'],
                                 crash_data=data,
-                                date=datetime.datetime.now(),
                                 verified=False,
                                 iteration=iteration)
             cfuzz_crash.save()
@@ -72,7 +70,6 @@ class CrashReceiver(Process):
                               crash_signal=crash_data['signal'],
                               crash_data=data,
                               verified=crash_data['verified'],
-                              date=datetime.datetime.now(),
                               crash_hash=crash_data['hash'],
                               exploitability=crash_data['classification'],
                               additional=crash_data['description'],
@@ -81,7 +78,6 @@ class CrashReceiver(Process):
             afl_crash = Crash(job_id=crash_data['job_name'],
                               crash_signal=crash_data['signal'],
                               crash_data=data,
-                              date=datetime.datetime.now(),
                               verified=crash_data['verified'],
                               iteration=iteration)
 
