@@ -4,6 +4,7 @@ import logging
 import os
 from multiprocessing import Process
 from mongoengine import connect
+from mongoengine.queryset import DoesNotExist
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Statistic import Statistic
@@ -25,7 +26,7 @@ class CrashReceiver(Process):
     def _insert_crash_cfuzz(self, crash_data):
         # FIXME validate user provided data
         job = Job.objects.get(name=crash_data['job_name'])
-        iteration = Statistic.objects.get(job_id=job.id).iteration
+        iteration = self.get_iteration_of_crash(job)
         if crash_data['crash']:
             with open(crash_data['filename'], 'rb') as f:
                 data = f.read()
@@ -53,10 +54,17 @@ class CrashReceiver(Process):
                  'total_execs': "+1"}
         self.wq.publish("stats", json.dumps(stats))
 
+    def get_iteration_of_crash(self, job):
+        try:
+            iteration = Statistic.objects.get(job_id=job.id).iteration
+        except DoesNotExist:
+            iteration = 1
+        return iteration
+
     def _insert_crash_afl(self, crash_data):
         logger.debug("Inserting AFL crash with signal %i." % crash_data['signal'])
         job = Job.objects.get(name=crash_data['job_name'])
-        iteration = Statistic.objects.get(job_id=job.id).iteration
+        iteration = self.get_iteration_of_crash(job)
         with open(crash_data['filename'], 'rb') as f:
             data = f.read()
         if 'classification' in crash_data:
