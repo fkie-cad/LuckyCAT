@@ -106,20 +106,6 @@
             var timeFormat = "YYYY-MM-DD HH:mm:ss";
 
             var crash_time = [];
-            var last_24_hours_crashes = [];
-            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["last_24_hours"].items() %}
-                crash_time.push("{{ crash_time }}");
-                last_24_hours_crashes.push("{{ quantity }}");
-            {% endfor %}
-
-            last_72_hours_crashes = [
-            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["last_72_hours"].items() %}
-                {
-                x: "{{ crash_time }}",
-                y: "{{ quantity }}"
-                },
-            {% endfor %}
-            ];
 
             all_crashes = [
             {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["all_time"].items() %}
@@ -130,7 +116,50 @@
             {% endfor %}
             ];
 
+            last_72_hours_crashes = [
+            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["last_72_hours"].items() %}
+                {
+                x: "{{ crash_time }}",
+                y: "{{ quantity }}"
+                },
+            {% endfor %}
+            ];
 
+            last_24_hours_crashes = [
+            {% for crash_time, quantity in statistics["crashes_over_time"]["crashes"]["last_24_hours"].items() %}
+                {
+                x: "{{ crash_time }}",
+                y: "{{ quantity }}"
+                },
+            {% endfor %}
+            ];
+
+            all_iterations = [
+            {% for crash_time, iteration in statistics["crashes_over_time"]["iterations"]["all_time"].items() %}
+                {
+                x: "{{ crash_time }}",
+                y: "{{ iteration }}"
+                },
+            {% endfor %}
+            ];
+
+            last_72_hours_iterations = [
+            {% for crash_time, iteration in statistics["crashes_over_time"]["iterations"]["last_72_hours"].items() %}
+                {
+                x: "{{ crash_time }}",
+                y: "{{ iteration }}"
+                },
+            {% endfor %}
+            ];
+
+            last_24_hours_iterations = [
+            {% for crash_time, iteration in statistics["crashes_over_time"]["iterations"]["last_24_hours"].items() %}
+                {
+                x: "{{ crash_time }}",
+                y: "{{ iteration }}"
+                },
+            {% endfor %}
+            ];
 
             all_unique_crashes = [
             {% for crash_time, quantity in statistics["crashes_over_time"]["unique_crashes"]["all_time"].items() %}
@@ -168,10 +197,16 @@
                     fill: false,
                     data: all_crashes,
                 }, {
-                    label: "Unique Crashes",
+                    label: "Unique",
                     backgroundColor: "#79B4D9",
                     fill: false,
                     data: all_unique_crashes,
+                },
+                {
+                    label: "Iteration",
+                    backgroundColor: "#85D4DF",
+                    fill: false,
+                    data: all_iterations,
                 }]
             };
 
@@ -212,15 +247,20 @@
 
             document.getElementById("show_last_24_hours_crashes").addEventListener("click", function() {
                 config.data.datasets = [{
-                        label: "Last 24 hours",
-                        backgroundColor: "#66BFAC",
-                        fill: false,
-                        data: last_24_hours_crashes,
+                    label: "Last 24 hours",
+                    backgroundColor: "#66BFAC",
+                    fill: false,
+                    data: last_24_hours_crashes,
                 }, {
-                    label: "Unique Crashes",
+                    label: "Unique",
                     backgroundColor: "#79B4D9",
                     fill: false,
                     data: last_24_hours_unique_crashes,
+                }, {
+                    label: "Iteration",
+                    backgroundColor: "#85D4DF",
+                    fill: false,
+                    data: last_24_hours_iterations,
                 }];
                 window.myLine.update();
             });
@@ -231,10 +271,15 @@
                     fill: false,
                     data: last_72_hours_crashes,
                 }, {
-                    label: "Unique Crashes",
+                    label: "Unique",
                     backgroundColor: "#79B4D9",
                     fill: false,
                     data: last_72_hours_unique_crashes,
+                }, {
+                    label: "Iteration",
+                    backgroundColor: "#85D4DF",
+                    fill: false,
+                    data: last_72_hours_iterations,
                 }];
                 window.myLine.update();
             });
@@ -245,10 +290,15 @@
                     fill: false,
                     data: all_crashes,
                 }, {
-                    label: "Unique Crashes",
+                    label: "Unique",
                     backgroundColor: "#79B4D9",
                     fill: false,
                     data: all_unique_crashes,
+                }, {
+                    label: "Iteration",
+                    backgroundColor: "#85D4DF",
+                    fill: false,
+                    data: all_iterations,
                 }];
                 window.myLine.update();
             });
