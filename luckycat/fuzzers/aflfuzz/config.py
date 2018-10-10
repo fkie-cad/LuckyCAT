@@ -7,7 +7,7 @@ port = 11300
 job_name = 'test'
 crash_queue = 'crashes'
 stats_queue = 'stats'
-sleep = 30
+sleep = 60
 log_level = logging.DEBUG
 
 # afl configs

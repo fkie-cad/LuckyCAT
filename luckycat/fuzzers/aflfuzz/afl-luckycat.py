@@ -87,7 +87,8 @@ class AflFuzzer(PythonFuzzer):
         for fuzzer_id in range(config.fuzzers):
             self.build_new_tmux_window()
             afl_cmd = self.build_afl_command(fuzzer_id)
-            fuzz_task = subprocess.Popen('tmux send-keys -t luckycatAFL "{}" C-m'.format(afl_cmd), shell=True, stdout=subprocess.PIPE)
+            fuzz_task = subprocess.Popen('tmux send-keys -t luckycatAFL "{}" C-m'.format(afl_cmd), shell=True,
+                                         stdout=subprocess.PIPE)
             if fuzz_task.poll() is not None:
                 logging.debug('Failed to spawn at least one subprocess. Aborting!')
                 sys.exit(1)
@@ -95,6 +96,7 @@ class AflFuzzer(PythonFuzzer):
 
     @staticmethod
     def build_afl_collect_command():
+        # afl-collect/exploitable discards "Non Exploitable"-crashes right away, are not collected!!
         crashes_db = os.path.join(config.crashes_dir, 'crashes.db')
         cmd = 'afl-collect -d {} -e gdb_script -r -rr {} {} -j {} -- {}'.format(crashes_db, config.output_dir,
                                                                                 config.crashes_dir,
@@ -158,20 +160,22 @@ class AflFuzzer(PythonFuzzer):
 
     def send_stats_data(self, stats):
         try:
+            logging.info('Sending stats info...')
             self._send_stats(stats)
         except ConnectionError:
             raise
 
     def send_crash_info(self, crash_info):
         try:
+            logging.info('Sending crash info...')
             self._send_crash(crash_info)
         except ConnectionError:
             raise
 
     def populate_crash_info_data(self, crash, fp):
-        crash_data = base64.b64encode(fp.read())
+        crash_data = base64.b64encode(fp.read()).decode()
         filename = os.path.split(crash)[-1]
-        crash_info = {'job': config.job_name,
+        crash_info = {'job_name': config.job_name,
                       'fuzzer': 'afl',
                       'timestamp': strftime('%Y-%m-%d_%H:%M:%S', gmtime()),
                       'crash_data': crash_data,
@@ -202,7 +206,7 @@ def main():
     if check_afl_runs():
         print('Seems that AFL session is already running.')
         print('I am going to kill them all, OK?')
-        print('Press any key or abort with ctrl+c...')
+        print('Press any key or abort with CTRL+c...')
         input()
         clean_up()
     signal.signal(signal.SIGINT, signal_handler)
