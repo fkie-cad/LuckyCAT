@@ -161,10 +161,10 @@ def list_jobs(args, token):
                 print("-" * 80)
 
 
-def login(args):
-    url = urljoin(args.url, '/login')
+def get_user_authentication_token(url, user, password):
+    url = urljoin(url, '/login')
     r = requests.post(url,
-                      data=json.dumps({'email': args.user, 'password': args.password}),
+                      data=json.dumps({'email': user, 'password': password}),
                       headers={'content-type': 'application/json'})
     j = r.json()
     if 'response' in j and 'user' in j['response'] and 'authentication_token' in j['response']['user']:
@@ -221,7 +221,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    token = login(args)
+    token = get_user_authentication_token(args.url, args.user, args.password)
 
     if args.create:
         create_job(args, token)
