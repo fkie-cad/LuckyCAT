@@ -7,7 +7,6 @@ import base64
 import requests
 from urllib.parse import urljoin
 
-logging.config.fileConfig("../logging.conf")
 logging = logging.getLogger(os.path.basename(__file__).split(".")[0])
 
 
@@ -83,7 +82,8 @@ def create_job(args, token):
     response = requests.put(url,
                             json=json_doc,
                             headers={'Authentication-Token': token,
-                                     'content-type': 'application/json'})
+                                     'content-type': 'application/json'},
+                            verify=args.verify)
     if response.status_code != 200 or not response.json()['success']:
         logging.error("Could not create fuzzing job: %s" % response.text)
     else:
@@ -94,7 +94,8 @@ def create_job(args, token):
 def find_job_id_by_name(args, token):
     url = urljoin(args.url, "/api/jobs")
     response = requests.get(url, headers={'Authentication-Token': token,
-                                          'content-type': 'application/json'})
+                                          'content-type': 'application/json'},
+                            verify=args.verify)
     if response.status_code != 200:
         logging.error("Could not list jobs.")
     else:
@@ -128,7 +129,8 @@ def delete_job(args, token):
         if job_id:
             url = "http://localhost:5000/api/job/%s" % job_id
             response = requests.delete(url, headers={'Authentication-Token': token,
-                                                     'content-type': 'application/json'})
+                                                     'content-type': 'application/json'},
+                                       verify=args.verify)
             if response.status_code != 200:
                 logging.error("Could not delete job %s." % args.name)
             else:
@@ -141,7 +143,8 @@ def list_jobs(args, token):
     if args.name:
         url = urljoin(args.url, "/api/job/%s" % args.name)
         response = requests.get(url, headers={'Authentication-Token': token,
-                                              'content-type': 'application/json'})
+                                              'content-type': 'application/json'},
+                                verify=args.verify)
         if response.status_code != 200:
             logging.error("Could not list fuzz job %s: %d." % (args.name, response.status_code))
         else:
@@ -152,7 +155,8 @@ def list_jobs(args, token):
     else:
         url = urljoin(args.url, "/api/jobs")
         response = requests.get(url, headers={'Authentication-Token': token,
-                                              'content-type': 'application/json'})
+                                              'content-type': 'application/json'},
+                                verify=args.verify)
         if response.status_code != 200:
             logging.error("Could not list jobs: %s" % response.text)
         else:
@@ -161,11 +165,11 @@ def list_jobs(args, token):
                 print("-" * 80)
 
 
-def get_user_authentication_token(url, user, password):
-    url = urljoin(url, '/login')
+def get_user_authentication_token(args):
+    url = urljoin(args.url, '/login')
     r = requests.post(url,
-                      data=json.dumps({'email': user, 'password': password}),
-                      headers={'content-type': 'application/json'})
+                      data=json.dumps({'email': args.user, 'password': args.password}),
+                      headers={'content-type': 'application/json'}, verify=args.verify)
     j = r.json()
     if 'response' in j and 'user' in j['response'] and 'authentication_token' in j['response']['user']:
         return j['response']['user']['authentication_token']
@@ -212,7 +216,8 @@ def parse_args():
 
     parser.add_argument('--user', required=True, type=str, help='Username')
     parser.add_argument('--password', required=True, type=str, help='Password')
-    parser.add_argument('--url', type=str, default="http://localhost:5000", help='URL')
+    parser.add_argument('--url', type=str, default="https://localhost:5000", help='URL')
+    parser.add_argument('--ssl-verify', type=bool, default=False)
 
     args = parser.parse_args()
     return args
@@ -221,7 +226,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    token = get_user_authentication_token(args.url, args.user, args.password)
+    token = get_user_authentication_token(args)
 
     if args.create:
         create_job(args, token)
