@@ -8,4 +8,5 @@ class User(db.Document, UserMixin):
     password = db.StringField(max_length=255)
     active = db.BooleanField(default=True)
     confirmed_at = db.DateTimeField()
+    api_key = db.StringField(max_length=255)
     roles = db.ListField(db.ReferenceField(Role), default=[])
