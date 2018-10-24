@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% set active_page = "Login" %}
+
+{% block content %}
+<tr><td>
+<h2>Users</h2>
+<table border="0">
+  <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
+      <tr>
+        <th>Action</th>
+        <th>Email</th>
+        <th>Roles</th>
+	    <th>Registration Date</th>
+	    <th>Active</th>
+      </tr>
+      {% for user in users %}
+        <tr>
+          <td align="center">
+            <a href="/user/delete/{{ user.id }}"><span class="glyphicon glyphicon-trash"></span></a>
+            {% if user.active %}
+            <a href="/user/activation/{{ user.id }}"><span class="glyphicon glyphicon-pause"></span></a>
+            {% else %}
+            <a href="/user/activation/{{ user.id }}"><span class="glyphicon glyphicon-play"></span></a>
+            {% endif %}
+          </td>
+          <td>{{user.email}}</td>
+	      <td>
+            {% if user.roles|length > 0 %}
+            {{user.roles[0].name}}
+            {% endif %}
+          </td>
+          <td>{{user.registration_date}}</td>
+          <td>{{user.active}}</td>
+        </tr>
+        {% endfor %}
+
+
+  </table>  
+</td></tr>
+</table>
+
+{% endblock %}

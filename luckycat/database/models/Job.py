@@ -1,6 +1,7 @@
 from mongoengine import Document
 from mongoengine.fields import IntField, StringField, DateTimeField,\
-    BooleanField, BinaryField
+    BooleanField, BinaryField, ReferenceField
+from luckycat.database.models.User import User
 
 
 class Job(Document):
@@ -17,3 +18,4 @@ class Job(Document):
     samples = BinaryField()
     firmware_root = BinaryField()
     fuzzing_target = BinaryField()
+    owner = ReferenceField(User)
