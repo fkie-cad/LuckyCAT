@@ -4,6 +4,7 @@ from datetime import timedelta
 
 import flask
 from flask_security import login_required
+
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Statistic import Statistic
