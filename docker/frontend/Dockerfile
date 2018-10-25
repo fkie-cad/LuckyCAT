@@ -18,6 +18,7 @@ COPY docker/frontend/start_frontend.sh /opt/luckycat/
 
 # pull further dependencies
 RUN wget https://github.com/chartjs/Chart.js/releases/download/v2.7.2/Chart.bundle.js -P /opt/luckycat/luckycat/frontend/static/
+RUN wget https://raw.githubusercontent.com/mephux/hexdump.js/master/src/hexdump.js -P /opt/luckycat/luckycat/frontend/static/
 
 EXPOSE 5000
 CMD ["/bin/bash", "/opt/luckycat/start_frontend.sh"]
