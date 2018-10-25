@@ -1,22 +1,40 @@
 import datetime
+import logging
 import json
 import os
 import flask
-from flask_security import login_required
+from flask_security import login_required, current_user
 
 from luckycat import f3c_global_config
 from luckycat.database.models.Job import Job
+from luckycat.database.models.User import User
 from luckycat.database.models.Crash import Crash
 from luckycat.frontend.InMemoryZip import InMemoryZip
 
 jobs = flask.Blueprint('jobs', __name__)
 
 
+def mutation_engine_requires_samples(engine):
+    return engine != 'external' and engine != 'urandom'
+
+
+def can_do_stuff_with_job(current_user, owner):
+    return current_user.has_role('admin') or current_user.email == owner.email
+
+
 @jobs.route("/jobs/show")
 @login_required
 def jobs_show():
-    res = Job.objects
-    return flask.render_template("jobs_show.html", jobs=res)
+    filtered_jobs = []
+    if current_user.has_role('admin'):
+        filtered_jobs = Job.objects
+    else:
+        for job in Job.objects:
+            if job.owner:
+                if job.owner.email == current_user.email:
+                    filtered_jobs.append(job)
+
+    return flask.render_template("jobs_show.html", jobs=filtered_jobs)
 
 
 @jobs.route("/jobs/add", methods=['GET', 'POST'])
@@ -38,11 +56,12 @@ def add_job():
             engine = 'external'
 
         if not ('fuzzing_target' in files):
-            flask.abort(400, description='Please provide a fuzzing target.')
+            flask.flash('Please provide a fuzzing target.')
+            return flask.redirect('/jobs/add')
 
-        if engine != 'external' and not ('samples' in files):
-            flask.abort(400,
-                        description='If mutation engine is not external then you must provide some initial test cases.')
+        if mutation_engine_requires_samples(engine) and not ('samples' in files):
+            flask.flash('If mutation engine is not external then you must provide some initial test cases.')
+            return flask.redirect('/jobs/add')
 
         samples = None
         if 'samples' in files:
@@ -64,7 +83,8 @@ def add_job():
                       fuzzer=data.get('fuzzer'),
                       samples=samples,
                       fuzzing_target=files['fuzzing_target'].stream.read(),
-                      firmware_root=firmware_root)
+                      firmware_root=firmware_root,
+                      owner=User.objects.get(email=current_user.email))
         new_job.save()
         return flask.redirect("/jobs/show")
 
@@ -77,9 +97,14 @@ def delete_job(job_id):
     if flask.request.method == 'POST':
         job = Job.objects.get(id=job_id)
         if job:
-            job.delete()
-            crashes = Crash.objects(job_id=job_id)
-            crashes.delete()
+            if not can_do_stuff_with_job(current_user, job.owner):
+                logging.error('User %s can not delete job with id %s' %
+                              (current_user.email, str(job.id)))
+                flask.flash('You are not allow to delete this job.')
+            else:
+                job.delete()
+                crashes = Crash.objects(job_id=job_id)
+                crashes.delete()
         return flask.redirect('/jobs/show')
     else:
         return flask.render_template('jobs_delete.html', id=job_id)
@@ -90,6 +115,9 @@ def delete_job(job_id):
 def edit_job(job_id):
     job = Job.objects.get(id=job_id)
     if job:
+        if not can_do_stuff_with_job(current_user, job.owner):
+            flask.flash('You are not allowed to edit this job')
+            return flask.redirect("/jobs/show")
         if flask.request.method == 'POST':
             data = flask.request.form
             engine = data.get('mutation_engine')
@@ -131,7 +159,13 @@ def _get_summary_for_crash(crash):
 @login_required
 def jobs_download(job_id):
     if job_id is None:
-        flask.abort(400, description="Invalid job ID")
+        flask.flash("Invalid job ID")
+        return flask.redirect('/jobs/show')
+
+    job = Job.objects.get(id=job_id)
+    if not can_do_stuff_with_job(current_user, job.owner):
+        flask.flash('User is not allowed to download job.')
+        return flask.redirect('/jobs/show')
 
     job_crashes = Crash.objects(job_id=job_id)
     if job_crashes:

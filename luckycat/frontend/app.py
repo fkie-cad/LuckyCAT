@@ -44,7 +44,13 @@ def has_role():
 
 
 @app.before_first_request
-def create_default_user():
+def create_default_user_and_roles():
+    if not has_role():
+        user_datastore.create_role(name='admin',
+                                   description='Administrative user of LuckyCat')
+        user_datastore.create_role(name='analyst',
+                                   description='General LuckyCat user without admin privileges')
+
     if not has_user():
         admin_role = Role.objects.get(name='admin')
         user_datastore.create_user(email=f3c_global_config.default_user_email,

@@ -3,7 +3,7 @@ import string
 import datetime
 import logging
 from flask import Blueprint, render_template, request, abort, redirect
-from flask_security import login_required, current_user, utils, MongoEngineUserDatastore
+from flask_security import login_required, current_user, utils, MongoEngineUserDatastore, roles_required
 
 from luckycat.database.database import db
 from luckycat.database.models.User import User
@@ -62,16 +62,14 @@ def show_user_profile():
 
 
 @users.route('/user/manage')
-@login_required
+@roles_required('admin')
 def manage_user():
-    # TODO check if current user is admin
     return render_template("user_manage.html", users=User.objects)
 
 
 @users.route('/user/add', methods=['GET', 'POST'])
-@login_required
+@roles_required('admin')
 def add_user():
-    # TODO check if current user is admin
     if request.method == 'GET':
         return render_template("user_add.html", roles=Role.objects)
     else:
@@ -104,9 +102,8 @@ def add_user():
 
 
 @users.route('/user/delete/<user_id>')
-@login_required
+@roles_required('admin')
 def delete_user(user_id):
-    # TODO check if current user is admin
     if user_id is None:
         abort(400, description='Invalid user_id')
     else:
@@ -120,9 +117,8 @@ def delete_user(user_id):
 
 
 @users.route('/user/activation/<user_id>')
-@login_required
+@roles_required('admin')
 def toggle_user_activation(user_id):
-    # TODO check if current user is admin
     if user_id is None:
         abort(400, description='Invalid user_id')
     else:

@@ -3,6 +3,7 @@ import json
 import datetime
 import flask
 from flask_security import auth_token_required
+
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Crash import Crash
 
