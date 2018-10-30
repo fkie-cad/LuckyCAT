@@ -4,6 +4,8 @@ COLORS = {'EXPLOITABLE': 'red',
 
 
 def exploitable_color(s):
+    if s is None:
+        return "black"
     s = s.upper()
     if s in COLORS:
         return COLORS[s]
