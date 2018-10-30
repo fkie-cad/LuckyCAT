@@ -8,6 +8,7 @@ from luckycat.frontend.Jobs import jobs
 from luckycat.frontend.Users import users
 from luckycat.frontend.StatisticsApi import statistics_api
 from luckycat.frontend.Statistics import statistics
+from luckycat.frontend.jinja2_custom import exploitable_color, map_signal_to_string
 
 from luckycat import f3c_global_config
 from luckycat.database.database import db
@@ -35,6 +36,9 @@ app.register_blueprint(crashes)
 app.register_blueprint(users)
 app.register_blueprint(statistics_api)
 app.register_blueprint(statistics)
+
+app.jinja_env.globals.update(exploitable_color=exploitable_color)
+app.jinja_env.globals.update(map_signal_to_string=map_signal_to_string)
 
 
 def has_user():

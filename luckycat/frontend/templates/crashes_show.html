@@ -82,10 +82,10 @@
           </td>
           
           <td>
-          {{crash.exploitability}}
+             <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font> 
           </td>
 	  <td>{{crash.additional}}</td>
-         <td>{{crash.crash_signal}}</td>
+         <td>{{map_signal_to_string(crash.crash_signal)}}</td>
           <td>{{crash.crash_hash}}</td>
           <td>{{crash.date}}</td>
         </tr>
