@@ -2,8 +2,8 @@ import json
 from datetime import timedelta
 
 import flask
-from flask_security import auth_token_required
 from dateutil.parser import parse as parse_date
+from flask_security import auth_token_required
 
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
