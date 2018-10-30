@@ -161,3 +161,6 @@ dkms.conf
 
 # gdb
 .gdb_history
+
+# luckycat specific
+luckycat/reporter/config.py

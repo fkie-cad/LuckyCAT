@@ -1,0 +1,7 @@
+#StatsFetcher
+base_url = 'https://localhost:5000'
+email = 'test@example.de'
+password='test'
+
+#EmailSender
+recipients = ['user1@gmail.de', 'user2@gmx.de']
