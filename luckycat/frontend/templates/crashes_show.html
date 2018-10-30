@@ -76,8 +76,9 @@
       {% for crash in crashes[1] %}
         <tr>
           <td align="center">
-            <a href="/crashes/show/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-            <a href="/crashes/download/{{ crash.id }}"><span class="glyphicon glyphicon-download"></span></a>
+            <!--<a href="/crashes/show/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>-->
+            <a href="{{url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+            <a href="{{url_for('crashes.download_crash', crash.id = crash.id }}"><span class="glyphicon glyphicon-download"></span></a>
                         <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
           </td>
           

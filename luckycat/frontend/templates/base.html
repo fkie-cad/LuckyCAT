@@ -2,14 +2,14 @@
 <head>
     <link href="/static/luckycat.css" rel="stylesheet" type="text/css">
     <!-- Bootstrap -->
-    <link rel="stylesheet" type="text/css" href="../static/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../static/bootstrap/css/bootstrap-theme.css">
-    <script src="../static/bootstrap/js/jquery.min.js"></script>
-    <script type="text/javascript" src="../static/bootstrap/js/bootstrap.min.js"></script>
-    <script src="../static/Chart.bundle.js"></script>
-    <script src="../static/hexdump.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.css') }}">
+    <script src="{{ url_for('static', filename='bootstrap/js/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='Chart.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='hexdump.js') }}"></script>
     <!-- update url-->
-    <script type="text/javascript" src="../static/js/update_url_variables.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/update_url_variables.js') }}"></script>
 
     <style>
         body{
