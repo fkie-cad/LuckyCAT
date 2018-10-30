@@ -3,7 +3,7 @@
 {% set active_page = "DeleteJob" %}
 
 {% block content %}
-  <table border="0">
+  <table>
     <form method="POST" enctype="multipart/form-data" action="/jobs/delete/{{ id }}">
       <tr><td>Are you sure that you want to delete the job?</td></tr>
       <tr><td><input type="submit" value="Delete Job"></td></tr>

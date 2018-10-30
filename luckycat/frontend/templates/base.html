@@ -7,6 +7,7 @@
     <script src="../static/bootstrap/js/jquery.min.js"></script>
     <script type="text/javascript" src="../static/bootstrap/js/bootstrap.min.js"></script>
     <script src="../static/Chart.bundle.js"></script>
+    <script src="../static/hexdump.js"></script>
     <!-- update url-->
     <script type="text/javascript" src="../static/js/update_url_variables.js"></script>
 
@@ -44,6 +45,15 @@
             border-top: 5px solid #2b669a;
         }
     </style>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 </head>
 <body>
 
@@ -83,7 +93,8 @@
         <li class="dropdown {% if caption == active_page %}active{% endif  %}">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-cog"></span> Settings<span class="caret"></span></a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="/user/manage"> Manage Users</a></li>
+                                      <li><a href="/user/manage"><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
+                                      <li><a href="/user/add"><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
                                     </ul>
         </li>
          <li>

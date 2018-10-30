@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% set active_page = "Results" %}
-
 {% block content %}
 
 <tr><td>
@@ -98,7 +96,7 @@
      {% endif %}
     {% endfor %}
   {% else %}
-    No results yet. You may want to check the <a href="/statistics">statistics</a> meanwhile.
+    No results yet. You may want to check the <a href="/statistics/show">statistics</a> meanwhile.
   {% endif %}
 </td></tr>
 </table>

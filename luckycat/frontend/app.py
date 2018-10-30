@@ -1,7 +1,6 @@
-from flask import Flask, redirect, render_template
-
+import datetime
+from flask import Flask, redirect, render_template, flash
 from flask_security import Security, login_required, MongoEngineUserDatastore
-
 
 from luckycat.frontend.JobsApi import jobs_api
 from luckycat.frontend.Crashes import crashes
@@ -38,9 +37,30 @@ app.register_blueprint(statistics_api)
 app.register_blueprint(statistics)
 
 
+def has_user():
+    return User.objects.count() != 0
+
+
+def has_role():
+    return Role.objects.count() != 0
+
+
 @app.before_first_request
-def create_user():
-    user_datastore.create_user(email='donald@great.again', password='password')
+def create_default_user_and_roles():
+    if not has_role():
+        user_datastore.create_role(name='admin',
+                                   description='Administrative user of LuckyCat')
+        user_datastore.create_role(name='analyst',
+                                   description='General LuckyCat user without admin privileges')
+
+    if not has_user():
+        admin_role = Role.objects.get(name='admin')
+        user_datastore.create_user(email=f3c_global_config.default_user_email,
+                                   password=f3c_global_config.default_user_password,
+                                   api_key=f3c_global_config.default_user_api_key,
+                                   registration_date=datetime.datetime.now(),
+                                   roles=[admin_role])
+        flash('Added default user on first request', 'success')
 
 
 @app.route("/")
@@ -50,6 +70,7 @@ def index():
 
 
 @app.route("/about")
+@login_required
 def about():
     return render_template("about.html")
 
@@ -58,4 +79,3 @@ def about():
 @login_required
 def logout():
     return redirect("/home")
-
