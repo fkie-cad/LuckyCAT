@@ -47,7 +47,7 @@ class StatsFetcher:
         for name in all_job_names:
             job_general_stats = self.fetch_general_stats(name)
             job_last_day_crashes_stats = self.fetch_yesterdays_crashes(name)
-            jobs_stats.append({'Job':name, 'stats': {'General Stats': job_general_stats, 'Last Day Stats': job_last_day_crashes_stats}})
+            jobs_stats.append({'Job': name, 'stats': {'General Stats': job_general_stats, 'Last Day Stats': job_last_day_crashes_stats}})
         return jobs_stats
 
 

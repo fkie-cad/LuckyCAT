@@ -9,17 +9,17 @@
   <input type="hidden" name="id" value="{{ job.id }}"/>
   <table>
    <tr>
-    <td><label for="name">Name</label></td>
+    <td><label>Name</label></td>
     <td><input type="text" name="name" size="50" value="{{ job.name }}"></td>
     <td><i>Short name of the new project.</i></td>
    </tr>
    <tr>
-    <td valign="top"><label for="description">Description</label></td>
+    <td valign="top"><label>Description</label></td>
     <td><textarea rows="10" cols="50" name="description">{{ job.description }}</textarea></td>
     <td valign="top"><i>Description of the project. Use this field to specify the version, operating systems, CPU, etc...</i></td>
    </tr>
    <tr>
-     <td><label for="fuzzer">Fuzzer</label></td>
+     <td><label>Fuzzer</label></td>
       <td>
         <select required name="fuzzer" size="{{fuzzers|length}}">
           {% for fuzzer in fuzzers %}
@@ -30,7 +30,7 @@
       <td><i>The fuzzer to use for fuzzing.</i></td>
    </tr>
     <tr>
-     <td><label for="project_engine">Mutation engine</label></td>
+     <td><label>Mutation engine</label></td>
       <td>
         <select required name="mutation_engine" size="{{engines|length}}">
 	   {% for engine in engines %}

@@ -15,7 +15,7 @@
     <option value="crash_signal">Signal</option>
     <option value="crash_hash">Crash hash</option>
   </select>
-  <label for="fieldValue">with value similar to</label>
+  <label>with value similar to</label>
   <input type="text" name="fieldValue" id="idFieldValue" value="">
   <input type="submit" value="Apply">
   <input type="button" value="Reset" onclick="javascript:window.location.href='/results';">
@@ -32,14 +32,14 @@
     <option value="program_counter">Program counter</option>
     <option value="crash_hash">Crash hash</option>
   </select>
-  <label for="no_fieldValue">with value similar to</label>
+  <label>with value similar to</label>
   <input type="text" name="no_fieldValue" id="idNoFieldValue" value="">
 
  
-  <input type="checkbox" name="hideDup" id="hideDup" ""/>
-  <label for"hideDup">Hide duplicates</label>
-  <input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>
-  <label for"hideNonVerified">Hide Non Verified Crashes</label>
+  <input type="checkbox" name="hideDup" id="hideDup"/>
+  <label for="hideDup">Hide duplicates</label>
+  <input type="checkbox" name="hide_non_verified" id="hide_non_verified"/>
+  <label>Hide Non Verified Crashes</label>
   <br/>
   
   <label><b class="label">Sort</b> results matching field</label>
@@ -76,10 +76,9 @@
       {% for crash in crashes[1] %}
         <tr>
           <td align="center">
-            <!--<a href="/crashes/show/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>-->
-            <a href="{{url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-            <a href="{{url_for('crashes.download_crash', crash.id = crash.id }}"><span class="glyphicon glyphicon-download"></span></a>
-                        <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
+            <a href="/crashes/show_crash/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+            <a href="/crashes/download_crash/{{ crash.id }}"><span class="glyphicon glyphicon-download"></span></a>
+            <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
           </td>
           
           <td>

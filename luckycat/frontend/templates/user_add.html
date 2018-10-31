@@ -10,19 +10,19 @@
 <form method="POST" enctype="multipart/form-data" action="">
   <table>
    <tr>
-    <td><label for="email">Email</label></td>
+    <td><label>Email</label></td>
     <td><input type="text" name="email" size="50" required></td>
    </tr>
    <tr>
-    <td><label for="password">Password</label></td>
+    <td><label>Password</label></td>
     <td><input type="password" name="password" size="50" required></td>
    </tr>
    <tr>
-    <td><label for="retype_password">Retype password</label></td>
+    <td><label>Retype password</label></td>
     <td><input type="password" name="retype_password" size="50" required></td>
    </tr>
    <tr>
-     <td><label for="roles">Role</label></td>
+     <td><label>Role</label></td>
       <td>
         <select required name="role" size="{{roles|length}}">
           {% for role in roles %}

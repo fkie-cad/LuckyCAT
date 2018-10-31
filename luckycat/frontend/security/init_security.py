@@ -43,11 +43,12 @@ def _add_apikey_handler(security, user_datastore):
     return None
 
 def add_flask_security(app):
-    app.config['SECURITY_UNAUTHORIZED_VIEW'] = '/'
-    app.config['SECRET_KEY'] = f3c_global_config.secret_key
-    app.config['SECURITY_PASSWORD_SALT'] = f3c_global_config.secret_key
+    with app.app_context():
+        app.config['SECURITY_UNAUTHORIZED_VIEW'] = '/'
+        app.config['SECRET_KEY'] = f3c_global_config.secret_key
+        app.config['SECURITY_PASSWORD_SALT'] = f3c_global_config.secret_key
 
-    user_datastore = MongoEngineUserDatastore(db, User, Role)
-    security = Security(app, user_datastore)
-    create_default_user_and_roles(user_datastore)
-    _add_apikey_handler(security, user_datastore)
+        user_datastore = MongoEngineUserDatastore(db, User, Role)
+        security = Security(app, user_datastore)
+        create_default_user_and_roles(user_datastore)
+        _add_apikey_handler(security, user_datastore)

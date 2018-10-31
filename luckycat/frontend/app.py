@@ -22,7 +22,6 @@ app.config['MONGODB_PORT'] = 27017
 db.init_app(app)
 add_flask_security(app)
 
-
 app.register_blueprint(jobs_api)
 app.register_blueprint(jobs)
 app.register_blueprint(crashes)
