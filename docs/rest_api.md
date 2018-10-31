@@ -26,5 +26,7 @@ There are several endpoints to create, delete and list jobs:
 TODO
 
 ## Statistics ##
-
-TODO
+There are several endpoints to get statistics about jobs:
+- /api/stats (GET): general statistics over all jobs
+- /api/stats/<job_name_or_date> (GET): get statistics about a job
+- /api/stats/<job_name_or_date>/<date> (GET): get statistics about a job for some day
