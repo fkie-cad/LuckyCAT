@@ -2,6 +2,7 @@
 
 ## Lucky CAT 0.2-dev (TBA) ##
 
++ Implemented REST API tokens
 + Implemented simple user management 
 + Implemented REST interface to statistics
 + Implemented stats reporter to report crash summaries via email

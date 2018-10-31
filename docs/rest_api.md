@@ -4,21 +4,13 @@ of the implemented endpoints.
 
 ## Testing the RESTful API with requests ##
 To quickly start with the API, use [requests](http://docs.python-requests.org). First, you have to acquire an authentication token.
-```python
-import requests
-import json
-url = "http://localhost:5000/login"
-r = requests.post(url,
-                  data=json.dumps({'email': 'donald@great.again', 'password': 'password'}),
-                  headers={'content-type': 'application/json'})
-j = r.json()
-token = j['response']['user']['authentication_token']
-```
+You can check the authentication token of a user in the web interface (user profile).
+
 Afterwards, you can send your requests, e.g. listing the current jobs:
 ```python
-url = "http://localhost:5000/api/jobs"
+url = "https://localhost:5000/api/jobs"
 r = requests.get(url, 
-                 headers={'Authentication-Token': token, 
+                 headers={'Authorization': token, 
                  'content-type': 'application/json'})
 print(r.json())
 ```
@@ -34,5 +26,7 @@ There are several endpoints to create, delete and list jobs:
 TODO
 
 ## Statistics ##
-
-TODO
+There are several endpoints to get statistics about jobs:
+- /api/stats (GET): general statistics over all jobs
+- /api/stats/<job_name_or_date> (GET): get statistics about a job
+- /api/stats/<job_name_or_date>/<date> (GET): get statistics about a job for some day
