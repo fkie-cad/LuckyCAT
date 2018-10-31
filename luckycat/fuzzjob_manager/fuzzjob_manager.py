@@ -45,7 +45,7 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-def create_job(args, token):
+def create_job(args):
     # TODO: check if all arguments are provided
     if args.test_cases is None or args.fuzzing_target is None:
         logging.error("Not test cases or fuzzing target provided.")
@@ -81,9 +81,9 @@ def create_job(args, token):
     url = urljoin(args.url, "/api/job")
     response = requests.put(url,
                             json=json_doc,
-                            headers={'Authentication-Token': token,
+                            headers={'Authorization': args.token,
                                      'content-type': 'application/json'},
-                            verify=args.verify)
+                            verify=args.ssl_verify)
     if response.status_code != 200 or not response.json()['success']:
         logging.error("Could not create fuzzing job: %s" % response.text)
     else:
@@ -91,11 +91,11 @@ def create_job(args, token):
         logging.info("Created fuzzing job.")
 
 
-def find_job_id_by_name(args, token):
+def find_job_id_by_name(args):
     url = urljoin(args.url, "/api/jobs")
-    response = requests.get(url, headers={'Authentication-Token': token,
+    response = requests.get(url, headers={'Authorization': args.token,
                                           'content-type': 'application/json'},
-                            verify=args.verify)
+                            verify=args.ssl_verify)
     if response.status_code != 200:
         logging.error("Could not list jobs.")
     else:
@@ -116,7 +116,7 @@ def print_job_info(job):
     print('\tfuzzer: %s' % job['fuzzer'])
 
 
-def delete_job(args, token):
+def delete_job(args):
     if args.name is None:
         logging.error("Please provide a valid name of a job.")
     else:
@@ -125,26 +125,26 @@ def delete_job(args, token):
             logging.error("Aborting...")
             sys.exit(1)
 
-        job_id = find_job_id_by_name(args, token)
+        job_id = find_job_id_by_name(args)
         if job_id:
-            url = "http://localhost:5000/api/job/%s" % job_id
-            response = requests.delete(url, headers={'Authentication-Token': token,
+            url = urljoin(args.url, "/api/job/%s" % job_id)
+            response = requests.delete(url, headers={'Authorization': args.token,
                                                      'content-type': 'application/json'},
-                                       verify=args.verify)
+                                       verify=args.ssl_verify)
             if response.status_code != 200:
-                logging.error("Could not delete job %s." % args.name)
+                logging.error("Could not delete job %s: %s" % (args.name, response.text))
             else:
                 logging.info("Deleted job %s." % args.name)
         else:
             logging.error("Could not find job %s." % args.name)
 
 
-def list_jobs(args, token):
+def list_jobs(args):
     if args.name:
         url = urljoin(args.url, "/api/job/%s" % args.name)
-        response = requests.get(url, headers={'Authentication-Token': token,
+        response = requests.get(url, headers={'Authorization': args.token,
                                               'content-type': 'application/json'},
-                                verify=args.verify)
+                                verify=args.ssl_verify)
         if response.status_code != 200:
             logging.error("Could not list fuzz job %s: %d." % (args.name, response.status_code))
         else:
@@ -154,28 +154,15 @@ def list_jobs(args, token):
                 logging.error('No job with name %s known.' % args.name)
     else:
         url = urljoin(args.url, "/api/jobs")
-        response = requests.get(url, headers={'Authentication-Token': token,
+        response = requests.get(url, headers={'Authorization': args.token,
                                               'content-type': 'application/json'},
-                                verify=args.verify)
+                                verify=args.ssl_verify)
         if response.status_code != 200:
             logging.error("Could not list jobs: %s" % response.text)
         else:
             for job in response.json():
                 print_job_info(job)
                 print("-" * 80)
-
-
-def get_user_authentication_token(args):
-    url = urljoin(args.url, '/login')
-    r = requests.post(url,
-                      data=json.dumps({'email': args.user, 'password': args.password}),
-                      headers={'content-type': 'application/json'}, verify=args.verify)
-    j = r.json()
-    if 'response' in j and 'user' in j['response'] and 'authentication_token' in j['response']['user']:
-        return j['response']['user']['authentication_token']
-    else:
-        logging.error("Could not aquire authentication token: %s" % j)
-        sys.exit(1)
 
 
 def parse_args():
@@ -192,7 +179,8 @@ def parse_args():
     # arguments for creation of fuzz job
     parser.add_argument('--name', type=str, help='Name of the fuzz job')
     parser.add_argument('--description', type=str, default='', help='Description of the fuzz job')
-    parser.add_argument('--mutation-engine', choices=['radamsa', 'urandom'], help='Mutation engine to generate test cases', default='radamsa')
+    parser.add_argument('--mutation-engine', choices=['radamsa', 'urandom', 'external'],
+                        help='Mutation engine to generate test cases', default='radamsa')
     parser.add_argument('--fuzzer', choices=['cfuzz', 'afl'],
                         help='Fuzzer to test target with', default='cfuzz')
     parser.add_argument('--maximum-samples', dest='maximum_samples', type=int, default=4,
@@ -214,10 +202,9 @@ def parse_args():
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
     parser.add_argument('--yes', action='store_true', help='Answer all questions with yes')
 
-    parser.add_argument('--user', required=True, type=str, help='Username')
-    parser.add_argument('--password', required=True, type=str, help='Password')
     parser.add_argument('--url', type=str, default="https://localhost:5000", help='URL')
     parser.add_argument('--ssl-verify', type=bool, default=False)
+    parser.add_argument('--token', type=str, default='yuL4uJ4loqCGl86NDwDloPaPa5PQZs0f9hXRrLjbnJNLau3vxWKs3qS0XKN7BV3o')
 
     args = parser.parse_args()
     return args
@@ -226,14 +213,12 @@ def parse_args():
 def main():
     args = parse_args()
 
-    token = get_user_authentication_token(args)
-
     if args.create:
-        create_job(args, token)
+        create_job(args)
     elif args.delete:
-        delete_job(args, token)
+        delete_job(args)
     else:
-        list_jobs(args, token)
+        list_jobs(args)
 
 
 if __name__ == "__main__":
