@@ -2,6 +2,8 @@
 
 {% block content %}
 
+
+
 <tr><td>
 <h2>Fuzzing results</h2>
 <form name="fmFilter">
@@ -35,13 +37,13 @@
   <label for="no_fieldValue">with value similar to</label>
   <input type="text" name="no_fieldValue" id="idNoFieldValue" value="">
 
- 
+
   <input type="checkbox" name="hideDup" id="hideDup" ""/>
   <label for"hideDup">Hide duplicates</label>
   <input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>
   <label for"hideNonVerified">Hide Non Verified Crashes</label>
   <br/>
-  
+
   <label><b class="label">Sort</b> results matching field</label>
   <input type="hidden" id="idSavedSort" value="$sort_value">
   <select name="sortValue" id="idSortSelect">
@@ -52,8 +54,8 @@
     <option value="program_counter">Program counter</option>
     <option value="crash_hash">Crash hash</option>
   </select>
-  
-  
+
+
 </form>
 <table border="0">
   {% if results|length > 0 %}
@@ -62,7 +64,7 @@
        <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
 
     <tr>
-      
+
           <th colspan="6">Project {{crashes[0]}} - {{ crashes[1]|length }} crashes [<a href="/download/job/{{ crashes[1][0].job_id }}">Download project results</a>]</th>
       </tr>
       <tr>
@@ -77,13 +79,13 @@
         <tr>
           <td align="center">
             <!--<a href="/crashes/show/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>-->
-            <a href="{{url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-            <a href="{{url_for('crashes.download_crash', crash.id = crash.id }}"><span class="glyphicon glyphicon-download"></span></a>
+            <a href="{{ url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+            <a href="{{ url_for('crashes.download_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-download"></span></a>
                         <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
           </td>
-          
+
           <td>
-             <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font> 
+             <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
           </td>
 	  <td>{{crash.additional}}</td>
          <td>{{map_signal_to_string(crash.crash_signal)}}</td>
@@ -93,7 +95,7 @@
 {% endfor %}
 
 
-       </table>  
+       </table>
      {% endif %}
     {% endfor %}
   {% else %}
