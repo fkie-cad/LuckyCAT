@@ -1,56 +1,90 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Information for crash {{ crash.id }}</h2>
-<h3>General</h3>
-<a href="/crashes/download/{{ crash.id }}">Download sample</a>
-<a href="/crashes/show/next/{{ crash.id }}">Next crash</a>
-<table border="0">
-  <tr>
-    <th align="left">Job</th>
-    <td>{{ crash.job_id }}</td>
-  </tr>
-  <tr>
-    <th align="left">Date</th>
-    <td>{{ crash.date }}</td>
-  </tr>
-  <tr>
-    <th align="left">Signal</th>
-    <td>{{ crash.crash_signal }}</td>
-  </tr>
-  <tr>
-    <th align="left">Exploitable?</th>
-    <td>{{ crash.exploitability }}</td>
-  </tr>
-  <tr>
-    <th align="left">Crash hash</th>
-    <td>{{ crash.crash_hash }}</td>
-  </tr>
-</table>
+<div class="container">
+  <div class="row">
+    <h2>Information for crash {{ crash.id }}</h2>
+    <h3>General</h3>
+    <a href="/crashes/download/{{ crash.id }}" class="btn btn-success btn-sm" role="button" >Download Sample <span class="glyphicon glyphicon-download"></span></a>
+    <a href="/crashes/show/next/{{ crash.id }}" class="btn btn-success btn-sm" role="button" >Next Crash <span class="glyphicon glyphicon-step-forward"></span></a>
+    <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
+      <tr>
+        <th align="left">Job</th>
+        <td>{{ crash.job_id }}</td>
+      </tr>
+      <tr>
+        <th align="left">Date</th>
+        <td>{{ crash.date }}</td>
+      </tr>
+      <tr>
+        <th align="left">Signal</th>
+        <td>{{ crash.crash_signal }}</td>
+      </tr>
+      <tr>
+        <th align="left">Exploitable?</th>
+        <td>{{ crash.exploitability }}</td>
+      </tr>
+      <tr>
+        <th align="left">Crash hash</th>
+        <td>{{ crash.crash_hash }}</td>
+      </tr>
+    </table>
+  </div>
 
-<h3>Hexdump</h3>
+  <div class="row">
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
-<p id="hexdump"></p>
+          <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingOne">
+                  <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                          <i class="more-less glyphicon glyphicon-plus"></i>
+                          Hexdump
+                      </a>
+                  </h4>
+              </div>
+              <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                  <div class="panel-body">
+                    <pre id="hexdump"></pre>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
 <script type="text/javascript">
-  buffer = atob("{{ encoded_buffer }}");
+  function toggleIcon(e) {
+      $(e.target)
+          .prev('.panel-heading')
+          .find(".more-less")
+          .toggleClass('glyphicon-plus glyphicon-minus');
+  }
+  $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+  $('.panel-group').on('shown.bs.collapse', toggleIcon);
+
+  var buffer = atob("{{ encoded_buffer }}");
+
   new Hexdump(buffer, {
-        container: 'hexdump'
-        , base: 'hexadecimal'
-        , width: 16
-        , ascii: true
-        , byteGrouping: 1
-        , html: true
-        , lineNumber: true
-        , style: {
-            lineNumberLeft: ''
-          , lineNumberRight: ':'
-          , stringLeft: '|'
-          , stringRight: '|'
-          , hexLeft: ''
-          , hexRight: ''
-          , hexNull: '.g'
-          , stringNull: '.'
-        }
-      });
+    container: 'hexdump'
+    , base: 'hex'
+    , width: 25
+    , byteGrouping: 0
+    , html: true
+    , lineNumber: true
+    , style: {
+        lineNumberLeft: ''
+      , lineNumberRight: ':'
+      , stringLeft: '|'
+      , stringRight: ''
+      , hexLeft: ''
+      , hexRight: ''
+      , hexNull: '.g'
+      , stringNull: '.'
+    }
+  });
 </script>
+
+
+
 {% endblock %}
