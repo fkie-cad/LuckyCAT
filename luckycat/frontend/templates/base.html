@@ -75,33 +75,33 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li>
+        <li class="{{ 'active' if active_page == 'Index' else '' }}">
             <a href="/"><span class="glyphicon glyphicon-home"></span> Index <span class="sr-only">(current)</span></a>
         </li>
-        <li {% if caption == active_page %} class="active"{% endif  %}>
+        <li class="{{ 'active' if active_page == 'Jobs' else '' }}">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-tasks"></span> Jobs<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/jobs/show"><span class="glyphicon glyphicon-list"></span> Show</a></li>
             <li><a href="/jobs/add"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
           </ul>
         </li>
-        <li>
+        <li class="{{ 'active' if active_page == 'Crashes' else '' }}">
             <a href="/crashes/show"><span class="glyphicon glyphicon-flash"></span> Crashes</a>
         </li>
-        <li>
+        <li class="{{ 'active' if active_page == 'Statistics' else '' }}">
             <a href="/statistics/show"><span class="glyphicon glyphicon-stats"></span> Statistics</a>
         </li>
-        <li class="dropdown {% if caption == active_page %}active{% endif  %}">
+        <li class="dropdown {{ 'active' if active_page == 'Settings' else '' }}">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-cog"></span> Settings<span class="caret"></span></a>
                                     <ul class="dropdown-menu">
                                       <li><a href="/user/manage"><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
                                       <li><a href="/user/add"><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
                                     </ul>
         </li>
-         <li>
+         <li class="{{ 'active' if active_page == 'About' else '' }}">
             <a href="/about"><span class="glyphicon glyphicon-globe"></span> About</a>
         </li>
-        <li {% if caption == active_page %} class="active"{% endif  %}>
+        <li class="{{ 'active' if active_page == 'current_user.email' else '' }}">
                                 {% if current_user.is_authenticated %}
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span>&nbsp;{{ current_user.email }}<span class="caret"></span></a>
                                     <ul class="dropdown-menu">

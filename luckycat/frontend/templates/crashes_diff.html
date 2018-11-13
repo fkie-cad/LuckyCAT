@@ -1,5 +1,11 @@
 $def with (original_file, crash_file, buf1, buf2, differences, hexdump)
 
+{% extends "base.html" %}
+
+{% set active_page = "Crashes" %}
+
+{% block content %}
+
 <div id="content">
 <table border="0">
 <tr><td>
@@ -20,3 +26,4 @@ $def with (original_file, crash_file, buf1, buf2, differences, hexdump)
 </table>
 </div>
 
+{% endblock %}
