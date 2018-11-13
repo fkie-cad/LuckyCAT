@@ -117,7 +117,11 @@
   </div>
 </nav>
 
-<div id="content" style="width:90%; margin: 0 auto;">{% block content %}{% endblock %}</div>
+<div id="content" style="width:90%; margin: 0 auto;">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</div>
 
 <hr style="margin-top: 30px;">
 

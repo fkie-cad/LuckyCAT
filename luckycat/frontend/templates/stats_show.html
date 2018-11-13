@@ -4,71 +4,71 @@
 
 {% block content %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
-            <div class="form-group">
-                <select class="form-control" onchange="window.location=update_url_variables(window.location.toString(), 'job', this.value)">
-                    <option selected value="1"></option>
-                {% for job_name in statistics["job_names"] %}
-                    <option>{{ job_name }}</option>
-                {% endfor %}
-                </select>
-            </div>
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+        <div class="form-group">
+            <select class="form-control" onchange="window.location=update_url_variables(window.location.toString(), 'job', this.value)">
+                <option selected value="1"></option>
+            {% for job_name in statistics["job_names"] %}
+                <option>{{ job_name }}</option>
+            {% endfor %}
+            </select>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-8">
-            <h3><span class="glyphicon glyphicon-stats"></span> General</h3>
-            <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
-                {% if statistics["general"]["number_of_job_names"] %}
-                    <tr>
-                      <td class="active" style="text-align: left; padding:5px">jobs</td>
-                      <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_job_names"] }}</td>
-                    </tr>
-                {% endif -%}
+</div>
+<div class="row">
+    <div class="col-sm-8">
+        <h3><span class="glyphicon glyphicon-stats"></span> General</h3>
+        <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
+            {% if statistics["general"]["number_of_job_names"] %}
                 <tr>
-                    <td class="active" style="text-align: left; padding:5px">crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_crashes"] }}</td>
+                  <td class="active" style="text-align: left; padding:5px">jobs</td>
+                  <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_job_names"] }}</td>
                 </tr>
-                <tr>
-                    <td class="active" style="text-align: left; padding:5px">unique crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_unique_crashes"] }}</td>
-                </tr>
-                <tr>
-                    <td class="active" style="text-align: left; padding:5px">unique exploitable crashes</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_unique_exploitable_crashes"] }}</td>
-                </tr>
-                <tr>
-                    <td class="active" style="text-align: left; padding:5px">iterations</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["iteration"] }}</td>
-                </tr>
-                <tr>
-                    <td class="active" style="text-align: left; padding:5px">execs_per_sec</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["execs_per_sec"] }}</td>
-                </tr>
-                <tr>
-                    <td class="active" style="text-align: left; padding:5px">runtime</td>
-                    <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["runtime"] }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="col-sm-4">
-            <canvas id="different_crashes" width="400" height="400"></canvas>
+            {% endif -%}
+            <tr>
+                <td class="active" style="text-align: left; padding:5px">crashes</td>
+                <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_crashes"] }}</td>
+            </tr>
+            <tr>
+                <td class="active" style="text-align: left; padding:5px">unique crashes</td>
+                <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_unique_crashes"] }}</td>
+            </tr>
+            <tr>
+                <td class="active" style="text-align: left; padding:5px">unique exploitable crashes</td>
+                <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["number_of_unique_exploitable_crashes"] }}</td>
+            </tr>
+            <tr>
+                <td class="active" style="text-align: left; padding:5px">iterations</td>
+                <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["iteration"] }}</td>
+            </tr>
+            <tr>
+                <td class="active" style="text-align: left; padding:5px">execs_per_sec</td>
+                <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["execs_per_sec"] }}</td>
+            </tr>
+            <tr>
+                <td class="active" style="text-align: left; padding:5px">runtime</td>
+                <td class="active" style="text-align: right; padding:5px">{{ statistics["general"]["runtime"] }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-sm-4">
+        <canvas id="different_crashes" width="400" height="400"></canvas>
+    </div>
+</div>
+<div class="row row-centered">
+    <div class="container">
+        <canvas id="crashes_over_time" width="800" height="400"></canvas>
+    </div>
+    <div class="container">
+        <div class="row" style="text-align:center">
+            <button id="show_last_24_hours_crashes">Last 24h crashes</button>
+            <button id="show_last_72_hours_crashes">Last 72h crashes</button>
+            <button id="show_all_crashes">All crashes</button>
         </div>
     </div>
-    <div class="row row-centered">
-        <div class="container">
-            <canvas id="crashes_over_time" width="800" height="400"></canvas>
-        </div>
-        <div class="container">
-            <div class="row" style="text-align:center">
-                <button id="show_last_24_hours_crashes">Last 24h crashes</button>
-                <button id="show_last_72_hours_crashes">Last 72h crashes</button>
-                <button id="show_all_crashes">All crashes</button>
-            </div>
-        </div>
-    </div>
+
     <script>
         function display_different_Crashes() {
             var data = [];
