@@ -173,12 +173,12 @@ class AflFuzzer(PythonFuzzer):
             raise
 
     def populate_crash_info_data(self, crash, fp):
-        crash_data = base64.b64encode(fp.read()).decode()
+        test_case = base64.b64encode(fp.read()).decode()
         filename = os.path.split(crash)[-1]
         crash_info = {'job_name': config.job_name,
                       'fuzzer': 'afl',
                       'timestamp': strftime('%Y-%m-%d_%H:%M:%S', gmtime()),
-                      'crash_data': crash_data,
+                      'test_case': test_case,
                       'signal': self.get_signal(filename),
                       'verified': 1,
                       'filename': filename}

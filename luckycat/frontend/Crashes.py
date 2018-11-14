@@ -72,7 +72,7 @@ def show_crash(crash_id):
 
 
 def get_crash_sample_and_original_sample_of_crash(crash):
-    crash_sample = crash.crash_data
+    crash_sample = crash.test_case
     original_sample = list(Job.objects(id=crash.job_id))[0]["samples"]
     job_name = list(Job.objects(id=crash.job_id))[0]["name"]
     fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job_name)
@@ -108,7 +108,7 @@ def download_crash(crash_id):
         if crash.job_id in job_ids:
             filename = os.path.join('/tmp', crash_id)
             with open(filename, 'wb') as f:
-                f.write(crash.crash_data)
+                f.write(crash.test_case)
                 return flask.send_file(filename, as_attachment=True)
         else:
             flask.flash('You are not allowed to download this crash.')

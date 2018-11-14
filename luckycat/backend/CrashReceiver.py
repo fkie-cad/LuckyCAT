@@ -32,7 +32,7 @@ class CrashReceiver(Process):
             logger.debug('Inserting crash: %s.' % str(crash_data))
             cfuzz_crash = Crash(job_id=job.id,
                                 crash_signal=crash_data['signal'],
-                                crash_data=data,
+                                test_case=data,
                                 verified=False,
                                 iteration=iteration)
             cfuzz_crash.save()
@@ -66,7 +66,7 @@ class CrashReceiver(Process):
         if 'classification' in crash_data:
             afl_crash = Crash(job_id=job.id,
                               crash_signal=crash_data['signal'],
-                              crash_data=crash_data['crash_data'].encode(),
+                              test_case=crash_data['crash_data'].encode(),
                               verified=crash_data['verified'],
                               crash_hash=crash_data['hash'],
                               exploitability=crash_data['classification'],
@@ -75,7 +75,7 @@ class CrashReceiver(Process):
         else:
             afl_crash = Crash(job_id=crash_data['job_name'],
                               crash_signal=crash_data['signal'],
-                              crash_data=crash_data['crash_data'].encode(),
+                              test_case=crash_data['crash_data'].encode(),
                               verified=crash_data['verified'],
                               iteration=iteration)
 

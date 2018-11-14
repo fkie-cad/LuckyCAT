@@ -42,7 +42,7 @@ class CrashVerificationSender(Process):
                     # TODO determine verifier from project table
                     current_project = self._get_job_from_crash(crash)
                     try:
-                        buf = crash.crash_data
+                        buf = crash.test_case
                         crash = {'data': base64.b64encode(buf).decode(),
                                  'args': '',
                                  'program': '',

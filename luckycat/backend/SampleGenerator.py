@@ -1,17 +1,19 @@
-import logging
 import base64
+import hashlib
+import json
+import logging
 import os
 import random
 import sys
 import tempfile
-import json
 import zipfile
-import hashlib
 from multiprocessing import Process
+
 from mongoengine import connect
-from luckycat.database.models.Job import Job
+
 from luckycat import f3c_global_config
 from luckycat.backend import WorkQueue
+from luckycat.database.models.Job import Job
 
 logger = logging.getLogger(os.path.basename(__file__).split(".")[0])
 

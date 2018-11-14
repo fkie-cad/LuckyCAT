@@ -173,7 +173,7 @@ def jobs_download(job_id):
         summary = {}
         for c in job_crashes:
             summary[str(c.id)] = _get_summary_for_crash(c)
-            imz.append("%s" % str(c.id), c.crash_data)
+            imz.append("%s" % str(c.id), c.test_case)
         imz.append("summary.json", json.dumps(summary, indent=4))
 
         filename = os.path.join('/tmp', '%s.zip' % job_id)

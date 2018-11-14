@@ -12,5 +12,5 @@ class Crash(Document):
     crash_hash = StringField()
     verified = BooleanField()
     additional = StringField()
-    crash_data = BinaryField()
+    test_case = BinaryField()
     iteration = IntField()
