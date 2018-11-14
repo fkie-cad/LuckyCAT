@@ -1,8 +1,12 @@
-import collections
-import flask
-import os
 import base64
+import collections
+import os
+
+import flask
+import ssdeep
 from flask_security import login_required, current_user
+
+from luckycat import f3c_global_config
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 
@@ -50,9 +54,12 @@ def show_crash(crash_id):
         if crash:
             job_ids = _get_job_ids_of_user()
             if crash.job_id in job_ids:
+                crash_sample, original_sample = get_crash_sample_and_original_sample_of_crash(crash)
+
                 return flask.render_template("crashes_view.html",
                                              crash=crash,
-                                             encoded_buffer=base64.b64encode(crash.crash_data).decode('ascii'))
+                                             encoded_crash_sample=base64.b64encode(crash_sample).decode('ascii'),
+                                             encoded_original_sample=base64.b64encode(original_sample).decode('ascii'))
             else:
                 flask.flash("'Not allowed to view this crash.")
                 return flask.redirect('crashes/show')
@@ -62,6 +69,28 @@ def show_crash(crash_id):
     else:
         flask.flash('Not a valid crash id.')
         return flask.redirect('crashes/show')
+
+
+def get_crash_sample_and_original_sample_of_crash(crash):
+    crash_sample = crash.crash_data
+    original_sample = list(Job.objects(id=crash.job_id))[0]["samples"]
+    job_name = list(Job.objects(id=crash.job_id))[0]["name"]
+    fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job_name)
+    original_sample_names = os.listdir(fuzz_job_basepath)
+    if not len(original_sample_names) == 1:
+        max_similarity = 0
+        hash_crash_sample = ssdeep.hash(crash_sample)
+        for sample_name in original_sample_names:
+            sample_path = os.path.join(fuzz_job_basepath, sample_name)
+            buf = open(sample_path, "rb").read()
+            sample = base64.b64encode(buf).decode('utf-8')
+            hash_original_sample = ssdeep.hash(sample)
+            similarity = ssdeep.compare(hash_original_sample, hash_crash_sample)
+            if similarity > max_similarity:
+                max_similarity = similarity
+                original_sample = sample
+
+    return crash_sample, original_sample
 
 
 @crashes.route('/crashes/show/next/<crash_id>')

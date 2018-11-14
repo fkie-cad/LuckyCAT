@@ -4,6 +4,7 @@
 
 {% block content %}
 
+
 <div class="row">
 <h2>Information for crash {{ crash.id }}</h2>
 <h3>General</h3>
@@ -54,6 +55,26 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+      <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingTwo">
+              <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                      <i class="more-less glyphicon glyphicon-plus"></i>
+                      Diff
+                  </a>
+              </h4>
+          </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+              <div class="panel-body">
+                <pre id="display"></pre>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
 
 <script type="text/javascript">
   function toggleIcon(e) {
@@ -65,9 +86,9 @@
   $('.panel-group').on('hidden.bs.collapse', toggleIcon);
   $('.panel-group').on('shown.bs.collapse', toggleIcon);
 
-  var buffer = atob("{{ encoded_buffer }}");
+  var crash_sample = atob("{{ encoded_crash_sample }}");
 
-  new Hexdump(buffer, {
+  new Hexdump(crash_sample, {
     container: 'hexdump'
     , base: 'hex'
     , width: 25
@@ -85,6 +106,29 @@
       , stringNull: '.'
     }
   });
+
+  var original_sample = atob("{{ encoded_original_sample }}"),
+    crash_sample = atob("{{ encoded_crash_sample }}"),
+    color = '',
+    span = null;
+
+    var diff = JsDiff.diffChars(crash_sample, original_sample),
+        display = document.getElementById('display'),
+        fragment = document.createDocumentFragment();
+
+    diff.forEach(function(part){
+      // green for additions, red for deletions
+      // grey for common parts
+      color = part.added ? 'green' :
+        part.removed ? 'red' : 'grey';
+      span = document.createElement('span');
+      span.style.color = color;
+      span.appendChild(document
+        .createTextNode(part.value));
+      fragment.appendChild(span);
+    });
+
+    display.appendChild(fragment);
 </script>
 
 
