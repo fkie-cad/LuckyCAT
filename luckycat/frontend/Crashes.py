@@ -1,12 +1,12 @@
 import base64
 import collections
+import io
 import os
+from difflib import SequenceMatcher
 
 import flask
-import ssdeep
 from flask_security import login_required, current_user
 
-from luckycat import f3c_global_config
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 
@@ -54,12 +54,12 @@ def show_crash(crash_id):
         if crash:
             job_ids = _get_job_ids_of_user()
             if crash.job_id in job_ids:
-                crash_sample, original_sample = get_crash_sample_and_original_sample_of_crash(crash)
+                original_test_case, crash_test_case  = get_original_and_crash_test_case_of_crash(crash)
 
                 return flask.render_template("crashes_view.html",
                                              crash=crash,
-                                             encoded_crash_sample=base64.b64encode(crash_sample).decode('ascii'),
-                                             encoded_original_sample=base64.b64encode(original_sample).decode('ascii'))
+                                             encoded_crash_sample=base64.b64encode(crash_test_case).decode('ascii'),
+                                             encoded_original_sample=base64.b64encode(original_test_case).decode('ascii'))
             else:
                 flask.flash("'Not allowed to view this crash.")
                 return flask.redirect('crashes/show')
@@ -71,26 +71,22 @@ def show_crash(crash_id):
         return flask.redirect('crashes/show')
 
 
-def get_crash_sample_and_original_sample_of_crash(crash):
-    crash_sample = crash.test_case
-    original_sample = list(Job.objects(id=crash.job_id))[0]["samples"]
-    job_name = list(Job.objects(id=crash.job_id))[0]["name"]
-    fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job_name)
-    original_sample_names = os.listdir(fuzz_job_basepath)
-    if not len(original_sample_names) == 1:
+def get_original_and_crash_test_case_of_crash(crash):
+    crash_test_case = crash.test_case
+    original_test_case = list(Job.objects(id=crash.job_id))[0]["samples"]
+
+    if (original_test_case.startswith(b'PK')):
+        import zipfile
+        zipfile = zipfile.ZipFile(io.BytesIO(original_test_case))
         max_similarity = 0
-        hash_crash_sample = ssdeep.hash(crash_sample)
-        for sample_name in original_sample_names:
-            sample_path = os.path.join(fuzz_job_basepath, sample_name)
-            buf = open(sample_path, "rb").read()
-            sample = base64.b64encode(buf).decode('utf-8')
-            hash_original_sample = ssdeep.hash(sample)
-            similarity = ssdeep.compare(hash_original_sample, hash_crash_sample)
+        for name in zipfile.namelist():
+            possible_original_test_case = zipfile.read(name)
+            similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
+                                         base64.b64encode(crash_test_case)).ratio()
             if similarity > max_similarity:
                 max_similarity = similarity
-                original_sample = sample
-
-    return crash_sample, original_sample
+                original_test_case = possible_original_test_case
+    return original_test_case, crash_test_case
 
 
 @crashes.route('/crashes/show/next/<crash_id>')

@@ -4,8 +4,11 @@ MAINTAINER Thomas Barabosch <thomas.barabosch@fkie.fraunhofer.de>
 # install dependencies 
 RUN apt-get update -y && apt-get install -y gcc cmake make wget screen gdb \
 python automake git htop python3 build-essential python3-setuptools python3-dev \
-python3-pip nginx
+python3-pip nginx libffi-dev libfuzzy-dev
+
+RUN pip3 install --upgrade pip
 RUN pip3 install Flask flask-security flask-mongoengine bcrypt uwsgi python-dateutil ssdeep
+
 
 # create SSL certificate
 RUN openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout /etc/nginx/conf.d/key.pem -out /etc/nginx/conf.d/cert.pem -days 365
