@@ -43,10 +43,12 @@ def add_job():
     if flask.request.method == 'GET':
         engines = [x['name'] for x in f3c_global_config.mutation_engines]
         fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
+        verifiers = [x['name'] for x in f3c_global_config.verifiers]
 
         return flask.render_template("jobs_add.html",
                                      engines=engines,
-                                     fuzzers=fuzzers)
+                                     fuzzers=fuzzers,
+                                     verifiers=verifiers)
     else:
         data = flask.request.form
         files = flask.request.files
@@ -81,6 +83,7 @@ def add_job():
                       date=datetime.datetime.now().strftime('%Y-%m-%d'),
                       mutation_engine=engine,
                       fuzzer=data.get('fuzzer'),
+                      verifier=data.get('verifier'),
                       samples=samples,
                       fuzzing_target=files['fuzzing_target'].stream.read(),
                       firmware_root=firmware_root,
@@ -129,16 +132,19 @@ def edit_job(job_id):
                 'description': data.get('description'),
                 'fuzzer': data.get('fuzzer'),
                 'mutation_engine': engine,
+                'verifier': data.get('verifier'),
             })
 
             return flask.redirect("/jobs/show")
         else:
             engines = [x['name'] for x in f3c_global_config.mutation_engines]
             fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
+            verifiers = [x['name'] for x in f3c_global_config.verifiers]
             return flask.render_template('jobs_edit.html',
                                          job=job,
                                          engines=engines,
-                                         fuzzers=fuzzers)
+                                         fuzzers=fuzzers,
+                                         verifiers=verifiers)
     else:
         flask.abort(400, description="Invalid job ID")
 
@@ -158,6 +164,7 @@ def _get_summary_for_crash(crash):
 @jobs.route("/jobs/download/<job_id>")
 @login_required
 def jobs_download(job_id):
+    # FIXME may crash if no crashes available
     if job_id is None:
         flask.flash("Invalid job ID")
         return flask.redirect('/jobs/show')

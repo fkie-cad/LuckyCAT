@@ -16,6 +16,7 @@
     <th>Archived</th>
     <th>Fuzzer</th>
     <th>Mutation engine</th>
+    <th>Verifier</th>
     <th>Start date</th>
   </tr>
   {% for job in jobs %}
@@ -36,6 +37,7 @@
       </td>
       <td>{{ job.fuzzer }}</td>
       <td>{{ job.mutation_engine }}</td>
+      <td>{{ job.verifier }}</td>
       <td>{{ job.date }}</td>
     </tr>
 {% endfor %}

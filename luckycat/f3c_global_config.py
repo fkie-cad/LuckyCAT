@@ -41,3 +41,8 @@ fuzzers = [{'name': 'afl', 'description': 'AFL is a mutator and fuzzer'},
            {'name': 'qemufuzzer', 'description': 'qemufuzzer fuzzes binaries of whole firmware images'},
            {'name': 'elffuzzer', 'description': 'ELF fuzzer for *UNIX systems'},
            {'name': 'trapfuzzer', 'description': 'trap fuzzer for BSD-based systems'}]
+
+# fuzzer configuration
+verifiers = [{'name': 'local_exploitable', 'description': 'Local exploitable verifier'},
+           {'name': 'remote_exploitable', 'description': 'Remote exploitable verifier with gdb remote'},
+           {'name': 'no_verification', 'description': 'No verification of crashes'}]

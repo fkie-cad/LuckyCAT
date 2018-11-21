@@ -40,6 +40,17 @@
       </td>
       <td><i>The mutation engine to use for sample generation.</i></td>
    </tr>
+      <tr>
+     <td><label>Verifier</label></td>
+      <td>
+        <select required name="verifier" size="{{verifiers|length}}">
+	   {% for verifier in verifiers %}
+       <option value="{{verifier}}">{{verifier}}</option>
+       {% endfor %}
+        </select>
+      </td>
+      <td><i>The mutation engine to use for sample generation.</i></td>
+   </tr>
    <tr>
     <td>Start date</td>
     <td>{{ job.date }}</td>

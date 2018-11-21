@@ -15,6 +15,7 @@ class Job(Document):
     archived = BooleanField()
     mutation_engine = StringField()
     fuzzer = StringField()
+    verifier = StringField()
     samples = BinaryField()
     firmware_root = BinaryField()
     fuzzing_target = BinaryField()
