@@ -19,4 +19,5 @@ class Job(Document):
     samples = BinaryField()
     firmware_root = BinaryField()
     fuzzing_target = BinaryField()
+    cmd_args = StringField()
     owner = ReferenceField(User)

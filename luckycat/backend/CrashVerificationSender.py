@@ -34,8 +34,8 @@ class CrashVerificationSender(Process):
         try:
             buf = crash.test_case
             crash = {'data': base64.b64encode(buf).decode(),
-                     'args': '',
-                     'program': base64.b64encode(project.fuzzing_target).decode(),
+                     'cmd_args': project.cmd_args,
+                     'executable': base64.b64encode(project.fuzzing_target).decode(),
                      'crash_id': str(crash.id),
                      'verifier': project.verifier}
             self.wq.publish(self.ver_queue, json.dumps(crash))

@@ -40,6 +40,7 @@ def jobs_show():
 @jobs.route("/jobs/add", methods=['GET', 'POST'])
 @login_required
 def add_job():
+    # TODO check if job with this name already exists
     if flask.request.method == 'GET':
         engines = [x['name'] for x in f3c_global_config.mutation_engines]
         fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
@@ -86,6 +87,7 @@ def add_job():
                       verifier=data.get('verifier'),
                       samples=samples,
                       fuzzing_target=files['fuzzing_target'].stream.read(),
+                      cmd_args=data.get('cmd_args'),
                       firmware_root=firmware_root,
                       owner=User.objects.get(email=current_user.email))
         new_job.save()
@@ -116,6 +118,7 @@ def delete_job(job_id):
 @jobs.route('/jobs/edit/<job_id>', methods=['GET', 'POST'])
 @login_required
 def edit_job(job_id):
+    # TODO prefill form with current values
     job = Job.objects.get(id=job_id)
     if job:
         if not can_do_stuff_with_job(current_user, job.owner):

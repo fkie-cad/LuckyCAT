@@ -21,6 +21,8 @@ def api_get_job_information(job):
             'timeout': job.timeout,
             'enabled': job.enabled,
             'fuzzer': job.fuzzer,
+            'verifier': job.verifier,
+            'cmd_args': job.cmd_args
             }
 
 
@@ -91,6 +93,8 @@ def api_create_job():
                       fuzzer=data.get('fuzzer'),
                       samples=base64.b64decode(data.get('samples')),
                       fuzzing_target=base64.b64decode(data.get('fuzzing_target')),
+                      cmd_args=data.get('cmd_args'),
+                      verifier=data.get('verifier'),
                       firmware_root=firmware_root)
         new_job.save()
         return json.dumps({'success': True})

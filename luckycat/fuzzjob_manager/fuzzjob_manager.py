@@ -2,12 +2,12 @@ import logging.config
 import os
 import argparse
 import sys
-import json
 import base64
 import requests
 from urllib.parse import urljoin
 
-logging = logging.getLogger(os.path.basename(__file__).split(".")[0])
+logger = logging.getLogger('fuzzjob_manager')
+logger.setLevel(logging.INFO)
 
 
 def query_yes_no(question, default="yes"):
@@ -48,24 +48,26 @@ def query_yes_no(question, default="yes"):
 def create_job(args):
     # TODO: check if all arguments are provided
     if args.test_cases is None or args.fuzzing_target is None:
-        logging.error("Not test cases or fuzzing target provided.")
+        logger.error("Not test cases or fuzzing target provided.")
         sys.exit(1)
     test_cases = open(args.test_cases, 'rb').read()
     fuzzing_target = open(args.fuzzing_target, 'rb').read()
 
-    logging.info('Creating fuzz job %s with the following parameters:' % args.name)
-    logging.info('\tdescription: %s' % args.description)
-    logging.info('\tmaximum_samples: %s' % args.maximum_samples)
-    logging.info('\tmaximum_iteration: %s' % args.maximum_iteration)
-    logging.info('\tmutation_engine: %s' % args.mutation_engine)
-    logging.info('\tfuzzer: %s' % args.fuzzer)
-    logging.info('\ttest cases size: %i bytes' % len(test_cases))
-    logging.info('\tfuzzing target cases size: %i bytes' % len(fuzzing_target))
+    print('Creating fuzz job %s with the following parameters:' % args.name)
+    print('\tdescription: %s' % args.description)
+    print('\tmaximum_samples: %s' % args.maximum_samples)
+    print('\tmaximum_iteration: %s' % args.maximum_iteration)
+    print('\tmutation_engine: %s' % args.mutation_engine)
+    print('\tfuzzer: %s' % args.fuzzer)
+    print('\tverifier: %s' % args.verifier)
+    print('\tcommand line arguments: %s' % args.cmd_args)
+    print('\ttest cases size: %i bytes' % len(test_cases))
+    print('\tfuzzing target size: %i bytes' % len(fuzzing_target))
 
     if not args.yes:
         res = query_yes_no('Is this correct?')
         if not res:
-            logging.info('Creation aborted...')
+            logger.info('Creation aborted...')
             sys.exit(1)
 
     json_doc = {'name': args.name,
@@ -75,6 +77,8 @@ def create_job(args):
                 'timeout': args.timeout,
                 'mutation_engine': args.mutation_engine,
                 'fuzzer': args.fuzzer,
+                'verifier': args.verifier,
+                'cmd_args': args.cmd_args,
                 'samples': base64.b64encode(test_cases),
                 'fuzzing_target': base64.b64encode(fuzzing_target),
                 }
@@ -85,10 +89,10 @@ def create_job(args):
                                      'content-type': 'application/json'},
                             verify=args.ssl_verify)
     if response.status_code != 200 or not response.json()['success']:
-        logging.error("Could not create fuzzing job: %s" % response.text)
+        logger.error("Could not create fuzzing job: %s" % response.text)
     else:
         print(response.text)
-        logging.info("Created fuzzing job.")
+        logger.info("Created fuzzing job.")
 
 
 def find_job_id_by_name(args):
@@ -97,7 +101,7 @@ def find_job_id_by_name(args):
                                           'content-type': 'application/json'},
                             verify=args.ssl_verify)
     if response.status_code != 200:
-        logging.error("Could not list jobs.")
+        logger.error("Could not list jobs.")
     else:
         job_id = None
         for job in response.json():
@@ -110,19 +114,23 @@ def print_job_info(job):
     print('\tname: %s' % job['name'])
     print('\tID: %s' % job['job_id'])
     print('\tdescription: %s' % job['description'])
+    print('\tarchived: %s' % job['archived'])
+    print('\tenabled: %s' % job['enabled'])
     print('\tmaximum_samples: %s' % job['maximum_samples'])
     print('\tmaximum_iteration: %s' % job['maximum_iteration'])
-    print('\tmutation_engine: %s' % job['mutation_engine'])
     print('\tfuzzer: %s' % job['fuzzer'])
+    print('\tmutation_engine: %s' % job['mutation_engine'])
+    print('\tverifier: %s' % job['verifier'])
+    print('\tcommand line arguments: %s' % job['cmd_args'])
 
 
 def delete_job(args):
     if args.name is None:
-        logging.error("Please provide a valid name of a job.")
+        logger.error("Please provide a valid name of a job.")
     else:
 
         if not query_yes_no("Do you want to delete the job %s?" % args.name):
-            logging.error("Aborting...")
+            logger.error("Aborting...")
             sys.exit(1)
 
         job_id = find_job_id_by_name(args)
@@ -146,19 +154,19 @@ def list_jobs(args):
                                               'content-type': 'application/json'},
                                 verify=args.ssl_verify)
         if response.status_code != 200:
-            logging.error("Could not list fuzz job %s: %d." % (args.name, response.status_code))
+            logger.error("Could not list fuzz job %s: %d." % (args.name, response.status_code))
         else:
             if 'name' in response.json():
                 print_job_info(response.json())
             else:
-                logging.error('No job with name %s known.' % args.name)
+                logger.error('No job with name %s known.' % args.name)
     else:
         url = urljoin(args.url, "/api/jobs")
         response = requests.get(url, headers={'Authorization': args.token,
                                               'content-type': 'application/json'},
                                 verify=args.ssl_verify)
         if response.status_code != 200:
-            logging.error("Could not list jobs: %s" % response.text)
+            logger.error("Could not list jobs: %s" % response.text)
         else:
             for job in response.json():
                 print_job_info(job)
@@ -166,6 +174,7 @@ def list_jobs(args):
 
 
 def parse_args():
+    # TODO return results as JSON
     parser = argparse.ArgumentParser(description='Manage fuzzing jobs from the command line')
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -181,8 +190,10 @@ def parse_args():
     parser.add_argument('--description', type=str, default='', help='Description of the fuzz job')
     parser.add_argument('--mutation-engine', choices=['radamsa', 'urandom', 'external'],
                         help='Mutation engine to generate test cases', default='radamsa')
-    parser.add_argument('--fuzzer', choices=['cfuzz', 'afl'],
+    parser.add_argument('--fuzzer', choices=['cfuzz', 'afl', 'qemufuzzer', 'elffuzzer', 'trapfuzzer'],
                         help='Fuzzer to test target with', default='cfuzz')
+    parser.add_argument('--verifier', choices=['local_exploitable', 'remote_exploitable', 'no_verification'],
+                        help='Verifier for crashes', default='no_verification')
     parser.add_argument('--maximum-samples', dest='maximum_samples', type=int, default=4,
                         help='Maximum number of test cases to generate at once')
     parser.add_argument('--maximum-iteration', type=int, dest='maximum_iteration',
@@ -191,6 +202,7 @@ def parse_args():
                         default=0, help='Disable fuzzing job after timeout. Default: 0 == None.')
     parser.add_argument('--test-cases', type=str, help='One or several test cases (as zip file) for fuzzing.')
     parser.add_argument('--fuzzing-target', type=str, help='Fuzzing target for fuzzing.')
+    parser.add_argument('--cmd_args', type=str, default='', help='Command line arguments for fuzzing target.')
 
     # arguments for deletion of fuzz job
     parser.add_argument('--id', type=str, help='ID of fuzz job to delete')
