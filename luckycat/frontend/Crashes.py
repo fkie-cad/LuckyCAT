@@ -12,7 +12,6 @@ from luckycat.database.models.Job import Job
 
 crashes = flask.Blueprint('crashes', __name__)
 
-
 def _get_job_name_from_id(job_id):
     job = Job.objects.get(id=job_id)
     return job.name
@@ -92,7 +91,34 @@ def get_original_and_crash_test_case_of_crash(crash):
 @crashes.route('/crashes/show/next/<crash_id>')
 @login_required
 def show_next_crash(crash_id):
-    pass
+    job_id_of_crash = list(Crash.objects(id=crash_id))[0]["job_id"]
+    all_job_crashes = list(Crash.objects(job_id=job_id_of_crash))
+    for index, crash in enumerate(all_job_crashes):
+        if str(crash["id"]) == str(crash_id):
+            if index == len(all_job_crashes)-1:
+                next_crash_index = 0
+                break
+            else:
+                next_crash_index = index + 1
+                break
+    return show_crash(all_job_crashes[next_crash_index]["id"])
+
+
+@crashes.route('/crashes/show/previous/<crash_id>')
+@login_required
+def show_previous_crash(crash_id):
+    job_id_of_crash = list(Crash.objects(id=crash_id))[0]["job_id"]
+    all_job_crashes = list(Crash.objects(job_id=job_id_of_crash))
+    for index, crash in enumerate(all_job_crashes):
+        if str(crash["id"]) == str(crash_id):
+            if index == 0:
+                next_crash_index = len(all_job_crashes)-1
+                break
+            else:
+                next_crash_index = index - 1
+                break
+    return show_crash(all_job_crashes[next_crash_index]["id"])
+
 
 
 @crashes.route('/crashes/download/<crash_id>')
