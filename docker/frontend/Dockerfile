@@ -4,10 +4,10 @@ MAINTAINER Thomas Barabosch <thomas.barabosch@fkie.fraunhofer.de>
 # install dependencies 
 RUN apt-get update -y && apt-get install -y gcc cmake make wget screen gdb \
 python automake git htop python3 build-essential python3-setuptools python3-dev \
-python3-pip nginx libffi-dev libfuzzy-dev
+python3-pip nginx
 
 RUN pip3 install --upgrade pip
-RUN pip3 install Flask flask-security flask-mongoengine bcrypt uwsgi python-dateutil ssdeep
+RUN pip3 install Flask flask-security flask-mongoengine bcrypt uwsgi python-dateutil
 
 
 # create SSL certificate
