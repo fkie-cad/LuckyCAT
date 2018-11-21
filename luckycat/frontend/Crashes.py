@@ -91,14 +91,16 @@ def get_original_and_crash_test_case_of_crash(crash):
     encoded_crash_test_case = base64.b64encode(crash_test_case).decode('ascii')
 
     if testcase_can_be_diffed(crash.job_id):
+        print("\n\n\ntrue\n\n\n")
         if (original_test_case.startswith(b'PK')):
+            print("\n\n\ntrue\n\n\n")
             import zipfile
             zipfile = zipfile.ZipFile(io.BytesIO(original_test_case))
             max_similarity = 0
             for name in zipfile.namelist():
                 possible_original_test_case = zipfile.read(name)
                 similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
-                                             encoded_crash_test_case).ratio()
+                                             base64.b64encode(crash_test_case)).ratio()
                 if similarity > max_similarity:
                     max_similarity = similarity
                     original_test_case = possible_original_test_case
