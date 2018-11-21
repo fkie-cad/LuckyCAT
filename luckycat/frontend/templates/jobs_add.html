@@ -51,10 +51,26 @@
       </td>
       <td><i>The mutation engine to use for sample generation.</i></td>
    </tr>
+     <tr>
+     <td><label>Verifier</label></td>
+      <td>
+        <select required name="verifier" size="{{verifiers|length}}">
+          {% for verifier in verifiers %}
+            <option value="{{verifier}}">{{verifier}}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td><i>The fuzzer to use for fuzzing.</i></td>
+   </tr>
     <tr>
     <td><label>Fuzzing Target</label></td>
     <td><input type="file" name="fuzzing_target" required></td>
     <td><i>The executable to fuzz</i></td>
+   </tr>
+      <tr>
+    <td><label>Command line arguments</label></td>
+    <td><input type="text" name="cmd_args" size="50"></td>
+    <td><i>Command line arguments to pass to fuzzing target.</i></td>
    </tr>
    <tr>
     <td><label>Samples</label></td>

@@ -30,6 +30,20 @@ class CrashVerificationSender(Process):
         res = Crash.objects(verified=False)
         return res
 
+    def _send_crash_out(self, project, crash):
+        try:
+            buf = crash.test_case
+            crash = {'data': base64.b64encode(buf).decode(),
+                     'cmd_args': project.cmd_args,
+                     'executable': base64.b64encode(project.fuzzing_target).decode(),
+                     'crash_id': str(crash.id),
+                     'verifier': project.verifier}
+            self.wq.publish(self.ver_queue, json.dumps(crash))
+        except Exception as e:
+            logger.warning("Failed verification of %s with %s. Deleting crash!" % (
+                crash['crash_path'], str(e)))
+            crash.delete()
+
     def run(self):
         logger.info("Starting CrashVerification ...")
         connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
@@ -39,18 +53,8 @@ class CrashVerificationSender(Process):
             else:
                 crashes = self._get_non_verified_crashes()
                 for crash in crashes:
-                    # TODO determine verifier from project table
                     current_project = self._get_job_from_crash(crash)
-                    try:
-                        buf = crash.test_case
-                        crash = {'data': base64.b64encode(buf).decode(),
-                                 'args': '',
-                                 'program': '',
-                                 'crash_id': str(crash.id),
-                                 'remote': current_project.fuzzer == "cfuzz"}
-                        self.wq.publish(self.ver_queue, json.dumps(crash))
-                    except Exception as e:
-                        logger.warn("Failed verification of %s with %s. Deleting crash!" % (crash['crash_path'], str(e)))
-                        crash.delete()
+                    if current_project.verifier != 'no_verification':
+                        self._send_crash_out(current_project, crash)
 
             time.sleep(f3c_global_config.crash_verification_sender_sleeptime)

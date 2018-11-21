@@ -48,6 +48,8 @@ def show_crashes():
 @crashes.route('/crashes/show/<crash_id>')
 @login_required
 def show_crash(crash_id):
+    # TODO only show diff if mutation engine is external and actually mutates something (e.g. radamsa)
+    # TODO Do not show diff if mutation engine is fuzzer interal or generates samples like /dev/urandom
     if crash_id:
         crash = Crash.objects.get(id=crash_id)
         if crash:
