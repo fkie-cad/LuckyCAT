@@ -14,7 +14,7 @@
 <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
   <tr>
     <th align="left">Job</th>
-    <td>{{ crash.job_id }}</td>
+    <td>{{ job_name }}</td>
   </tr>
   <tr>
     <th align="left">Date</th>
@@ -56,6 +56,7 @@
   </div>
 </div>
 
+{% if encoded_original_test_case %}
 <div class="row">
   <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
@@ -76,6 +77,7 @@
       </div>
   </div>
 </div>
+{% endif %}
 
 <script type="text/javascript">
   function toggleIcon(e) {
@@ -86,10 +88,9 @@
   }
   $('.panel-group').on('hidden.bs.collapse', toggleIcon);
   $('.panel-group').on('shown.bs.collapse', toggleIcon);
+  var crash_test_case = atob("{{ encoded_crash_test_case }}");
 
-  var crash_sample = atob("{{ encoded_crash_sample }}");
-
-  new Hexdump(crash_sample, {
+  new Hexdump(crash_test_case, {
     container: 'hexdump'
     , base: 'hex'
     , width: 25
@@ -108,12 +109,12 @@
     }
   });
 
-  var original_sample = atob("{{ encoded_original_sample }}"),
-    crash_sample = atob("{{ encoded_crash_sample }}"),
+  var original_test_case = atob("{{ encoded_original_test_case }}"),
+    crash_test_case = atob("{{ encoded_crash_test_case }}"),
     color = '',
     span = null;
 
-    var diff = JsDiff.diffChars(crash_sample, original_sample),
+    var diff = JsDiff.diffChars(crash_test_case, original_test_case),
         display = document.getElementById('display'),
         fragment = document.createDocumentFragment();
 

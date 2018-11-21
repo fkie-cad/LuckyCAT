@@ -53,12 +53,13 @@ def show_crash(crash_id):
         if crash:
             job_ids = _get_job_ids_of_user()
             if crash.job_id in job_ids:
-                original_test_case, crash_test_case  = get_original_and_crash_test_case_of_crash(crash)
-
+                job_name = get_job_name_of_job_id(crash.job_id)
+                encoded_original_test_case, encoded_crash_test_case  = get_original_and_crash_test_case_of_crash(crash)
                 return flask.render_template("crashes_view.html",
                                              crash=crash,
-                                             encoded_crash_sample=base64.b64encode(crash_test_case).decode('ascii'),
-                                             encoded_original_sample=base64.b64encode(original_test_case).decode('ascii'))
+                                             job_name=job_name,
+                                             encoded_crash_test_case=encoded_crash_test_case,
+                                             encoded_original_test_case=encoded_original_test_case)
             else:
                 flask.flash("'Not allowed to view this crash.")
                 return flask.redirect('crashes/show')
@@ -69,23 +70,43 @@ def show_crash(crash_id):
         flask.flash('Not a valid crash id.')
         return flask.redirect('crashes/show')
 
+def get_job_name_of_job_id(job_id):
+    return list(Job.objects(id=job_id))[0]["name"]
+
+
+def testcase_can_be_diffed(job_id):
+    mutation_engine = list(Job.objects(id=job_id))[0]["mutation_engine"]
+    if mutation_engine == "radamsa":
+        return True
+    else:
+        return False
+
 
 def get_original_and_crash_test_case_of_crash(crash):
     crash_test_case = crash.test_case
     original_test_case = list(Job.objects(id=crash.job_id))[0]["samples"]
+    encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
+    encoded_crash_test_case = base64.b64encode(crash_test_case).decode('ascii')
 
-    if (original_test_case.startswith(b'PK')):
-        import zipfile
-        zipfile = zipfile.ZipFile(io.BytesIO(original_test_case))
-        max_similarity = 0
-        for name in zipfile.namelist():
-            possible_original_test_case = zipfile.read(name)
-            similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
-                                         base64.b64encode(crash_test_case)).ratio()
-            if similarity > max_similarity:
-                max_similarity = similarity
-                original_test_case = possible_original_test_case
-    return original_test_case, crash_test_case
+    if testcase_can_be_diffed(crash.job_id):
+        if (original_test_case.startswith(b'PK')):
+            import zipfile
+            zipfile = zipfile.ZipFile(io.BytesIO(original_test_case))
+            max_similarity = 0
+            for name in zipfile.namelist():
+                possible_original_test_case = zipfile.read(name)
+                similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
+                                             encoded_crash_test_case).ratio()
+                if similarity > max_similarity:
+                    max_similarity = similarity
+                    original_test_case = possible_original_test_case
+
+            encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
+    else:
+        encoded_original_test_case = None
+
+
+    return encoded_original_test_case, encoded_crash_test_case
 
 
 @crashes.route('/crashes/show/next/<crash_id>')
