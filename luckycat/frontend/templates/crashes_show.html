@@ -90,7 +90,7 @@
           </td>
          <td>{{map_signal_to_string(crash.crash_signal)}}</td>
           <td>{{crash.crash_hash}}</td>
-          <td>{{crash.date}}</td>
+          <td>{{crash.date.strftime('%Y-%m-%d %H:%M')}}</td>
         </tr>
 {% endfor %}
 

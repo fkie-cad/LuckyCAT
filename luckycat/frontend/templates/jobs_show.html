@@ -40,7 +40,7 @@
       <td>{{ job.mutation_engine }}</td>
       <td>{{ job.verifier }}</td>
       <td>{{ job.cmd_args }}</td>
-      <td>{{ job.date }}</td>
+      <td>{{ job.date.strftime('%Y-%m-%d') }}</td>
     </tr>
 {% endfor %}
   </table>
