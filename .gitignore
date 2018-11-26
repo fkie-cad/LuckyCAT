@@ -164,3 +164,4 @@ dkms.conf
 
 # luckycat specific
 luckycat/reporter/config.py
+core.txt*

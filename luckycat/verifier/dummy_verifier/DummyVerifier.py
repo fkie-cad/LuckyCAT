@@ -1,10 +1,14 @@
 import time
 import os
 import random
-import os
+import zipfile
 from luckycat.verifier.templates.PythonTemplateVerifier import PythonTemplateVerifier
 
 path_to_data = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'data')
+
+zip_ref = zipfile.ZipFile(os.path.join(path_to_data, 'data.zip'), 'r')
+zip_ref.extractall(path_to_data)
+zip_ref.close()
 
 DEMO_CLASSIFICATIONS = [['8ea40395c2a8', 'Double Free', 'EXPLOITABLE'],
                         ['f34202b1d135', 'Use After Free', 'EXPLOITABLE'],
