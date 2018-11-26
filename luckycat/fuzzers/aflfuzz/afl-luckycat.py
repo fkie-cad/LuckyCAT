@@ -24,7 +24,7 @@ def clean_up():
         subprocess.Popen('tmux kill-session -t luckycatAFL', shell=True, stdout=subprocess.PIPE)
     except ChildProcessError:
         pass
-    
+
 
 def check_if_afl_output_dir_is_empty():
     afl_outout_dir = full_path(config.output_dir)
@@ -63,7 +63,7 @@ def full_path(dir_):
 
 def build_tmux_session():
     subprocess.Popen('tmux new -d -s luckycatAFL', shell=True, start_new_session=True, stdout=subprocess.DEVNULL)
-    
+
 
 class AflFuzzer(PythonFuzzer):
     def __init__(self):
@@ -73,11 +73,17 @@ class AflFuzzer(PythonFuzzer):
     @staticmethod
     def build_afl_command(fuzzer_id):
         if fuzzer_id == 0:
-            return 'afl-fuzz -i {} -o {} -M master -- {}'.format(config.input_dir, config.output_dir, config.cmd)
+            return 'afl-fuzz -m {} -i {} -o {} -M master -- {}'.format(config.memory_limit,
+                                                                       config.input_dir,
+                                                                       config.output_dir,
+                                                                       config.cmd)
         else:
-            return 'afl-fuzz -i {} -o {} -S slave{} -- {}'.format(config.input_dir, config.output_dir, fuzzer_id,
-                                                                  config.cmd)
-        
+            return 'afl-fuzz -m {} -i {} -o {} -S slave{} -- {}'.format(config.memory_limit,
+                                                                        config.input_dir,
+                                                                        config.output_dir,
+                                                                        fuzzer_id,
+                                                                        config.cmd)
+
     @staticmethod
     def build_new_tmux_window():
         subprocess.call('tmux new-window -t luckycatAFL', shell=True)
