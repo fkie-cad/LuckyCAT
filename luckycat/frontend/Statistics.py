@@ -324,10 +324,12 @@ class StatisticCalculator:
         iteration = 0
         runtime = 0
         execs_per_sec = 0
+        job_ids = [job.id for job in Job.objects]
         for job_statistic in Statistic.objects:
-            iteration += job_statistic.iteration
-            runtime += job_statistic.runtime
-            execs_per_sec += job_statistic.execs_per_sec
+            if job_statistic.job_id in job_ids:
+                iteration += job_statistic.iteration
+                runtime += job_statistic.runtime
+                execs_per_sec += job_statistic.execs_per_sec
         return iteration, runtime, execs_per_sec
 
     def list_job_names_with_stats(self):
