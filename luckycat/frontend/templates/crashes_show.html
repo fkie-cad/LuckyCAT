@@ -4,103 +4,102 @@
 
 {% block content %}
 
-
-
-<tr><td>
 <h2>Fuzzing results</h2>
-<form name="fmFilter">
-  <label><b class="label">Show</b> results matching field</label>
-  <input type="hidden" id="idSelected" value="">
-  <select name="field" id="idSelect">
-    <option value="date">Date</option>
-    <option value="exploitability">Exploitable</option>
-    <option value="disassembly">Disassembly</option>
-    <option value="program_counter">Program counter</option>
-    <option value="crash_signal">Signal</option>
-    <option value="crash_hash">Crash hash</option>
-  </select>
-  <label>with value similar to</label>
-  <input type="text" name="fieldValue" id="idFieldValue" value="">
-  <input type="submit" value="Apply">
-  <input type="button" value="Reset" onclick="javascript:window.location.href='/results';">
 
-  <br/>
+<!--<form name="fmFilter">-->
+  <!--<label><b class="label">Show</b> results matching field</label>-->
+  <!--<input type="hidden" id="idSelected" value="">-->
+  <!--<select name="field" id="idSelect">-->
+    <!--<option value="date">Date</option>-->
+    <!--<option value="exploitability">Exploitable</option>-->
+    <!--<option value="disassembly">Disassembly</option>-->
+    <!--<option value="program_counter">Program counter</option>-->
+    <!--<option value="crash_signal">Signal</option>-->
+    <!--<option value="crash_hash">Crash hash</option>-->
+  <!--</select>-->
+  <!--<label>with value similar to</label>-->
+  <!--<input type="text" name="fieldValue" id="idFieldValue" value="">-->
+  <!--<input type="submit" value="Apply">-->
+  <!--<input type="button" value="Reset" onclick="javascript:window.location.href='/results';">-->
 
-  <label><b class="label">Hide</b> results matching field</label>
-  <input type="hidden" id="idNoSelected" value="">
-  <select name="no_field" id="idNoSelect">
-    <option value="crash_signal">Signal</option>
-    <option value="exploitability">Exploitable</option>
-    <option value="date">Date</option>
-    <option value="disassembly">Disassembly</option>
-    <option value="program_counter">Program counter</option>
-    <option value="crash_hash">Crash hash</option>
-  </select>
-  <label>with value similar to</label>
-  <input type="text" name="no_fieldValue" id="idNoFieldValue" value="">
+  <!--<br/>-->
 
-  <input type="checkbox" name="hideDup" id="hideDup" ""/>
-  <label for"hideDup">Hide duplicates</label>
-  <input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>
-  <label for"hideNonVerified">Hide Non Verified Crashes</label>
+  <!--<label><b class="label">Hide</b> results matching field</label>-->
+  <!--<input type="hidden" id="idNoSelected" value="">-->
+  <!--<select name="no_field" id="idNoSelect">-->
+    <!--<option value="crash_signal">Signal</option>-->
+    <!--<option value="exploitability">Exploitable</option>-->
+    <!--<option value="date">Date</option>-->
+    <!--<option value="disassembly">Disassembly</option>-->
+    <!--<option value="program_counter">Program counter</option>-->
+    <!--<option value="crash_hash">Crash hash</option>-->
+  <!--</select>-->
+  <!--<label>with value similar to</label>-->
+  <!--<input type="text" name="no_fieldValue" id="idNoFieldValue" value="">-->
 
-  <br/>
+  <!--<input type="checkbox" name="hideDup" id="hideDup" ""/>-->
+  <!--<label for"hideDup">Hide duplicates</label>-->
+  <!--<input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>-->
+  <!--<label for"hideNonVerified">Hide Non Verified Crashes</label>-->
 
-  <label><b class="label">Sort</b> results matching field</label>
-  <input type="hidden" id="idSavedSort" value="$sort_value">
-  <select name="sortValue" id="idSortSelect">
-    <option value="crash_signal">Signal</option>
-    <option value="exploitability">Exploitable</option>
-    <option value="date" selected>Date</option>
-    <option value="disassembly">Disassembly</option>
-    <option value="program_counter">Program counter</option>
-    <option value="crash_hash">Crash hash</option>
-  </select>
+  <!--<br/>-->
+
+  <!--<label><b class="label">Sort</b> results matching field</label>-->
+  <!--<input type="hidden" id="idSavedSort" value="$sort_value">-->
+  <!--<select name="sortValue" id="idSortSelect">-->
+    <!--<option value="crash_signal">Signal</option>-->
+    <!--<option value="exploitability">Exploitable</option>-->
+    <!--<option value="date" selected>Date</option>-->
+    <!--<option value="disassembly">Disassembly</option>-->
+    <!--<option value="program_counter">Program counter</option>-->
+    <!--<option value="crash_hash">Crash hash</option>-->
+  <!--</select>-->
 
 
-</form>
+<!--</form>-->
+
 <table border="0">
   {% if results|length > 0 %}
     {% for crashes in results %}
      {% if crashes|length > 0 %}
-       <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
-
-    <tr>
-
-          <th colspan="6">Project {{crashes[0]}} - {{ crashes[1]|length }} crashes [<a href="/download/job/{{ crashes[1][0].job_id }}">Download project results</a>]</th>
-      </tr>
-      <tr>
-        <th>Action</th>
-        <th>Exploitable</th>
-	 <th>Signal</th>
-	<th>Crash Hash</th>
-        <th>Date</th>
-      </tr>
-      {% for crash in crashes[1] %}
-        <tr>
-          <td align="center">
-            <!--<a href="/crashes/show/{{ crash.id }}"><span class="glyphicon glyphicon-eye-open"></span></a>-->
-            <a href="{{ url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-            <a href="{{ url_for('crashes.download_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-download"></span></a>
+        <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
+            <tr>
+                <th colspan="6">Project {{crashes[0]}} - {{ crashes[1]|length }} crashes [<a href="/download/job/{{ crashes[1][0].job_id }}">Download project results</a>]</th>
+            </tr>
+            <tr>
+                <th>Action</th>
+                <th>Exploitable</th>
+                <th>Signal</th>
+                <th>Crash Hash</th>
+                <th>Date</th>
+            </tr>
+            {% for crash in crashes[1] %}
+                <tr>
+                    <td align="center">
+                        <a href="{{ url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+                        <a href="{{ url_for('crashes.download_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-download"></span></a>
                         <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
-          </td>
-
-          <td>
-             <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
-          </td>
-         <td>{{map_signal_to_string(crash.crash_signal)}}</td>
-          <td>{{crash.crash_hash}}</td>
-          <td>{{crash.date.strftime('%Y-%m-%d %H:%M')}}</td>
-        </tr>
-{% endfor %}
-
-
-       </table>
+                    </td>
+                    <td>
+                        <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
+                    </td>
+                    <td>
+                        {{map_signal_to_string(crash.crash_signal)}}
+                    </td>
+                    <td>
+                        {{crash.crash_hash}}
+                    </td>
+                    <td>
+                      {{crash.date.strftime('%Y-%m-%d %H:%M')}}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
      {% endif %}
-    {% endfor %}
+  {% endfor %}
   {% else %}
-    No results yet. You may want to check the <a href="/statistics/show">statistics</a> meanwhile.
+      No results yet. You may want to check the <a href="/statistics/show">statistics</a> meanwhile.
   {% endif %}
-</td></tr>
 </table>
+
 {% endblock %}
