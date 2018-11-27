@@ -27,7 +27,7 @@ class StatisticCalculator:
     def calculate_statistic_for_all_jobs(self):
         statistic = {}
         statistic["general"] = self.calculate_general_statistics()
-        statistic["job_names"] = self.list_job_names()
+        statistic["job_names"] = self.list_job_names_with_stats()
         statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals()
         statistic["crashes_over_time"] = {}
         statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["iterations"]\
@@ -37,7 +37,7 @@ class StatisticCalculator:
     def calculate_statistic_for_selected_job(self, selected_job):
         statistic = {}
         statistic["general"] = self.calculate_general_statistics_for_specific_job(selected_job)
-        statistic["job_names"] = self.list_job_names()
+        statistic["job_names"] = self.list_job_names_with_stats()
         statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals_for_selected_job(selected_job)
         statistic["crashes_over_time"] = {}
         statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["iterations"]\
@@ -330,10 +330,12 @@ class StatisticCalculator:
             execs_per_sec += job_statistic.execs_per_sec
         return iteration, runtime, execs_per_sec
 
-    def list_job_names(self):
+    def list_job_names_with_stats(self):
         job_names = []
         for job in Job.objects:
-            job_names.append(job.name)
+            for job_stats in Statistic.objects:
+                if job.id == job_stats.job_id:
+                    job_names.append(job.name)
         return job_names
 
     def calculate_general_statistics(self):
