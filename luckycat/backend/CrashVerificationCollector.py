@@ -29,6 +29,8 @@ class CrashVerificationCollector(Process):
                          exploitability=verified_crash['classification'],
                          additional=verified_crash['short_desc'],
                          crash_hash=verified_crash['crash_hash'])
+            if 'additional' in verified_crash:
+                crash.update(additional=verified_crash['additional'])
             logger.debug('[CrashVerification] Updated crash in DB.')
         else:
             logger.debug('[CrashVerification] Could not verify crash.')

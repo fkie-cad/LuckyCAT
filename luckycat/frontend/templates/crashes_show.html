@@ -72,7 +72,6 @@
       <tr>
         <th>Action</th>
         <th>Exploitable</th>
-	<th>Description</th>
 	 <th>Signal</th>
 	<th>Crash Hash</th>
         <th>Date</th>
@@ -89,10 +88,9 @@
           <td>
              <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
           </td>
-	  <td>{{crash.additional}}</td>
          <td>{{map_signal_to_string(crash.crash_signal)}}</td>
           <td>{{crash.crash_hash}}</td>
-          <td>{{crash.date}}</td>
+          <td>{{crash.date.strftime('%Y-%m-%d %H:%M')}}</td>
         </tr>
 {% endfor %}
 

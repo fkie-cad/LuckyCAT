@@ -1,5 +1,4 @@
 import logging.config
-import os
 import argparse
 import sys
 import base64

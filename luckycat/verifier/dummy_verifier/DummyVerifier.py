@@ -1,14 +1,23 @@
 import time
 import os
 import random
+import zipfile
 from luckycat.verifier.templates.PythonTemplateVerifier import PythonTemplateVerifier
 
+path_to_data = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'data')
+
+zip_ref = zipfile.ZipFile(os.path.join(path_to_data, 'data.zip'), 'r')
+zip_ref.extractall(path_to_data)
+zip_ref.close()
 
 DEMO_CLASSIFICATIONS = [['8ea40395c2a8', 'Double Free', 'EXPLOITABLE'],
                         ['f34202b1d135', 'Use After Free', 'EXPLOITABLE'],
                         ['517feb05aaed', 'Heap Overflow', 'EXPLOITABLE'],
                         ['0df7e8ddc868', 'Near NULL Pointer', 'PROBABLY_NOT_EXPLOITABLE'],
                         ['2fbbb7865534', 'Abort Signal', 'UNKNOWN']]
+
+ADDITIONAL = [open(os.path.join(path_to_data, 'core.txt.0')).read(),
+              open(os.path.join(path_to_data, 'core.txt.1')).read()]
 
 
 class DummyVerifier(PythonTemplateVerifier):
@@ -26,7 +35,8 @@ class DummyVerifier(PythonTemplateVerifier):
                 'crash_id': crash_info['crash_id'],
                 'short_desc': current_classification[1],
                 'crash_hash': current_classification[0],
-                'classification': current_classification[2]}
+                'classification': current_classification[2],
+                'additional': random.choice(ADDITIONAL)}
 
 
 def main():
