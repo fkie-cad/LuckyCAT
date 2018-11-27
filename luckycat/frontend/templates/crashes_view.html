@@ -71,7 +71,7 @@
           </div>
           <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
               <div class="panel-body">
-                <pre id="display"></pre>
+                <pre id="diff"></pre>
               </div>
           </div>
       </div>
@@ -114,11 +114,11 @@
     color = '',
     span = null;
 
-    var diff = JsDiff.diffChars(crash_test_case, original_test_case),
-        display = document.getElementById('display'),
+    var Diff = JsDiff.diffChars(crash_test_case, original_test_case),
+        diff = document.getElementById('diff'),
         fragment = document.createDocumentFragment();
 
-    diff.forEach(function(part){
+    Diff.forEach(function(part){
       // green for additions, red for deletions
       // grey for common parts
       color = part.added ? 'green' :
@@ -130,7 +130,7 @@
       fragment.appendChild(span);
     });
 
-    display.appendChild(fragment);
+    diff.appendChild(fragment);
 </script>
 
 
