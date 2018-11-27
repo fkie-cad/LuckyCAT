@@ -58,48 +58,64 @@
 
 <!--</form>-->
 
-<table border="0">
+
+
   {% if results|length > 0 %}
-    {% for crashes in results %}
-     {% if crashes|length > 0 %}
-        <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
-            <tr>
-                <th colspan="6">Project {{crashes[0]}} - {{ crashes[1]|length }} crashes [<a href="/download/job/{{ crashes[1][0].job_id }}">Download project results</a>]</th>
-            </tr>
-            <tr>
-                <th>Action</th>
-                <th>Exploitable</th>
-                <th>Signal</th>
-                <th>Crash Hash</th>
-                <th>Date</th>
-            </tr>
-            {% for crash in crashes[1] %}
-                <tr>
-                    <td align="center">
-                        <a href="{{ url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-                        <a href="{{ url_for('crashes.download_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-download"></span></a>
-                        <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
-                    </td>
-                    <td>
-                        <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
-                    </td>
-                    <td>
-                        {{map_signal_to_string(crash.crash_signal)}}
-                    </td>
-                    <td>
-                        {{crash.crash_hash}}
-                    </td>
-                    <td>
-                      {{crash.date.strftime('%Y-%m-%d %H:%M')}}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-     {% endif %}
-  {% endfor %}
+      {% for crashes in results %}
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+              <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="heading{{crashes[0]}}">
+                      <h4 class="panel-title">
+                          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{crashes[0]}}" aria-expanded="true" aria-controls="collapse{{crashes[0]}}">
+                              <i class="more-less glyphicon glyphicon-plus"></i>
+                              Project {{crashes[0]}} - {{ crashes[1]|length }} crashes
+                          </a>
+                      </h4>
+                  </div>
+                  <div id="collapse{{crashes[0]}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{crashes[0]}}">
+                      <div class="panel-body">
+                          {% if crashes|length > 0 %}
+                              <a href="/download/job/{{ crashes[1][0].job_id }}" class="btn btn-sm btn-green white" role="button" >Download Project Results <span class="glyphicon glyphicon-download"></span></a>
+                              <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
+                                  <tr>
+                                      <th>Action</th>
+                                      <th>Exploitable</th>
+                                      <th>Signal</th>
+                                      <th>Crash Hash</th>
+                                      <th>Date</th>
+                                  </tr>
+                                  {% for crash in crashes[1] %}
+                                      <tr>
+                                          <td align="center">
+                                              <a href="{{ url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+                                              <a href="{{ url_for('crashes.download_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-download"></span></a>
+                                              <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
+                                          </td>
+                                          <td>
+                                              <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
+                                          </td>
+                                          <td>
+                                              {{map_signal_to_string(crash.crash_signal)}}
+                                          </td>
+                                          <td>
+                                              {{crash.crash_hash}}
+                                          </td>
+                                          <td>
+                                            {{crash.date.strftime('%Y-%m-%d %H:%M')}}
+                                          </td>
+                                      </tr>
+                                  {% endfor %}
+                              </table>
+                         {% endif %}
+                      </div>
+                  </div>
+              </div>
+          </div>
+      {% endfor %}
   {% else %}
       No results yet. You may want to check the <a href="/statistics/show">statistics</a> meanwhile.
   {% endif %}
-</table>
+
 
 {% endblock %}
