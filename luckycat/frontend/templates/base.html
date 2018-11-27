@@ -69,7 +69,12 @@
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
         </button>
-        <div class="navbar-brand hidden-sm" style="vertical-align: middle; margin-right: 10px">
+        <div class="navbar-brand-logo hidden-sm hidden-md" style="vertical-align: middle; margin-left: 15px">
+            <span>
+                <img src="{{ url_for('static', filename='Logo_LuckyCat.png') }}" height="50px" width="50px">
+            </span>
+        </div>
+        <div class="navbar-brand hidden-sm hidden-md" style="vertical-align: middle; margin-right: 5px">
             Lucky CAT
         </div>
     </div>
@@ -77,6 +82,7 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
+
         <li class="{{ 'active' if active_page == 'Index' else '' }}">
             <a href="/"><span class="glyphicon glyphicon-home"></span> Index <span class="sr-only">(current)</span></a>
         </li>

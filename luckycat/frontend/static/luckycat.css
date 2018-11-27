@@ -9,6 +9,14 @@ h1 {
   color: #FFFFFF;
 }
 
+.navbar-brand-logo {
+  float: left;
+  height: 50px;
+  padding: 1px 15px;
+  font-size: 18px;
+  line-height: 20px;
+}
+
 #vertmenu {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 100%;
