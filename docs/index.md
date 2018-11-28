@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="luckycat/frontend/static/Logo_LuckyCat_Typo.png" alt="Lucky CAT Logo" width="256" height="256"/>
+    <img src="https://github.com/fkie-cad/LuckyCAT/blob/master/luckycat/frontend/static/Logo_LuckyCat_Typo.png" alt="Lucky CAT Logo" width="256" height="256"/>
 </p>
 
 # Lucky CAT - Make Fuzzing Great Again!
