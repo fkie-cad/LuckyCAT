@@ -50,7 +50,7 @@ The workflow of Lucky CAT is as follows:
 - Deploy (if possible) a verifier for crash verification (probably on the real device if you fuzzing some IoT thingy).
 - Start fuzzing and check on the results and stats in the web interface.
 
-If you wish to integrate or automate Lucky CAT then you may want to have a look at [its RESTful API](doc/rest_api.md).
+If you wish to integrate or automate Lucky CAT then you may want to have a look at [its RESTful API](docs/rest_api.md).
 
 ## How to extend Lucky CAT with a new fuzzer or verifier?
 While there are several ways to extend the code, the easiest way is to integrate another fuzzer or verifier.
