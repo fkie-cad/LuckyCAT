@@ -98,6 +98,7 @@ class AflFuzzer(PythonFuzzer):
             if fuzz_task.poll() is not None:
                 logging.debug('Failed to spawn at least one subprocess. Aborting!')
                 sys.exit(1)
+        # TODO check if afl hasn't crashed right after the start
         logging.debug('Success!')
 
     @staticmethod

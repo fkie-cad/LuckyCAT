@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/luckycat/frontend/static/Logo_LuckyCat_Typo.png" alt="Lucky CAT Logo" width="256" height="256"/>
+</p>
+
 # Lucky CAT - Make Fuzzing Great Again!
 Lucky CAT (*C*rash *A*ll the *T*hings) is a fuzzing management framework. Its ultimate goal is to automate the fuzzing workflow as much as possible. By doing that, it lets you focus on your target. For example, you can easily integrate your fuzzer, quickly setup a new fuzzing job or download the crashing test cases with only a couple of clicks. Born as a fork of the Nightmare Fuzzing Project, Lucky CAT brings fuzzing management to a new era. 
 ## Fuzz Job Management
@@ -14,8 +18,14 @@ Lucky CAT integrates with your other analysis tools. Use the RESTful interface t
 Lucky CAT comes with a clean and simple web interface. For example, you can create jobs, check exploitability, compare crashes and manage users. Have a look at some screenshots!
 <table border="0px">
   <tr>
+   <td><a href="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_main.png"><img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_main.png" alt="main" height="150px" /></a></td>
     <td><a href="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_job_creation.png"><img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_job_creation.png" alt="job creation" height="150px" /></a></td>
     <td><a href="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_results.png"><img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_results.png" alt="results" height="150px" /></a></td>
+  </tr>
+  <tr>
+   <td><a href="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_jobs.png"><img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_jobs.png" alt="jobs" height="150px" /></a></td>
+    <td><a href="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_crash_show.png"><img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_crash_show.png" alt="crash view" height="150px" /></a></td>
+    <td><a href="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_stats.png"><img src="https://raw.githubusercontent.com/fkie-cad/LuckyCAT/master/docs/screenshots/Lucky_CAT_stats.png" alt="stats" height="150px" /></a></td>
   </tr>
 </table>
 ## Fast Command Line Client
