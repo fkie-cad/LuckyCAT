@@ -1,6 +1,7 @@
 <p align="center">
     <img src="luckycat/frontend/static/Logo_LuckyCat_Typo.png" alt="Lucky CAT Logo" width="256" height="256"/>
 </p>
+
 # Lucky CAT - Crash All the Things!
 [![BCH compliance](https://bettercodehub.com/edge/badge/fkie-cad/LuckyCAT?branch=master)](https://bettercodehub.com/)
 

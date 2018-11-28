@@ -1,6 +1,7 @@
 <p align="center">
     <img src="luckycat/frontend/static/Logo_LuckyCat_Typo.png" alt="Lucky CAT Logo" width="256" height="256"/>
 </p>
+
 # Lucky CAT - Make Fuzzing Great Again!
 Lucky CAT (*C*rash *A*ll the *T*hings) is a fuzzing management framework. Its ultimate goal is to automate the fuzzing workflow as much as possible. By doing that, it lets you focus on your target. For example, you can easily integrate your fuzzer, quickly setup a new fuzzing job or download the crashing test cases with only a couple of clicks. Born as a fork of the Nightmare Fuzzing Project, Lucky CAT brings fuzzing management to a new era. 
 ## Fuzz Job Management
