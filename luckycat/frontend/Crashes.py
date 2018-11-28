@@ -98,7 +98,7 @@ def get_original_and_crash_test_case_of_crash(crash):
             for name in zipfile.namelist():
                 possible_original_test_case = zipfile.read(name)
                 similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
-                                             encoded_crash_test_case).ratio()
+                                             base64.b64encode(crash_test_case)).ratio()
                 if similarity > max_similarity:
                     max_similarity = similarity
                     original_test_case = possible_original_test_case

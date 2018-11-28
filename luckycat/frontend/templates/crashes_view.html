@@ -39,15 +39,15 @@
   <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
       <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingOne">
+          <div class="panel-heading" role="tab" id="headingHex">
               <h4 class="panel-title">
-                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseHex" aria-expanded="true" aria-controls="collapseHex">
                       <i class="more-less glyphicon glyphicon-plus"></i>
                       Hexdump
                   </a>
               </h4>
           </div>
-          <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+          <div id="collapseHex" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingHex">
               <div class="panel-body">
                 <pre id="hexdump"></pre>
               </div>
@@ -61,23 +61,49 @@
   <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
       <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingTwo">
+          <div class="panel-heading" role="tab" id="headingDiff">
               <h4 class="panel-title">
-                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDiff" aria-expanded="true" aria-controls="collapseDiff">
                       <i class="more-less glyphicon glyphicon-plus"></i>
                       Diff
                   </a>
               </h4>
           </div>
-          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div id="collapseDiff" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingDiff">
               <div class="panel-body">
-                <pre id="display"></pre>
+                <pre id="diff"></pre>
               </div>
           </div>
       </div>
   </div>
 </div>
 {% endif %}
+
+{% if crash.additional %}
+<div class="row">
+  <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+      <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingAdditional">
+              <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAdditional" aria-expanded="true" aria-controls="collapseAdditional">
+                      <i class="more-less glyphicon glyphicon-plus"></i>
+                      Additional
+                  </a>
+              </h4>
+          </div>
+          <div id="collapseAdditional" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAdditional">
+              <div class="panel-body">
+                <pre>
+                    {{ crash.additional }}
+                </pre>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+{% endif %}
+
 
 <script type="text/javascript">
   function toggleIcon(e) {
@@ -114,11 +140,11 @@
     color = '',
     span = null;
 
-    var diff = JsDiff.diffChars(crash_test_case, original_test_case),
-        display = document.getElementById('display'),
+    var Diff = JsDiff.diffChars(crash_test_case, original_test_case),
+        diff = document.getElementById('diff'),
         fragment = document.createDocumentFragment();
 
-    diff.forEach(function(part){
+    Diff.forEach(function(part){
       // green for additions, red for deletions
       // grey for common parts
       color = part.added ? 'green' :
@@ -130,7 +156,7 @@
       fragment.appendChild(span);
     });
 
-    display.appendChild(fragment);
+    diff.appendChild(fragment);
 </script>
 
 
