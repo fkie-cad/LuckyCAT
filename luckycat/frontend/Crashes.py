@@ -1,16 +1,17 @@
 import base64
 import collections
 import io
+import json
 import os
 from difflib import SequenceMatcher
 
-import flask
+from flask import render_template, redirect, send_file, flash, request, Blueprint
 from flask_security import login_required, current_user
 
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 
-crashes = flask.Blueprint('crashes', __name__)
+crashes = Blueprint('crashes', __name__)
 
 def _get_job_name_from_id(job_id):
     job = Job.objects.get(id=job_id)
@@ -27,21 +28,23 @@ def _get_job_ids_of_user():
 
 @crashes.route('/crashes/show')
 @login_required
-def show_crashes():
+def show_crashes(crashes=None):
     # FIXME show colors again
     # FIXME fix checkboxes and so on!!!
     # FIXME just show first ten results, make it expandable
+    if crashes:
+        crashes = crashes
+    else:
+        crashes = Crash.objects
     job_ids = _get_job_ids_of_user()
     sorted_res = collections.defaultdict(list)
-    for crash in Crash.objects:
-        if crash.job_id in job_ids:
-            sorted_res[str(crash.job_id)] = sorted_res[str(crash.job_id)] + [crash]
-
+    for crash in crashes:
+        if crash["job_id"] in job_ids:
+            sorted_res[str(crash["job_id"])] = sorted_res[str(crash["job_id"])] + [crash]
     final_res = collections.defaultdict(list)
     for k, v in sorted_res.items():
         final_res[_get_job_name_from_id(k)] = v
-
-    return flask.render_template("crashes_show.html",
+    return render_template("crashes_show.html",
                                  results=final_res.items())
 
 
@@ -57,23 +60,42 @@ def show_crash(crash_id):
             if crash.job_id in job_ids:
                 job_name = get_job_name_of_job_id(crash.job_id)
                 encoded_original_test_case, encoded_crash_test_case  = get_original_and_crash_test_case_of_crash(crash)
-                return flask.render_template("crashes_view.html",
+                return render_template("crashes_view.html",
                                              crash=crash,
                                              job_name=job_name,
                                              encoded_crash_test_case=encoded_crash_test_case,
                                              encoded_original_test_case=encoded_original_test_case)
             else:
-                flask.flash("'Not allowed to view this crash.")
-                return flask.redirect('crashes/show')
+                flash("'Not allowed to view this crash.")
+                return redirect('crashes/show')
         else:
-            flask.flash('No crash with crash id %s' % crash_id)
-            return flask.redirect('crashes/show')
+            flash('No crash with crash id %s' % crash_id)
+            return redirect('crashes/show')
     else:
-        flask.flash('Not a valid crash id.')
-        return flask.redirect('crashes/show')
+        flash('Not a valid crash id.')
+        return redirect('crashes/show')
 
 def get_job_name_of_job_id(job_id):
     return list(Job.objects(id=job_id))[0]["name"]
+
+
+@crashes.route('/crashes/search', methods=['GET', 'POST'])
+@login_required
+def search_crash(error=None):
+    database_structure = [ item for item in Crash._get_collection().find()[0]]
+    if request.method == 'POST':
+        try:
+            query = json.loads(request.form['search'])
+            crashes = Crash.objects.aggregate(*[
+                {
+                    "$match": query
+                }
+            ])
+            crashes = list(crashes)
+            return show_crashes(crashes=crashes)
+        except Exception as e:
+            error = e
+    return render_template("crashes_search.html", database_structure=database_structure, error=error)
 
 
 def testcase_can_be_diffed(job_id):
@@ -154,10 +176,10 @@ def download_crash(crash_id):
             filename = os.path.join('/tmp', crash_id)
             with open(filename, 'wb') as f:
                 f.write(crash.test_case)
-                return flask.send_file(filename, as_attachment=True)
+                return send_file(filename, as_attachment=True)
         else:
-            flask.flash('You are not allowed to download this crash.')
-            return flask.redirect('crashes/show')
+            flash('You are not allowed to download this crash.')
+            return redirect('crashes/show')
     else:
-        flask.flash('Unknown crash ID: %s' % crash_id)
-        return flask.redirect('crashes/show')
+        flash('Unknown crash ID: %s' % crash_id)
+        return redirect('crashes/show')

@@ -88,21 +88,29 @@
                                   {% for crash in crashes[1] %}
                                       <tr>
                                           <td align="center">
-                                              <a href="{{ url_for('crashes.show_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-                                              <a href="{{ url_for('crashes.download_crash', crash_id = crash.id) }}"><span class="glyphicon glyphicon-download"></span></a>
+                                              <a href="{{ url_for('crashes.show_crash', crash_id = crash["_id"]) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+                                              <a href="{{ url_for('crashes.download_crash', crash_id = crash["_id"]) }}"><span class="glyphicon glyphicon-download"></span></a>
                                               <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
                                           </td>
                                           <td>
-                                              <font color={{ exploitable_color(crash.exploitability) }}>{{crash.exploitability}}</font>
+                                              {% if crash["exploitability"] %}
+                                                  <font color={{ exploitable_color(crash["exploitability"]) }}>{{crash["exploitability"]}}</font>
+                                              {% else %}
+                                                  None
+                                              {% endif %}
                                           </td>
                                           <td>
-                                              {{map_signal_to_string(crash.crash_signal)}}
+                                              {{map_signal_to_string(crash["crash_signal"])}}
                                           </td>
                                           <td>
-                                              {{crash.crash_hash}}
+                                              {% if crash["crash_hash"] %}
+                                                  {{crash["crash_hash"]}}
+                                              {% else %}
+                                                  None
+                                              {% endif %}
                                           </td>
                                           <td>
-                                            {{crash.date.strftime('%Y-%m-%d %H:%M')}}
+                                            {{crash["date"].strftime('%Y-%m-%d %H:%M')}}
                                           </td>
                                       </tr>
                                   {% endfor %}
