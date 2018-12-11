@@ -3,7 +3,7 @@ import datetime
 from datetime import timedelta
 
 import flask
-from flask_security import login_required
+from flask_security import login_required, current_user
 
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
@@ -334,10 +334,13 @@ class StatisticCalculator:
 
     def list_job_names_with_stats(self):
         job_names = []
+        user_job_ids = self._get_job_ids_of_user()
+
         for job in Job.objects:
-            for job_stats in Statistic.objects:
-                if job.id == job_stats.job_id:
-                    job_names.append(job.name)
+            if job["id"] in user_job_ids:
+                for job_stats in Statistic.objects:
+                    if job.id == job_stats.job_id:
+                        job_names.append(job.name)
         return job_names
 
     def calculate_general_statistics(self):
@@ -508,6 +511,13 @@ class StatisticCalculator:
             crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
             self.crash_counter += 1
         return crashes_per_time_intervall
+
+    def _get_job_ids_of_user(self):
+        job_ids = []
+        for job in Job.objects:
+            if job.owner and job.owner.email == current_user.email:
+                job_ids.append(job.id)
+        return job_ids
 
 
 @statistics.route('/statistics/show', methods=['GET'])
