@@ -4,44 +4,56 @@
 
 {% block content %}
 
-<div class="row">
-
-    <div class="col-xs-offset-2 col-md-8">
-        <h2>Crash Search</h2>
-        <form class="form-horizontal" method=post enctype=multipart/form-data>
-
+<div class="col-xs-offset-2 col-md-8">
+    <h2>Crash Search</h2>
+    <form class="form-horizontal" method=post enctype=multipart/form-data>
+        <div class="row">
             <div class="form-group ">
-                <label class="control-label col-xs-3" for="search">Search Request:</label>
+                <label class="control-label col-xs-3" for="search">  Search Request:</label>
                 <div class="col-xs-9">
                     <input type="text" name="search" class="form-control" id="search"
                            placeholder="MongoDB Search Request" required>
-                        {% if error %}
-                            <p style="color:red">Please enter a valid search request. {{ error }}</p>
-                        {% endif %}
-                    <br />
-                    <table>
-                        <tr>
-                            <td style="padding: 5px;">
-                                <button type="submit" value=submit class="btn btn-default" id="input_submit">
-                                     <span class="glyphicon glyphicon-search"></span> Search
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                    <hr>
-                    <p style="color:grey">Simple example:<br />{"crash_signal": 139}</p>
-                    <p style="color:grey">Searching for dates example:<br />{ "$expr": {"$gte": ["$date", {"$dateFromString": {"dateString":"2018-11-08T12:10:40"}}]}}</p>
+                    {% if error %}
+                    <p style="color:red">Please enter a valid search request. {{ error }}</p>
+                    {% endif %}
                 </div>
             </div>
-
-            <h3>Structure of a Crash:</h3>
-            <div class="row">
-                    <pre>{{ database_structure }}</pre>
+            <div class="form-group ">
+                <label class="control-label col-xs-3">Jobs:</label>
+                <div class="col-xs-9">
+                    <select class="form-control" name="job" id="job">
+                        <option></option>
+                        {% for job_name in job_names %}
+                            <option value="{{ job_name }}">{{ job_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-
-        </form>
+        </div>
+        <div class="row">
+            <div class="col-xs-10"></div>
+            <div class="col-xs-2">
+                <button type="submit" value=submit class="btn btn-default" id="input_submit" style="margin: 4px">
+                    <span class="glyphicon glyphicon-search"></span> Search
+                </button>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <table class="table">
+            <tr>
+                <td>
+                    <label class="control-label">Crash Structure:</label>
+                    <pre>[<br />{% for item in database_structure %}  "{{ item }}",<br/>{% endfor %}]</pre>
+                </td>
+                <td style="padding: 10px;">
+                    <br /><br /><br />
+                    <p style="color:grey">Simple Search Request Example:<br />{"crash_signal": 139}</p>
+                    <p style="color:grey">Searching for dates example:<br/>{ "$expr": {"$gte": ["$date", {"$dateFromString": <br/>{"dateString":"2018-11-08T12:10:40"}}]}}</p>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
-
 
 {% endblock %}

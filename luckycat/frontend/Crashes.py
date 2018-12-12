@@ -13,9 +13,16 @@ from luckycat.database.models.Job import Job
 
 crashes = Blueprint('crashes', __name__)
 
+
 def _get_job_name_from_id(job_id):
     job = Job.objects.get(id=job_id)
     return job.name
+
+
+def _get_job_id_of_job_name(job_name):
+    for job in Job.objects:
+        if job_name == job.name:
+            return job.id
 
 
 def _get_job_ids_of_user():
@@ -24,6 +31,14 @@ def _get_job_ids_of_user():
         if job.owner and job.owner.email == current_user.email:
             job_ids.append(job.id)
     return job_ids
+
+
+def _get_job_names_of_user():
+    job_ids = _get_job_ids_of_user()
+    job_names = []
+    for job_id in job_ids:
+        job_names.append(get_job_name_of_job_id(job_id))
+    return job_names
 
 
 @crashes.route('/crashes/show')
@@ -82,20 +97,29 @@ def get_job_name_of_job_id(job_id):
 @crashes.route('/crashes/search', methods=['GET', 'POST'])
 @login_required
 def search_crash(error=None):
-    database_structure = [ item for item in Crash._get_collection().find()[0]]
+    crash_database_structure = [ item for item in Crash._get_collection().find()[0]]
+    job_names =_get_job_names_of_user()
     if request.method == 'POST':
         try:
-            query = json.loads(request.form['search'])
-            crashes = Crash.objects.aggregate(*[
-                {
-                    "$match": query
-                }
-            ])
-            crashes = list(crashes)
-            return show_crashes(crashes=crashes)
+            crashes = process_search_query()
+            if crashes:
+                return show_crashes(crashes=crashes)
+            else:
+                error = "No Crashes are fitting to your Search Request"
         except Exception as e:
             error = e
-    return render_template("crashes_search.html", database_structure=database_structure, error=error)
+
+    return render_template("crashes_search.html", database_structure=crash_database_structure, job_names=job_names, error=error)
+
+
+def process_search_query():
+    query = json.loads(request.form['search'])
+    selected_job_name = request.form.get('job')
+    if not selected_job_name == "":
+        job_id = _get_job_id_of_job_name(selected_job_name)
+        query.update({"job_id": job_id})
+    crashes = Crash.objects.aggregate(*[{"$match": query}])
+    return list(crashes)
 
 
 def testcase_can_be_diffed(job_id):
@@ -128,7 +152,6 @@ def get_original_and_crash_test_case_of_crash(crash):
             encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
     else:
         encoded_original_test_case = None
-
 
     return encoded_original_test_case, encoded_crash_test_case
 
@@ -163,7 +186,6 @@ def show_previous_crash(crash_id):
                 next_crash_index = index - 1
                 break
     return show_crash(all_job_crashes[next_crash_index]["id"])
-
 
 
 @crashes.route('/crashes/download/<crash_id>')
