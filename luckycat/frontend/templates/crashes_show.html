@@ -88,13 +88,13 @@
                                   {% for crash in crashes[1] %}
                                       <tr>
                                           <td align="center">
-                                              <a href="{{ url_for('crashes.show_crash', crash_id = crash["_id"]) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-                                              <a href="{{ url_for('crashes.download_crash', crash_id = crash["_id"]) }}"><span class="glyphicon glyphicon-download"></span></a>
+                                              <a href="{{ url_for('crashes.show_crash', crash_id = crash['_id']) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+                                              <a href="{{ url_for('crashes.download_crash', crash_id = crash['_id']) }}"><span class="glyphicon glyphicon-download"></span></a>
                                               <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
                                           </td>
                                           <td>
                                               {% if crash["exploitability"] %}
-                                                  <font color={{ exploitable_color(crash["exploitability"]) }}>{{crash["exploitability"]}}</font>
+                                                  <font color={{ exploitable_color(crash["exploitability"]) }}>{{crash["exploitability"] }}</font>
                                               {% else %}
                                                   None
                                               {% endif %}
