@@ -50,7 +50,7 @@ def show_crashes(crashes=None):
     if crashes:
         crashes = crashes
     else:
-        crashes = Crash.objects
+        crashes = list(Crash.objects.aggregate(*[]))
     job_ids = _get_job_ids_of_user()
     sorted_res = collections.defaultdict(list)
     for crash in crashes:
@@ -138,22 +138,27 @@ def get_original_and_crash_test_case_of_crash(crash):
 
     if testcase_can_be_diffed(crash.job_id):
         if (original_test_case.startswith(b'PK')):
-            import zipfile
-            zipfile = zipfile.ZipFile(io.BytesIO(original_test_case))
-            max_similarity = 0
-            for name in zipfile.namelist():
-                possible_original_test_case = zipfile.read(name)
-                similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
-                                             base64.b64encode(crash_test_case)).ratio()
-                if similarity > max_similarity:
-                    max_similarity = similarity
-                    original_test_case = possible_original_test_case
+            original_test_case = get_original_crash_test_case_of_zipfile(crash_test_case, original_test_case)
 
             encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
     else:
         encoded_original_test_case = None
 
     return encoded_original_test_case, encoded_crash_test_case
+
+
+def get_original_crash_test_case_of_zipfile(crash_test_case, original_test_case):
+    import zipfile
+    zipfile = zipfile.ZipFile(io.BytesIO(original_test_case))
+    max_similarity = 0
+    for name in zipfile.namelist():
+        possible_original_test_case = zipfile.read(name)
+        similarity = SequenceMatcher(None, base64.b64encode(possible_original_test_case),
+                                     base64.b64encode(crash_test_case)).ratio()
+        if similarity > max_similarity:
+            max_similarity = similarity
+            original_test_case = possible_original_test_case
+    return original_test_case
 
 
 @crashes.route('/crashes/show/next/<crash_id>')
