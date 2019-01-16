@@ -1,5 +1,5 @@
 import datetime
-from flask import flash
+import logging
 from flask_security import Security, login_required, MongoEngineUserDatastore
 
 from luckycat.database.models.Role import Role
@@ -30,7 +30,7 @@ def create_default_user_and_roles(user_datastore):
                                    api_key=f3c_global_config.default_user_api_key,
                                    registration_date=datetime.datetime.now(),
                                    roles=[admin_role])
-        flash('Added default user on first request', 'success')
+        logging.info('Added default user on first request')
 
 def _add_apikey_handler(security, user_datastore):
     @security.login_manager.request_loader
