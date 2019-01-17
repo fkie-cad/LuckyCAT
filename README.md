@@ -40,11 +40,7 @@ Pull the whole project:
 ``` bash
 git clone https://github.com/fkie-cad/luckycat.git
 ```
-Just use docker-compose to build the app.
-``` bash
-docker-compose build && docker-compose up
-```
-or just use the script `start_cluster.sh`. Afterwards navigate to https://localhost:5000 and create a new user.
+Just use the script `start_cluster.sh` to build the app - if required - and start Lucky CAT. Afterwards navigate to https://localhost:5000 and create a new user.
 
 In case you wish to remove Lucky CAT, you may use the script `docker/clean_docker.sh`. Please note that this script deletes all Docker images and containers on your system as well as your Lucky CAT data.
 ## How to use Lucky CAT?
