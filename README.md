@@ -9,6 +9,8 @@
 This branch is in an experimental state that tries to rollout LuckyCAT on a **RaspberryPi 3b+**.
 It was successfully tested on an RPi3b+ that runs **Raspbian Stretch Lite 4.14** (2018-11-13), which has the SHA-256 hash: *0ca644539fdaf4e19ec7cebf9e61c049b82ba45b1a21cdec91fa54bd59d660d2*.  
 
+On a RaspberryPi clone into this branch and run the `./install.sh`, which should take care of any dependecies before attempting to start LuckyCAT. In all following startups it is sufficient to run `./start_cluser.sh`.
+
 
 ## What is Lucky CAT?
 Lucky CAT (**C**rash **A**ll the **T**hings!) is a distributed fuzzing testing suite with an easy to use web interface. It allows to manage several fuzzing jobs on several remote machines concurrently. Lucky CAT aims to be easily usable, scaleable, extensible, and fun.
