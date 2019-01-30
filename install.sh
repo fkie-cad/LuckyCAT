@@ -6,5 +6,5 @@ curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh && sudo gpasswd -
 sudo -EH pip3 install docker-compose
 sudo systemctl enable docker
 sudo systemctl start docker
-git clone https://github.com/fkie-cad/LuckyCAT.git -b "arm_rpi3_32bit" && cd LuckyCAT && ./start_cluster.sh 
+./start_cluster.sh 
 
