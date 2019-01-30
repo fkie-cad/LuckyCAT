@@ -6,8 +6,8 @@
 [![BCH compliance](https://bettercodehub.com/edge/badge/fkie-cad/LuckyCAT?branch=master)](https://bettercodehub.com/)
 
 ## :exclamation: Note :exclamation:
-This branch is an an experimental state that tries to rollout LuckyCAT on a **RaspberryPi 3b+**.  
-It was successfully tested on **Raspbian Stretch Lite 4.14** (2018-11-13), which has the SHA-256 hash: *0ca644539fdaf4e19ec7cebf9e61c049b82ba45b1a21cdec91fa54bd59d660d2*.  
+This branch is in an experimental state that tries to rollout LuckyCAT on a **RaspberryPi 3b+**.
+It was successfully tested on an RPi3b+ that runs **Raspbian Stretch Lite 4.14** (2018-11-13), which has the SHA-256 hash: *0ca644539fdaf4e19ec7cebf9e61c049b82ba45b1a21cdec91fa54bd59d660d2*.  
 
 
 ## What is Lucky CAT?
