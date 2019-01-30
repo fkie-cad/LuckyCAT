@@ -6,6 +6,6 @@ echo "Starting Lucky CAT backend"
 cd /opt/luckycat
 python3 /opt/luckycat/setup.py install &> /dev/null
 echo "Waiting for queue..."
-sleep 5
+sleep 20
 luckycat_backend.py
 

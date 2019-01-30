@@ -1,8 +1,9 @@
-FROM phusion/baseimage:0.10.0
-MAINTAINER Thomas Barabosch <thomas.barabosch@fkie.fraunhofer.de>
+FROM arm32v7/ubuntu:latest
+ENV DEBIAN_FRONTEND="noninteractive"
+MAINTAINER Christopher Krah <krah@protonmail.com>
 
 # install dependencies 
-RUN apt-get update -y && apt-get install -y gcc cmake make wget screen gdb htop mailutils \
+RUN apt-get update -y && apt-get install -y libffi-dev libffi6 gcc cmake make wget screen gdb htop mailutils \
 automake build-essential git python3 python3-setuptools python3-yaml python3-dev python3-pip \
 python3-pika
 

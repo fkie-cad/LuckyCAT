@@ -14,7 +14,7 @@ services:
       - '5000:5000'
     
   database:
-    image: mongo
+    image: greatontime/rpi-mongodb_v3
     restart: always
     hostname: 'database'
     volumes:
@@ -34,7 +34,7 @@ services:
       dockerfile: ./docker/backend/Dockerfile
 
   queue:
-    image: "rabbitmq:3-management"
+    image: arm32v7/rabbitmq
     hostname: 'queue'
     volumes:
       - queue:/var/lib/rabbitmq
