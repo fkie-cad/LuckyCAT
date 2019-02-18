@@ -19,8 +19,8 @@ services:
     hostname: 'database'
     volumes:
       - db_data:/var/lib/mongo
-    ports:
-      - '27017:27017'
+    expose:
+      - '27017'
 
   backend:
     depends_on:
@@ -40,8 +40,10 @@ services:
       - queue:/var/lib/rabbitmq
     environment:
       - RABBITMQ_ERLANG_COOKIE=s3cr3tc00ki3
-    ports:
-      - '15672:15672'
+    # Uncomment for debugging purposes
+    # ports:
+    #  - '15672:15672'
+    ports: 
       - '5672:5672'
     logging:
       driver: none
