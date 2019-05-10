@@ -513,11 +513,8 @@ class StatisticCalculator:
             for crash in crashes_copy[:]:
                 if crash["date"] >= time_intervalls[i] and crash["date"] < time_intervalls[i+1]:
                     CRASH_IN_TIME_INTERVAL_FLAG = True
-
-                    self.update_iteration_per_time_interval_for_all_jobs(
-                        crash, iteration_of_all_jobs_per_time_interval, job_id_max_iteration_per_time_interval)
+                    self.update_job_id_max_iteration_per_time_interval(crash, job_id_max_iteration_per_time_interval)
                     iteration_of_all_jobs_per_time_interval = sum(job_id_max_iteration_per_time_interval.values())
-
                     crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
@@ -534,8 +531,7 @@ class StatisticCalculator:
 
         return crashes_per_time_intervall, iterations_per_time_interval
 
-    def update_iteration_per_time_interval_for_all_jobs(self, crash, iteration_of_all_jobs_per_time_interval,
-                                                        job_id_max_iteration_per_time_interval):
+    def update_job_id_max_iteration_per_time_interval(self, crash, job_id_max_iteration_per_time_interval):
         all_job_ids = [job.id for job in Job.objects]
         for job_id in all_job_ids:
             if crash.job_id == job_id:
