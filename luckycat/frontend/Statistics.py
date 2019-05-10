@@ -112,22 +112,22 @@ class StatisticCalculator:
         return crashes, iterations
 
     def calculate_last_72_hours_crashes_per_time_interval(self):
-        last_72_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=3)).only("date", "iteration").order_by("date")
+        last_72_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=3)).only("job_id", "date", "iteration").order_by("date")
         last_72_hours_crashes = list(last_72_hours_crashes)
         self.crash_counter -= len(last_72_hours_crashes)
-        last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval(list(last_72_hours_crashes))
+        last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_all_jobs(list(last_72_hours_crashes))
         return last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval
 
     def calculate_last_24_hours_crashes_per_time_interval(self):
-        last_24_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=1)).only("date", "iteration").order_by("date")
+        last_24_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=1)).only("job_id", "date", "iteration").order_by("date")
         last_24_hours_crashes = list(last_24_hours_crashes)
         self.crash_counter -= len(last_24_hours_crashes)
-        last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval(list(last_24_hours_crashes))
+        last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_all_jobs(list(last_24_hours_crashes))
         return last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval
 
     def calculate_all_crashes_per_time_interval(self):
-        all_crashes = Crash.objects().only("date", "iteration").order_by("date")
-        all_crashes_per_time_interval, iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval(list(all_crashes))
+        all_crashes = Crash.objects().only("job_id", "date", "iteration").order_by("date")
+        all_crashes_per_time_interval, iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_all_jobs(list(all_crashes))
         return all_crashes_per_time_interval, iterations_per_time_interval
 
     def calculate_crashes_over_time_for_selected_job(self, selected_job):
@@ -243,7 +243,7 @@ class StatisticCalculator:
         ])
         last_72_hours_crashes = list(last_72_hours_crashes)
         self.crash_counter -= len(last_72_hours_crashes)
-        last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval(last_72_hours_crashes)
+        last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_selected_job(last_72_hours_crashes)
         return last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval
 
     def calculate_last_24_hours_crashes_per_time_interval_for_selected_job(self, selected_job):
@@ -267,7 +267,7 @@ class StatisticCalculator:
         ])
         last_24_hours_crashes = list(last_24_hours_crashes)
         self.crash_counter -= len(last_24_hours_crashes)
-        last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval(last_24_hours_crashes)
+        last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_selected_job(last_24_hours_crashes)
         return last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval
 
     def calculate_all_crashes_per_time_interval_for_selected_job(self, selected_job):
@@ -289,7 +289,7 @@ class StatisticCalculator:
                 "$project": {"date": 1, "iteration": 1}
             }
         ])
-        all_crashes_per_time_interval, iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval(list(all_crashes))
+        all_crashes_per_time_interval, iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_selected_job(list(all_crashes))
         return all_crashes_per_time_interval, iterations_per_time_interval
 
     def calculate_different_crash_signals_for_selected_job(self, selected_job):
@@ -451,10 +451,18 @@ class StatisticCalculator:
     def get_selected_job(self):
         return flask.request.args.get("job")
 
-    def calculate_crashes_and_iterations_per_time_interval(self, crashes, time_intervall=10):
+    def calculate_crashes_and_iterations_per_time_interval_for_selected_job(self, crashes, time_intervall=10):
         if crashes:
             time_intervalls = self.generate_list_of_time_intervalls(crashes[0]["date"], crashes[-1]["date"], time_intervall)
-            crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_intervall(time_intervalls, crashes)
+            crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_interval_for_selected_job(time_intervalls, crashes)
+        else:
+            crashes_per_time_intervall, iterations_per_time_interval = {}, {}
+        return crashes_per_time_intervall, iterations_per_time_interval
+
+    def calculate_crashes_and_iterations_per_time_interval_for_all_jobs(self, crashes, time_intervall=10):
+        if crashes:
+            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]["date"], crashes[-1]["date"], time_intervall)
+            crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_intervall_for_all_jobs(time_intervalls, crashes)
         else:
             crashes_per_time_intervall, iterations_per_time_interval = {}, {}
         return crashes_per_time_intervall, iterations_per_time_interval
@@ -475,7 +483,7 @@ class StatisticCalculator:
             list.append(time)
         return list
 
-    def count_crashes_and_iterations_per_time_intervall(self, time_intervalls, crashes):
+    def count_crashes_and_iterations_per_time_interval_for_selected_job(self, time_intervalls, crashes):
         crashes_per_time_intervall = collections.OrderedDict()
         iterations_per_time_interval = collections.OrderedDict()
         crashes_copy = list(crashes)
@@ -486,14 +494,56 @@ class StatisticCalculator:
                     iterations_per_time_interval[time_intervalls[i]] = crash["iteration"]
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
-            # uncomment if every interval should get a value in the chart
-            # if time_intervalls[i] not in crashes_per_time_intervall:
-            #     crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
         if time_intervalls[len(time_intervalls)-1] == crashes[-1]["date"]:
             crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
             iterations_per_time_interval[time_intervalls[len(time_intervalls)-1]] = crashes[-1]["iteration"]
             self.crash_counter += 1
         return crashes_per_time_intervall, iterations_per_time_interval
+
+    def count_crashes_and_iterations_per_time_intervall_for_all_jobs(self, time_intervalls, crashes):
+        crashes_per_time_intervall = collections.OrderedDict()
+        iterations_per_time_interval = collections.OrderedDict()
+        crashes_copy = list(crashes)
+        min_iterations_of_all_jobs = 0
+        CRASH_IN_TIME_INTERVAL_FLAG = False
+        job_id_max_iteration_per_time_interval = {}
+        for i in range(len(time_intervalls)-1):
+            iteration_of_all_jobs_per_time_interval = 0
+
+            for crash in crashes_copy[:]:
+                if crash["date"] >= time_intervalls[i] and crash["date"] < time_intervalls[i+1]:
+                    CRASH_IN_TIME_INTERVAL_FLAG = True
+
+                    self.update_iteration_per_time_interval_for_all_jobs(
+                        crash, iteration_of_all_jobs_per_time_interval, job_id_max_iteration_per_time_interval)
+                    iteration_of_all_jobs_per_time_interval = sum(job_id_max_iteration_per_time_interval.values())
+
+                    crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
+                    self.crash_counter += 1
+                    crashes_copy.remove(crash)
+            if CRASH_IN_TIME_INTERVAL_FLAG:
+                if iteration_of_all_jobs_per_time_interval > min_iterations_of_all_jobs:
+                    min_iterations_of_all_jobs = iteration_of_all_jobs_per_time_interval
+                iterations_per_time_interval[time_intervalls[i]] = min_iterations_of_all_jobs
+                CRASH_IN_TIME_INTERVAL_FLAG = False
+
+        if time_intervalls[len(time_intervalls)-1] == crashes[-1]["date"]:
+            crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
+            iterations_per_time_interval[time_intervalls[len(time_intervalls)-1]] = crashes[-1]["iteration"]
+            self.crash_counter += 1
+
+        return crashes_per_time_intervall, iterations_per_time_interval
+
+    def update_iteration_per_time_interval_for_all_jobs(self, crash, iteration_of_all_jobs_per_time_interval,
+                                                        job_id_max_iteration_per_time_interval):
+        all_job_ids = [job.id for job in Job.objects]
+        for job_id in all_job_ids:
+            if crash.job_id == job_id:
+                if job_id in job_id_max_iteration_per_time_interval.keys():
+                    if crash.iteration > job_id_max_iteration_per_time_interval[job_id]:
+                        job_id_max_iteration_per_time_interval[job_id] = crash.iteration
+                else:
+                    job_id_max_iteration_per_time_interval[job_id] = crash.iteration
 
     def count_crashes_per_time_intervall(self, time_intervalls, crashes):
         crashes_per_time_intervall = collections.OrderedDict()
@@ -504,9 +554,6 @@ class StatisticCalculator:
                     crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
-            # uncomment if every interval should get a value in the chart
-            # if time_intervalls[i] not in crashes_per_time_intervall:
-            #     crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
         if time_intervalls[len(time_intervalls)-1] == crashes[-1]["date"]:
             crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
             self.crash_counter += 1
