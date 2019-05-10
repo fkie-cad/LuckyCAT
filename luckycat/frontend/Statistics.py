@@ -21,27 +21,27 @@ class StatisticCalculator:
             statistic = self.calculate_statistic_for_selected_job(selected_job)
         else:
             statistic = self.calculate_statistic_for_all_jobs()
-        statistic["test"] = "In progress..."
+        statistic['test'] = 'In progress...'
         return statistic
 
     def calculate_statistic_for_all_jobs(self):
         statistic = {}
-        statistic["general"] = self.calculate_general_statistics()
-        statistic["job_names"] = self.list_job_names_with_stats()
-        statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals()
-        statistic["crashes_over_time"] = {}
-        statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["iterations"]\
-            , statistic["crashes_over_time"]["unique_crashes"] = self.calculate_crashes_over_time()
+        statistic['general'] = self.calculate_general_statistics()
+        statistic['job_names'] = self.list_job_names_with_stats()
+        statistic['diffierent_crash_signals'] = self.calculate_different_crash_signals()
+        statistic['crashes_over_time'] = {}
+        statistic['crashes_over_time']['crashes'], statistic['crashes_over_time']['iterations']\
+            , statistic['crashes_over_time']['unique_crashes'] = self.calculate_crashes_over_time()
         return statistic
 
     def calculate_statistic_for_selected_job(self, selected_job):
         statistic = {}
-        statistic["general"] = self.calculate_general_statistics_for_specific_job(selected_job)
-        statistic["job_names"] = self.list_job_names_with_stats()
-        statistic["diffierent_crash_signals"] = self.calculate_different_crash_signals_for_selected_job(selected_job)
-        statistic["crashes_over_time"] = {}
-        statistic["crashes_over_time"]["crashes"], statistic["crashes_over_time"]["iterations"]\
-            , statistic["crashes_over_time"]["unique_crashes"] = self.calculate_crashes_over_time_for_selected_job(selected_job)
+        statistic['general'] = self.calculate_general_statistics_for_specific_job(selected_job)
+        statistic['job_names'] = self.list_job_names_with_stats()
+        statistic['diffierent_crash_signals'] = self.calculate_different_crash_signals_for_selected_job(selected_job)
+        statistic['crashes_over_time'] = {}
+        statistic['crashes_over_time']['crashes'], statistic['crashes_over_time']['iterations']\
+            , statistic['crashes_over_time']['unique_crashes'] = self.calculate_crashes_over_time_for_selected_job(selected_job)
         return statistic
 
     def calculate_crashes_over_time(self):
@@ -51,21 +51,21 @@ class StatisticCalculator:
 
     def calculate_unique_crashes_over_time(self):
         unique_crashes = {}
-        unique_crashes["all_time"] = self.calculate_all_unique_crashes_per_time_interval()
-        unique_crashes["last_72_hours"] = self.calculate_last_72_hours_uniqe_crashes_per_time_interval()
-        unique_crashes["last_24_hours"] = self.calculate_last_24_hours_unique_crashes_per_time_interval()
+        unique_crashes['all_time'] = self.calculate_all_unique_crashes_per_time_interval()
+        unique_crashes['last_72_hours'] = self.calculate_last_72_hours_uniqe_crashes_per_time_interval()
+        unique_crashes['last_24_hours'] = self.calculate_last_24_hours_unique_crashes_per_time_interval()
         return unique_crashes
 
     def calculate_last_72_hours_uniqe_crashes_per_time_interval(self):
         last_72_hours_unique_crashes = Crash.objects.aggregate(*[
             {
-                "$match": {"date": {"$gte": self.date_now - timedelta(days=1)}}
+                '$match': {'date': {'$gte': self.date_now - timedelta(days=1)}}
             },
             {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+                '$group': {'_id': '$crash_hash', 'date': {'$min': '$date'}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             }
         ])
         last_72_hours_unique_crashes = list(last_72_hours_unique_crashes)
@@ -76,13 +76,13 @@ class StatisticCalculator:
     def calculate_last_24_hours_unique_crashes_per_time_interval(self):
         last_24_hours_unique_crashes = Crash.objects.aggregate(*[
             {
-                "$match": {"date": {"$gte": self.date_now - timedelta(days=1)}}
+                '$match': {'date': {'$gte': self.date_now - timedelta(days=1)}}
             },
             {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+                '$group': {'_id': '$crash_hash', 'date': {'$min': '$date'}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             }
         ])
         last_24_hours_unique_crashes = list(last_24_hours_unique_crashes)
@@ -93,10 +93,10 @@ class StatisticCalculator:
     def calculate_all_unique_crashes_per_time_interval(self):
         all_unique_crashes = Crash.objects.aggregate(*[
             {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+                '$group': {'_id': '$crash_hash', 'date': {'$min': '$date'}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             }
         ])
         all_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_unique_crashes))
@@ -105,28 +105,28 @@ class StatisticCalculator:
     def calculate_normal_crashes_over_time(self):
         crashes = {}
         iterations = {}
-        crashes["all_time"], iterations["all_time"] = self.calculate_all_crashes_per_time_interval()
-        crashes["last_72_hours"], iterations["last_72_hours"] = self.calculate_last_72_hours_crashes_per_time_interval()
-        crashes["last_24_hours"], iterations["last_24_hours"] = self.calculate_last_24_hours_crashes_per_time_interval()
+        crashes['all_time'], iterations['all_time'] = self.calculate_all_crashes_per_time_interval()
+        crashes['last_72_hours'], iterations['last_72_hours'] = self.calculate_last_72_hours_crashes_per_time_interval()
+        crashes['last_24_hours'], iterations['last_24_hours'] = self.calculate_last_24_hours_crashes_per_time_interval()
         self.crash_counter = 1
         return crashes, iterations
 
     def calculate_last_72_hours_crashes_per_time_interval(self):
-        last_72_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=3)).only("job_id", "date", "iteration").order_by("date")
+        last_72_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=3)).only('job_id', 'date', 'iteration').order_by('date')
         last_72_hours_crashes = list(last_72_hours_crashes)
         self.crash_counter -= len(last_72_hours_crashes)
         last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_all_jobs(list(last_72_hours_crashes))
         return last_72_hours_crashes_per_time_interval, last_72_hours_iterations_per_time_interval
 
     def calculate_last_24_hours_crashes_per_time_interval(self):
-        last_24_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=1)).only("job_id", "date", "iteration").order_by("date")
+        last_24_hours_crashes = Crash.objects(date__gte=self.date_now - timedelta(days=1)).only('job_id', 'date', 'iteration').order_by('date')
         last_24_hours_crashes = list(last_24_hours_crashes)
         self.crash_counter -= len(last_24_hours_crashes)
         last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_all_jobs(list(last_24_hours_crashes))
         return last_24_hours_crashes_per_time_interval, last_24_hours_iterations_per_time_interval
 
     def calculate_all_crashes_per_time_interval(self):
-        all_crashes = Crash.objects().only("job_id", "date", "iteration").order_by("date")
+        all_crashes = Crash.objects().only('job_id', 'date', 'iteration').order_by('date')
         all_crashes_per_time_interval, iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_all_jobs(list(all_crashes))
         return all_crashes_per_time_interval, iterations_per_time_interval
 
@@ -138,9 +138,9 @@ class StatisticCalculator:
 
     def calculate_unique_crashes_over_time_for_selected_job(self, selected_job):
         unique_crashes = {}
-        unique_crashes["all_time"] = self.calculate_all_unique_crashes_per_time_interval_for_selected_job(selected_job)
-        unique_crashes["last_72_hours"] = self.calculate_last_72_hours_uniqe_crashes_per_time_interval_for_selected_job(selected_job)
-        unique_crashes["last_24_hours"] = self.calculate_last_24_hours_unique_crashes_per_time_interval_for_selected_job(selected_job)
+        unique_crashes['all_time'] = self.calculate_all_unique_crashes_per_time_interval_for_selected_job(selected_job)
+        unique_crashes['last_72_hours'] = self.calculate_last_72_hours_uniqe_crashes_per_time_interval_for_selected_job(selected_job)
+        unique_crashes['last_24_hours'] = self.calculate_last_24_hours_unique_crashes_per_time_interval_for_selected_job(selected_job)
         return unique_crashes
 
     def calculate_last_72_hours_uniqe_crashes_per_time_interval_for_selected_job(self, selected_job):
@@ -153,13 +153,13 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=3)}}
+                '$match': {'relation.name': selected_job, 'date': {'$gte': self.date_now - timedelta(days=3)}}
             },
             {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+                '$group': {'_id': '$crash_hash', 'date': {'$min': '$date'}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             }
         ])
         last_72_hours_unique_crashes = list(last_72_hours_unique_crashes)
@@ -177,13 +177,13 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=1)}}
+                '$match': {'relation.name': selected_job, 'date': {'$gte': self.date_now - timedelta(days=1)}}
             },
             {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+                '$group': {'_id': '$crash_hash', 'date': {'$min': '$date'}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             }
         ])
         last_24_hours_unique_crashes = list(last_24_hours_unique_crashes)
@@ -201,13 +201,13 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job}
+                '$match': {'relation.name': selected_job}
             },
             {
-                "$group": {"_id": "$crash_hash", "date": {"$min": "$date"}}
+                '$group': {'_id': '$crash_hash', 'date': {'$min': '$date'}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             }
         ])
         all_unique_crashes_per_time_interval = self.calculate_crashes_per_time_interval(list(all_unique_crashes))
@@ -216,9 +216,9 @@ class StatisticCalculator:
     def calculate_normal_crashes_over_time_for_selected_job(self, selected_job):
         crashes = {}
         iterations = {}
-        crashes["all_time"], iterations["all_time"] = self.calculate_all_crashes_per_time_interval_for_selected_job(selected_job)
-        crashes["last_72_hours"], iterations["last_24_hours"] = self.calculate_last_72_hours_crashes_per_time_interval_for_selected_job(selected_job)
-        crashes["last_24_hours"], iterations["last_72_hours"] = self.calculate_last_24_hours_crashes_per_time_interval_for_selected_job(selected_job)
+        crashes['all_time'], iterations['all_time'] = self.calculate_all_crashes_per_time_interval_for_selected_job(selected_job)
+        crashes['last_72_hours'], iterations['last_24_hours'] = self.calculate_last_72_hours_crashes_per_time_interval_for_selected_job(selected_job)
+        crashes['last_24_hours'], iterations['last_72_hours'] = self.calculate_last_24_hours_crashes_per_time_interval_for_selected_job(selected_job)
         self.crash_counter = 1
         return crashes, iterations
 
@@ -232,13 +232,13 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=3)}}
+                '$match': {'relation.name': selected_job, 'date': {'$gte': self.date_now - timedelta(days=3)}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             },
             {
-                "$project": {"date": 1, "iteration": 1}
+                '$project': {'date': 1, 'iteration': 1}
             }
         ])
         last_72_hours_crashes = list(last_72_hours_crashes)
@@ -256,13 +256,13 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job, "date": {"$gte": self.date_now - timedelta(days=1)}}
+                '$match': {'relation.name': selected_job, 'date': {'$gte': self.date_now - timedelta(days=1)}}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             },
             {
-                "$project": {"date": 1, "iteration": 1}
+                '$project': {'date': 1, 'iteration': 1}
             }
         ])
         last_24_hours_crashes = list(last_24_hours_crashes)
@@ -280,13 +280,13 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job}
+                '$match': {'relation.name': selected_job}
             },
             {
-                "$sort": {"date": 1}
+                '$sort': {'date': 1}
             },
             {
-                "$project": {"date": 1, "iteration": 1}
+                '$project': {'date': 1, 'iteration': 1}
             }
         ])
         all_crashes_per_time_interval, iterations_per_time_interval = self.calculate_crashes_and_iterations_per_time_interval_for_selected_job(list(all_crashes))
@@ -302,15 +302,15 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job}
+                '$match': {'relation.name': selected_job}
             },
             {
-                "$group": {"_id": "$crash_signal", "quantity": {"$sum": 1}}
+                '$group': {'_id': '$crash_signal', 'quantity': {'$sum': 1}}
             }
         ])
         different_crashes_with_quantity = {}
         for different_crash in different_crashes:
-            different_crashes_with_quantity[different_crash["_id"]] = different_crash["quantity"]
+            different_crashes_with_quantity[different_crash['_id']] = different_crash['quantity']
         return different_crashes_with_quantity
 
     def calculate_different_crash_signals(self):
@@ -337,7 +337,7 @@ class StatisticCalculator:
         user_job_ids = self._get_job_ids_of_user()
 
         for job in Job.objects:
-            if job["id"] in user_job_ids:
+            if job['id'] in user_job_ids:
                 for job_stats in Statistic.objects:
                     if job.id == job_stats.job_id:
                         job_names.append(job.name)
@@ -345,18 +345,18 @@ class StatisticCalculator:
 
     def calculate_general_statistics(self):
         iteration, runtime, execs_per_sec = self.summarize_individual_job_statistics()
-        return {"iteration": iteration,
-                "runtime": runtime,
-                "execs_per_sec": execs_per_sec,
-                "number_of_job_names": Job.objects.count(),
-                "number_of_crashes": Crash.objects().count(),
-                "number_of_unique_crashes": self.calculate_number_of_unique_crashes(),
-                "number_of_unique_exploitable_crashes": self.calculate_number_of_unique_and_exploitable_crashes()}
+        return {'iteration': iteration,
+                'runtime': runtime,
+                'execs_per_sec': execs_per_sec,
+                'number_of_job_names': Job.objects.count(),
+                'number_of_crashes': Crash.objects().count(),
+                'number_of_unique_crashes': self.calculate_number_of_unique_crashes(),
+                'number_of_unique_exploitable_crashes': self.calculate_number_of_unique_and_exploitable_crashes()}
 
     def calculate_number_of_unique_crashes(self):
         unique_crashes = Crash.objects.aggregate(*[
             {
-                "$group": {"_id": "$crash_hash"}
+                '$group': {'_id': '$crash_hash'}
             }
         ])
         return len(list(unique_crashes))
@@ -364,10 +364,10 @@ class StatisticCalculator:
     def calculate_number_of_unique_and_exploitable_crashes(self):
         unique_exploitable_crashes = Crash.objects.aggregate(*[
             {
-                "$match": {"exploitability": "EXPLOITABLE"}
+                '$match': {'exploitability': 'EXPLOITABLE'}
             },
             {
-                "$group": {"_id": "$crash_hash"}
+                '$group': {'_id': '$crash_hash'}
             }
         ])
         return len(list(unique_exploitable_crashes))
@@ -375,12 +375,12 @@ class StatisticCalculator:
     def calculate_general_statistics_for_specific_job(self, selected_job):
         # what to do if two jobs have the same name. which one should be selected?
         job_statistic = self.get_job_information_from_Statistic_table(selected_job)
-        return {"iteration": job_statistic["iteration"],
-                "runtime": job_statistic["runtime"],
-                "execs_per_sec": job_statistic["execs_per_sec"],
-                "number_of_crashes": self.calculate_number_of_crashes_for_selected_job(selected_job),
-                "number_of_unique_crashes": self.calculate_number_of_unique_crashes_for_selected_job(selected_job),
-                "number_of_unique_exploitable_crashes": self.calculate_number_of_unique_and_exploitable_crashes_for_selected_job(selected_job)}
+        return {'iteration': job_statistic['iteration'],
+                'runtime': job_statistic['runtime'],
+                'execs_per_sec': job_statistic['execs_per_sec'],
+                'number_of_crashes': self.calculate_number_of_crashes_for_selected_job(selected_job),
+                'number_of_unique_crashes': self.calculate_number_of_unique_crashes_for_selected_job(selected_job),
+                'number_of_unique_exploitable_crashes': self.calculate_number_of_unique_and_exploitable_crashes_for_selected_job(selected_job)}
 
     def calculate_number_of_unique_and_exploitable_crashes_for_selected_job(self, selected_job):
         unique_exploitable_crashes = Crash.objects.aggregate(*[
@@ -392,10 +392,10 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job, "exploitability": "EXPLOITABLE"}
+                '$match': {'relation.name': selected_job, 'exploitability': 'EXPLOITABLE'}
             },
             {
-                "$group": {"_id": "$crash_hash"}
+                '$group': {'_id': '$crash_hash'}
             }
         ])
         return len(list(unique_exploitable_crashes))
@@ -410,10 +410,10 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job}
+                '$match': {'relation.name': selected_job}
             },
             {
-                "$group": {"_id": "$crash_hash"}
+                '$group': {'_id': '$crash_hash'}
             }
         ])
         return len(list(unique_crashes))
@@ -428,7 +428,7 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job}
+                '$match': {'relation.name': selected_job}
             }
         ])
         return len(list(all_crashes))
@@ -443,17 +443,17 @@ class StatisticCalculator:
                      'as': 'relation'}
             },
             {
-                "$match": {"relation.name": selected_job}
+                '$match': {'relation.name': selected_job}
             },
         ])
         return list(job_statistic)[0]
 
     def get_selected_job(self):
-        return flask.request.args.get("job")
+        return flask.request.args.get('job')
 
     def calculate_crashes_and_iterations_per_time_interval_for_selected_job(self, crashes, time_intervall=10):
         if crashes:
-            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]["date"], crashes[-1]["date"], time_intervall)
+            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'], time_intervall)
             crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_interval_for_selected_job(time_intervalls, crashes)
         else:
             crashes_per_time_intervall, iterations_per_time_interval = {}, {}
@@ -461,7 +461,7 @@ class StatisticCalculator:
 
     def calculate_crashes_and_iterations_per_time_interval_for_all_jobs(self, crashes, time_intervall=10):
         if crashes:
-            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]["date"], crashes[-1]["date"], time_intervall)
+            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'], time_intervall)
             crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_intervall_for_all_jobs(time_intervalls, crashes)
         else:
             crashes_per_time_intervall, iterations_per_time_interval = {}, {}
@@ -469,7 +469,7 @@ class StatisticCalculator:
 
     def calculate_crashes_per_time_interval(self, crashes, time_intervall=10):
         if crashes:
-            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]["date"], crashes[-1]["date"], time_intervall)
+            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'], time_intervall)
             crashes_per_time_intervall = self.count_crashes_per_time_intervall(time_intervalls, crashes)
         else:
             crashes_per_time_intervall = {}
@@ -489,14 +489,14 @@ class StatisticCalculator:
         crashes_copy = list(crashes)
         for i in range(len(time_intervalls)-1):
             for crash in crashes_copy[:]:
-                if crash["date"] >= time_intervalls[i] and crash["date"] < time_intervalls[i+1]:
+                if crash['date'] >= time_intervalls[i] and crash['date'] < time_intervalls[i+1]:
                     crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
-                    iterations_per_time_interval[time_intervalls[i]] = crash["iteration"]
+                    iterations_per_time_interval[time_intervalls[i]] = crash['iteration']
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
-        if time_intervalls[len(time_intervalls)-1] == crashes[-1]["date"]:
+        if time_intervalls[len(time_intervalls)-1] == crashes[-1]['date']:
             crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
-            iterations_per_time_interval[time_intervalls[len(time_intervalls)-1]] = crashes[-1]["iteration"]
+            iterations_per_time_interval[time_intervalls[len(time_intervalls)-1]] = crashes[-1]['iteration']
             self.crash_counter += 1
         return crashes_per_time_intervall, iterations_per_time_interval
 
@@ -511,7 +511,7 @@ class StatisticCalculator:
             iteration_of_all_jobs_per_time_interval = 0
 
             for crash in crashes_copy[:]:
-                if crash["date"] >= time_intervalls[i] and crash["date"] < time_intervalls[i+1]:
+                if crash['date'] >= time_intervalls[i] and crash['date'] < time_intervalls[i+1]:
                     CRASH_IN_TIME_INTERVAL_FLAG = True
                     self.update_job_id_max_iteration_per_time_interval(crash, job_id_max_iteration_per_time_interval)
                     iteration_of_all_jobs_per_time_interval = sum(job_id_max_iteration_per_time_interval.values())
@@ -524,9 +524,9 @@ class StatisticCalculator:
                 iterations_per_time_interval[time_intervalls[i]] = min_iterations_of_all_jobs
                 CRASH_IN_TIME_INTERVAL_FLAG = False
 
-        if time_intervalls[len(time_intervalls)-1] == crashes[-1]["date"]:
+        if time_intervalls[len(time_intervalls)-1] == crashes[-1]['date']:
             crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
-            iterations_per_time_interval[time_intervalls[len(time_intervalls)-1]] = crashes[-1]["iteration"]
+            iterations_per_time_interval[time_intervalls[len(time_intervalls)-1]] = crashes[-1]['iteration']
             self.crash_counter += 1
 
         return crashes_per_time_intervall, iterations_per_time_interval
@@ -546,11 +546,11 @@ class StatisticCalculator:
         crashes_copy = list(crashes)
         for i in range(len(time_intervalls)-1):
             for crash in crashes_copy[:]:
-                if crash["date"] >= time_intervalls[i] and crash["date"] < time_intervalls[i+1]:
+                if crash['date'] >= time_intervalls[i] and crash['date'] < time_intervalls[i+1]:
                     crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
-        if time_intervalls[len(time_intervalls)-1] == crashes[-1]["date"]:
+        if time_intervalls[len(time_intervalls)-1] == crashes[-1]['date']:
             crashes_per_time_intervall[time_intervalls[len(time_intervalls)-1]] = self.crash_counter
             self.crash_counter += 1
         return crashes_per_time_intervall
@@ -567,5 +567,5 @@ class StatisticCalculator:
 @login_required
 def show_statistics():
     statistic = StatisticCalculator().calculate_statistics()
-    return flask.render_template("stats_show.html",
+    return flask.render_template('stats_show.html',
                                  statistics=statistic)
