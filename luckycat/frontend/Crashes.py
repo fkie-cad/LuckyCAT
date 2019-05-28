@@ -133,14 +133,12 @@ def testcase_can_be_diffed(job_id):
 def get_original_and_crash_test_case_of_crash(crash):
     crash_test_case = crash.test_case
     original_test_case = list(Job.objects(id=crash.job_id))[0]["samples"]
-    encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
     encoded_crash_test_case = base64.b64encode(crash_test_case).decode('ascii')
 
     if testcase_can_be_diffed(crash.job_id):
         if (original_test_case.startswith(b'PK')):
             original_test_case = get_original_crash_test_case_of_zipfile(crash_test_case, original_test_case)
-
-            encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
+        encoded_original_test_case = base64.b64encode(original_test_case).decode('ascii')
     else:
         encoded_original_test_case = None
 
@@ -202,6 +200,8 @@ def download_crash(crash_id):
         if crash.job_id in job_ids:
             filename = os.path.join('/tmp', crash_id)
             with open(filename, 'wb') as f:
+                print("-------------------")
+                print(crash.test_case)
                 f.write(crash.test_case)
                 return send_file(filename, as_attachment=True)
         else:

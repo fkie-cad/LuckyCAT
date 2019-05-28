@@ -55,7 +55,7 @@ def add_job():
         files = flask.request.files
 
         engine = data.get('mutation_engine')
-        if data.get('fuzzer') == "afl":
+        if data.get('fuzzer') == "afl" or "syzkaller":
             engine = 'external'
 
         if not ('fuzzing_target' in files):
@@ -127,7 +127,7 @@ def edit_job(job_id):
         if flask.request.method == 'POST':
             data = flask.request.form
             engine = data.get('mutation_engine')
-            if data.get('fuzzer') == "afl":
+            if data.get('fuzzer') == "afl" or "syzkaller":
                 engine = 'external'
 
             Job.objects(id=job_id).update(**{

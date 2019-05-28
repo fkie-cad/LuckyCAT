@@ -40,7 +40,8 @@ fuzzers = [{'name': 'afl', 'description': 'AFL is a mutator and fuzzer'},
            {'name': 'cfuzz', 'description': 'cfuzz is a generic fuzzer that should run on all Unix-based targets'},
            {'name': 'qemufuzzer', 'description': 'qemufuzzer fuzzes binaries of whole firmware images'},
            {'name': 'elffuzzer', 'description': 'ELF fuzzer for *UNIX systems'},
-           {'name': 'trapfuzzer', 'description': 'trap fuzzer for BSD-based systems'}]
+           {'name': 'trapfuzzer', 'description': 'trap fuzzer for BSD-based systems'},
+           {'name': 'syzkaller', 'description': 'Syzkaller is a mutator and fuzzer for Syscalls'}]
 
 # fuzzer configuration
 verifiers = [{'name': 'local_exploitable', 'description': 'Local exploitable verifier'},

@@ -72,6 +72,9 @@ def api_create_job():
         if data.get('fuzzer') == "afl" and data.get('engine') is not None:
             return json.dumps({'success': False,
                                'msg': "The fuzzer afl contains a mutation engine. No need to select a mutation engine"})
+        if data.get('fuzzer') == "syzkaller" and data.get('engine') is not None:
+            return json.dumps({'success': False,
+                               'msg': "The fuzzer syzkaller contains a mutation engine. No need to select a mutation engine"})
         if data.get('samples') is None or data.get('fuzzing_target') is None:
             return json.dumps({'success': False,
                                'msg': "Please provide a fuzzing target AND some initial test cases."})

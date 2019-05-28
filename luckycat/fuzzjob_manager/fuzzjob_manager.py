@@ -189,7 +189,7 @@ def parse_args():
     parser.add_argument('--description', type=str, default='', help='Description of the fuzz job')
     parser.add_argument('--mutation-engine', choices=['radamsa', 'urandom', 'external'],
                         help='Mutation engine to generate test cases', default='radamsa')
-    parser.add_argument('--fuzzer', choices=['cfuzz', 'afl', 'qemufuzzer', 'elffuzzer', 'trapfuzzer'],
+    parser.add_argument('--fuzzer', choices=['cfuzz', 'afl', 'qemufuzzer', 'elffuzzer', 'trapfuzzer', 'syzkaller'],
                         help='Fuzzer to test target with', default='cfuzz')
     parser.add_argument('--verifier', choices=['local_exploitable', 'remote_exploitable', 'no_verification'],
                         help='Verifier for crashes', default='no_verification')

@@ -37,7 +37,7 @@ class StatsCollector(Process):
             current_stats.save()
         logger.debug('Received stats %s' % str(stats))
 
-    def update_afl_stats(self, stats):
+    def update_external_stats(self, stats):
         try:
             job_doc = Job.objects.get(name=stats['job_name'])
             job_id = job_doc.id
@@ -53,10 +53,11 @@ class StatsCollector(Process):
             current_stats.save()
         logger.debug('Received stats %s' % str(stats))
 
+
     def on_message(self, channel, method_frame, header_frame, body):
         stats = json.loads(body.decode("utf-8"))
-        if stats['fuzzer'] == 'afl':
-            self.update_afl_stats(stats)
+        if stats['fuzzer'] == 'afl' or 'syzkaller':
+            self.update_external_stats(stats)
         elif stats['fuzzer'] == 'cfuzz':
             self.update_stats(stats)
         elif stats['fuzzer'] == 'elf_fuzzer':

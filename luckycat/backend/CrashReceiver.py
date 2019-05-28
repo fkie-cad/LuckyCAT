@@ -2,13 +2,15 @@ import json
 import logging
 import os
 from multiprocessing import Process
+
 from mongoengine import connect
 from mongoengine.queryset import DoesNotExist
+
+from luckycat import f3c_global_config
+from luckycat.backend import WorkQueue
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Statistic import Statistic
-from luckycat.backend import WorkQueue
-from luckycat import f3c_global_config
 
 logger = logging.getLogger(os.path.basename(__file__).split('.')[0])
 
@@ -82,10 +84,36 @@ class CrashReceiver(Process):
         afl_crash.save()
         logger.debug('Crash stored')
 
+    def _insert_crash_syzkaller(self, crash_data):
+        logger.debug('Inserting Syzkaller crash with signal {}.'.format(crash_data['signal']))
+        job = Job.objects.get(name=crash_data['job_name'])
+        iteration = 0
+        if 'classification' in crash_data:
+            syzkaller_crash = Crash(job_id=job.id,
+                              crash_signal=crash_data['signal'],
+                              test_case=crash_data['test_case'].encode(),
+                              verified=crash_data['verified'],
+                              crash_hash=crash_data['hash'],
+                              exploitability=crash_data['classification'],
+                              additional=crash_data['description'],
+                              iteration=iteration)
+        else:
+            syzkaller_crash = Crash(job_id=job.id,
+                              crash_signal=crash_data['signal'],
+                              test_case=crash_data['test_case'].encode(),
+                              verified=crash_data['verified'],
+                              iteration=iteration)
+
+        syzkaller_crash.save()
+        logger.debug('Crash stored')
+
+
     def on_message(self, channel, method_frame, header_frame, body):
         crash_info = json.loads(body.decode('utf-8'))
         if crash_info['fuzzer'] == 'afl':
             self._insert_crash_afl(crash_info)
+        elif crash_info['fuzzer'] == 'syzkaller':
+            self._insert_crash_syzkaller(crash_info)
         elif crash_info['fuzzer'] == 'cfuzz':
             self._insert_crash_cfuzz(crash_info)
         else:
