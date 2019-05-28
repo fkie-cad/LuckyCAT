@@ -200,8 +200,6 @@ def download_crash(crash_id):
         if crash.job_id in job_ids:
             filename = os.path.join('/tmp', crash_id)
             with open(filename, 'wb') as f:
-                print("-------------------")
-                print(crash.test_case)
                 f.write(crash.test_case)
                 return send_file(filename, as_attachment=True)
         else:
