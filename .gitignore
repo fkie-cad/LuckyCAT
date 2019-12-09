@@ -166,13 +166,6 @@ dkms.conf
 luckycat/reporter/config.py
 core.txt*
 
-
-# Created by https://www.gitignore.io/api/ssh,vim,linux,macos,windows,sublimetext,pycharm+all,visualstudiocode
-# Edit at https://www.gitignore.io/?templates=ssh,vim,linux,macos,windows,sublimetext,pycharm+all,visualstudiocode
-
-### Linux ###
-*~
-
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
 
