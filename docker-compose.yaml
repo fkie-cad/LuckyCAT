@@ -1,18 +1,18 @@
 version: '3'
 services:
-  
+
   frontend:
     depends_on:
       - backend
     hostname: 'frontend'
     volumes:
       - backend_data:/opt/f3c/results/crashes
-    build: 
+    build:
       context: ./
       dockerfile: ./docker/frontend/Dockerfile
     ports:
       - '5000:5000'
-    
+
   database:
     image: mongo
     restart: always
@@ -43,7 +43,7 @@ services:
     # Uncomment for debugging purposes
     # ports:
     #  - '15672:15672'
-    ports: 
+    ports:
       - '5672:5672'
     logging:
       driver: none

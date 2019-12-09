@@ -11,7 +11,7 @@ from multiprocessing import Process
 
 from mongoengine import connect
 
-from luckycat import f3c_global_config
+from luckycat import luckycat_global_config
 from luckycat.backend import WorkQueue
 from luckycat.database.models.Job import Job
 
@@ -41,7 +41,7 @@ class SampleGenerator(Process):
 
     def build_mutation_engine_command(self, cmd, filename, subfolder):
         cmd = cmd.replace("%INPUT%", '"%s"' % filename)
-        temp_file = tempfile.mktemp(dir=f3c_global_config.temporary_path)
+        temp_file = tempfile.mktemp(dir=luckycat_global_config.temporary_path)
         cmd = cmd.replace("%OUTPUT%", temp_file)
         cmd = cmd.replace("%FOLDER%", subfolder)
         return cmd, temp_file
@@ -50,7 +50,7 @@ class SampleGenerator(Process):
         logger.info("Getting test cases from database and setting up directories")
 
         # FIXME escape project name for subfolder
-        fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job.name)
+        fuzz_job_basepath = os.path.join(luckycat_global_config.templates_path, job.name)
         if not os.path.exists(fuzz_job_basepath):
             os.mkdir(fuzz_job_basepath)
 
@@ -79,7 +79,7 @@ class SampleGenerator(Process):
             f.close()
 
     def _get_mutation_engine_template_command(self, engine_name):
-        for e in f3c_global_config.mutation_engines:
+        for e in luckycat_global_config.mutation_engines:
             if e['name'] == engine_name:
                 return e['command']
         return None
@@ -89,7 +89,7 @@ class SampleGenerator(Process):
         if command is None:
             raise Exception('No mutation engine command defined for engine %s' % job.mutation_engine)
 
-        fuzz_job_basepath = os.path.join(f3c_global_config.templates_path, job.name)
+        fuzz_job_basepath = os.path.join(luckycat_global_config.templates_path, job.name)
         if not os.path.exists(fuzz_job_basepath) or len(os.listdir(fuzz_job_basepath)) == 0:
             self._create_samples_dir(job)
 
@@ -108,7 +108,7 @@ class SampleGenerator(Process):
 
     def run(self):
         logger.info("Starting SampleGenerator...")
-        connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
+        connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         while 1:
             jobs = self._get_active_jobs()
             for job in jobs:

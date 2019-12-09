@@ -1,10 +1,11 @@
 #!/usr/bin/python3
-import datetime
-import os
-import time
 import base64
+import datetime
 import logging
+import os
 import subprocess
+import time
+
 from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
 
 

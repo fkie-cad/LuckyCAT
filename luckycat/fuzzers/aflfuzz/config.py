@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 # Lucky CAT configs
 host = '127.0.0.1'

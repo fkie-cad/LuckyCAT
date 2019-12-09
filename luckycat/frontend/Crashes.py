@@ -60,7 +60,7 @@ def show_crashes(crashes=None):
     for k, v in sorted_res.items():
         final_res[_get_job_name_from_id(k)] = v
     return render_template("crashes_show.html",
-                                 results=final_res.items())
+                           results=final_res.items())
 
 
 @crashes.route('/crashes/show/<crash_id>')
@@ -74,12 +74,12 @@ def show_crash(crash_id):
             job_ids = _get_job_ids_of_user()
             if crash.job_id in job_ids:
                 job_name = get_job_name_of_job_id(crash.job_id)
-                encoded_original_test_case, encoded_crash_test_case  = get_original_and_crash_test_case_of_crash(crash)
+                encoded_original_test_case, encoded_crash_test_case = get_original_and_crash_test_case_of_crash(crash)
                 return render_template("crashes_view.html",
-                                             crash=crash,
-                                             job_name=job_name,
-                                             encoded_crash_test_case=encoded_crash_test_case,
-                                             encoded_original_test_case=encoded_original_test_case)
+                                       crash=crash,
+                                       job_name=job_name,
+                                       encoded_crash_test_case=encoded_crash_test_case,
+                                       encoded_original_test_case=encoded_original_test_case)
             else:
                 flash("'Not allowed to view this crash.")
                 return redirect('crashes/show')
@@ -90,6 +90,7 @@ def show_crash(crash_id):
         flash('Not a valid crash id.')
         return redirect('crashes/show')
 
+
 def get_job_name_of_job_id(job_id):
     return list(Job.objects(id=job_id))[0]["name"]
 
@@ -97,8 +98,8 @@ def get_job_name_of_job_id(job_id):
 @crashes.route('/crashes/search', methods=['GET', 'POST'])
 @login_required
 def search_crash(error=None):
-    crash_database_structure = [ item for item in Crash._get_collection().find()[0]]
-    job_names =_get_job_names_of_user()
+    crash_database_structure = [item for item in Crash._get_collection().find()[0]]
+    job_names = _get_job_names_of_user()
     if request.method == 'POST':
         try:
             crashes = process_search_query()
@@ -109,7 +110,8 @@ def search_crash(error=None):
         except Exception as e:
             error = e
 
-    return render_template("crashes_search.html", database_structure=crash_database_structure, job_names=job_names, error=error)
+    return render_template("crashes_search.html", database_structure=crash_database_structure, job_names=job_names,
+                           error=error)
 
 
 def process_search_query():
@@ -166,7 +168,7 @@ def show_next_crash(crash_id):
     all_job_crashes = list(Crash.objects(job_id=job_id_of_crash))
     for index, crash in enumerate(all_job_crashes):
         if str(crash["id"]) == str(crash_id):
-            if index == len(all_job_crashes)-1:
+            if index == len(all_job_crashes) - 1:
                 next_crash_index = 0
                 break
             else:
@@ -183,7 +185,7 @@ def show_previous_crash(crash_id):
     for index, crash in enumerate(all_job_crashes):
         if str(crash["id"]) == str(crash_id):
             if index == 0:
-                next_crash_index = len(all_job_crashes)-1
+                next_crash_index = len(all_job_crashes) - 1
                 break
             else:
                 next_crash_index = index - 1

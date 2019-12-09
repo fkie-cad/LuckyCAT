@@ -3,9 +3,11 @@ import json
 import logging
 import os
 import time
-from mongoengine import connect
 from multiprocessing import Process
-from luckycat import f3c_global_config
+
+from mongoengine import connect
+
+from luckycat import luckycat_global_config
 from luckycat.backend import WorkQueue
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
@@ -46,7 +48,7 @@ class CrashVerificationSender(Process):
 
     def run(self):
         logger.info("Starting CrashVerification ...")
-        connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
+        connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         while 1:
             if not self.wq.queue_is_empty(self.ver_queue):
                 logger.info('Verification queue not empty. Waiting...')
@@ -57,4 +59,4 @@ class CrashVerificationSender(Process):
                     if current_project.verifier != 'no_verification':
                         self._send_crash_out(current_project, crash)
 
-            time.sleep(f3c_global_config.crash_verification_sender_sleeptime)
+            time.sleep(luckycat_global_config.crash_verification_sender_sleeptime)

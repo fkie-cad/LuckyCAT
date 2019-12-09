@@ -1,4 +1,5 @@
 from flask_security import RoleMixin
+
 from luckycat.database.database import db
 
 

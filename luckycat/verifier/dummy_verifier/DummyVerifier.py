@@ -1,7 +1,8 @@
-import time
 import os
 import random
+import time
 import zipfile
+
 from luckycat.verifier.templates.PythonTemplateVerifier import PythonTemplateVerifier
 
 path_to_data = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'data')

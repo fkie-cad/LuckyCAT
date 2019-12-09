@@ -5,37 +5,39 @@
 {% block content %}
 
 <table border="0">
-<tr><td>
-<h2>Add User</h2>
-<form method="POST" enctype="multipart/form-data" action="">
-  <table>
-   <tr>
-    <td><label>Email</label></td>
-    <td><input type="text" name="email" size="50" required></td>
-   </tr>
-   <tr>
-    <td><label>Password</label></td>
-    <td><input type="password" name="password" size="50" required></td>
-   </tr>
-   <tr>
-    <td><label>Retype password</label></td>
-    <td><input type="password" name="retype_password" size="50" required></td>
-   </tr>
-   <tr>
-     <td><label>Role</label></td>
-      <td>
-        <select required name="role" size="{{roles|length}}">
-          {% for role in roles %}
-            <option value="{{role.name}}">{{role.name}}</option>
-          {% endfor %}
-        </select>
-      </td>
-   </tr>
-   <tr>
-     <td colspan="2"><input type="submit" value="Add User"></td>
-   </tr>
-  </table>
-  </form>
-</td></tr>
+    <tr>
+        <td>
+            <h2>Add User</h2>
+            <form action="" enctype="multipart/form-data" method="POST">
+                <table>
+                    <tr>
+                        <td><label>Email</label></td>
+                        <td><input name="email" required size="50" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td><label>Password</label></td>
+                        <td><input name="password" required size="50" type="password"></td>
+                    </tr>
+                    <tr>
+                        <td><label>Retype password</label></td>
+                        <td><input name="retype_password" required size="50" type="password"></td>
+                    </tr>
+                    <tr>
+                        <td><label>Role</label></td>
+                        <td>
+                            <select name="role" required size="{{roles|length}}">
+                                {% for role in roles %}
+                                <option value="{{role.name}}">{{role.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><input type="submit" value="Add User"></td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
 </table>
 {% endblock %}

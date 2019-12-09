@@ -9,8 +9,7 @@ log_level = logging.DEBUG
 remote_system_ip = ''
 remote_crashes_dir = ''
 
-#example
-#crashes_dir = '/home/workdir/crashes'
-#remote_system_ip = '11.11.11.11'
-#remote_crashes_dir = '/remote/home/workdir/crashes'
-
+# example
+# crashes_dir = '/home/workdir/crashes'
+# remote_system_ip = '11.11.11.11'
+# remote_crashes_dir = '/remote/home/workdir/crashes'

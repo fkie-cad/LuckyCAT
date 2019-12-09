@@ -1,7 +1,8 @@
+import argparse
+import os
 import random
 import time
-import os
-import argparse
+
 import luckycat.fuzzers.dummy_fuzzer.dummy_fuzzer_config
 from luckycat.fuzzers.templates.python.PythonTemplateExternalMutationEngine import PythonFuzzer
 

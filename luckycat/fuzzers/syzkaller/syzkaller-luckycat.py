@@ -1,4 +1,3 @@
-import base64
 import logging
 import os
 import time
@@ -6,14 +5,16 @@ from time import gmtime, strftime
 
 import config
 
-from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
 from luckycat.fuzzers.syzkaller.RemoteCrashFetcher import RemoteCrashFetcher
+from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
+
 
 def full_path(dir_):
     # taken from http://code.activestate.com/recipes/577270-dealing-with-directory-paths-with/
     if dir_[0] == '~' and not os.path.exists(dir_):
         dir_ = os.path.expanduser(dir_)
     return os.path.abspath(dir_)
+
 
 class SyzkallerFuzzer(PythonFuzzer):
     def __init__(self):
@@ -52,7 +53,7 @@ class SyzkallerFuzzer(PythonFuzzer):
     def populate_crash_info_data(self, crash_path):
         crash_description_path = os.path.join(self.get_dir_path_of_filepath(crash_path), 'description')
         with open(crash_description_path, 'r') as fd:
-            #not used by syzkaller at the moment
+            # not used by syzkaller at the moment
             crash_description = fd.read()
             logging.debug('Crash Description: {}'.format(crash_description))
         with open(crash_path, 'r') as fd:
@@ -102,12 +103,14 @@ class SyzkallerFuzzer(PythonFuzzer):
         except ConnectionError:
             raise
 
+
 def main():
     syzkaller_fuzzer = SyzkallerFuzzer()
     if config.remote_system_ip and config.remote_crashes_dir:
         RemoteCrashFetcher().start()
     while True:
         syzkaller_fuzzer.run()
+
 
 if __name__ == '__main__':
     main()

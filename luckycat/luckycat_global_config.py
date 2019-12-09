@@ -1,7 +1,7 @@
 # backend configuration
 samples_path = '/opt/luckycat/results'
 templates_path = '/opt/luckycat/samples'
-f3c_path = '/opt/luckycat'
+luckycat_path = '/opt/luckycat'
 temporary_path = '/tmp'
 
 sample_generator_sleeptime = 0.1
@@ -45,5 +45,5 @@ fuzzers = [{'name': 'afl', 'description': 'AFL is a mutator and fuzzer'},
 
 # fuzzer configuration
 verifiers = [{'name': 'local_exploitable', 'description': 'Local exploitable verifier'},
-           {'name': 'remote_exploitable', 'description': 'Remote exploitable verifier with gdb remote'},
-           {'name': 'no_verification', 'description': 'No verification of crashes'}]
+             {'name': 'remote_exploitable', 'description': 'Remote exploitable verifier with gdb remote'},
+             {'name': 'no_verification', 'description': 'No verification of crashes'}]

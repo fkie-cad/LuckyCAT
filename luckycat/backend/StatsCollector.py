@@ -1,14 +1,16 @@
+import datetime
+import json
 import logging
 import os
-import json
-import datetime
 from multiprocessing import Process
+
 from mongoengine import connect
 from mongoengine.queryset import DoesNotExist
-from luckycat import f3c_global_config
+
+from luckycat import luckycat_global_config
 from luckycat.backend import WorkQueue
-from luckycat.database.models.Statistic import Statistic
 from luckycat.database.models.Job import Job
+from luckycat.database.models.Statistic import Statistic
 
 logger = logging.getLogger(os.path.basename(__file__).split(".")[0])
 
@@ -53,7 +55,6 @@ class StatsCollector(Process):
             current_stats.save()
         logger.debug('Received stats %s' % str(stats))
 
-
     def on_message(self, channel, method_frame, header_frame, body):
         stats = json.loads(body.decode("utf-8"))
         if stats['fuzzer'] == 'afl' or 'syzkaller':
@@ -67,7 +68,7 @@ class StatsCollector(Process):
 
     def run(self):
         logger.info("Starting StatsCollector...")
-        connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
+        connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         self.channel.basic_consume(self.on_message, self.queue_name)
         try:
             self.channel.start_consuming()

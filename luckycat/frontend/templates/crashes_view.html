@@ -8,9 +8,12 @@
 <div class="row">
     <h2>Information for crash {{ crash.id }}</h2>
     <h3>General</h3>
-    <a href="/crashes/show/previous/{{ crash.id }}" class="btn btn-sm btn-green white" role="button" >Previous Crash <span class="glyphicon glyphicon-step-backward"></span></a>
-    <a href="/crashes/download/{{ crash.id }}" class="btn btn-sm btn-green white" role="button" >Download Sample <span class="glyphicon glyphicon-download"></span></a>
-    <a href="/crashes/show/next/{{ crash.id }}" class="btn btn-sm btn-green white" role="button" >Next Crash <span class="glyphicon glyphicon-step-forward"></span></a>
+    <a class="btn btn-sm btn-green white" href="/crashes/show/previous/{{ crash.id }}" role="button">Previous Crash
+        <span class="glyphicon glyphicon-step-backward"></span></a>
+    <a class="btn btn-sm btn-green white" href="/crashes/download/{{ crash.id }}" role="button">Download Sample <span
+            class="glyphicon glyphicon-download"></span></a>
+    <a class="btn btn-sm btn-green white" href="/crashes/show/next/{{ crash.id }}" role="button">Next Crash <span
+            class="glyphicon glyphicon-step-forward"></span></a>
     <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;">
         <tr>
             <th align="left">Job</th>
@@ -39,17 +42,18 @@
 <!--Syzkaller Testcases are too long to display a hexdump of it-->
 {% if not crash.crash_signal == 0 %}
 <div class="row">
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div aria-multiselectable="true" class="panel-group" id="accordion" role="tablist">
         <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingHex">
+            <div class="panel-heading" id="headingHex" role="tab">
                 <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseHex" aria-expanded="true" aria-controls="collapseHex">
-                      <i class="more-less glyphicon glyphicon-plus"></i>
-                      Hexdump
+                    <a aria-controls="collapseHex" aria-expanded="true" data-parent="#accordion" data-toggle="collapse"
+                       href="#collapseHex" role="button">
+                        <i class="more-less glyphicon glyphicon-plus"></i>
+                        Hexdump
                     </a>
                 </h4>
             </div>
-            <div id="collapseHex" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingHex">
+            <div aria-labelledby="headingHex" class="panel-collapse collapse" id="collapseHex" role="tabpanel">
                 <div class="panel-body">
                     <pre id="hexdump"></pre>
                 </div>
@@ -65,26 +69,27 @@
             .find(".more-less")
             .toggleClass('glyphicon-plus glyphicon-minus');
     }
+
     $('.panel-group').on('hidden.bs.collapse', toggleIcon);
     $('.panel-group').on('shown.bs.collapse', toggleIcon);
     var crash_test_case = atob("{{ encoded_crash_test_case }}");
 
     new Hexdump(crash_test_case, {
-    container: 'hexdump'
-    , base: 'hex'
-    , width: 25
-    , byteGrouping: 0
-    , html: true
-    , lineNumber: true
-    , style: {
-        lineNumberLeft: ''
-        , lineNumberRight: ':'
-        , stringLeft: '|'
-        , stringRight: '|'
-        , hexLeft: ''
-        , hexRight: ''
-        , hexNull: '.g'
-        , stringNull: '.'
+        container: 'hexdump'
+        , base: 'hex'
+        , width: 25
+        , byteGrouping: 0
+        , html: true
+        , lineNumber: true
+        , style: {
+            lineNumberLeft: ''
+            , lineNumberRight: ':'
+            , stringLeft: '|'
+            , stringRight: '|'
+            , hexLeft: ''
+            , hexRight: ''
+            , hexNull: '.g'
+            , stringNull: '.'
         }
     });
 </script>
@@ -92,17 +97,18 @@
 {% else %}
 
 <div class="row">
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div aria-multiselectable="true" class="panel-group" id="accordion" role="tablist">
         <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingHex">
+            <div class="panel-heading" id="headingHex" role="tab">
                 <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseHex" aria-expanded="true" aria-controls="collapseHex">
+                    <a aria-controls="collapseHex" aria-expanded="true" data-parent="#accordion" data-toggle="collapse"
+                       href="#collapseHex" role="button">
                         <i class="more-less glyphicon glyphicon-plus"></i>
                         Sample
                     </a>
                 </h4>
             </div>
-            <div id="collapseHex" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingHex">
+            <div aria-labelledby="headingHex" class="panel-collapse collapse" id="collapseHex" role="tabpanel">
                 <div class="panel-body">
                     <pre id="crash_test"></pre>
                 </div>
@@ -118,17 +124,18 @@
 
 {% if encoded_original_test_case %}
 <div class="row">
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div aria-multiselectable="true" class="panel-group" id="accordion" role="tablist">
         <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingDiff">
+            <div class="panel-heading" id="headingDiff" role="tab">
                 <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseDiff" aria-expanded="true" aria-controls="collapseDiff">
+                    <a aria-controls="collapseDiff" aria-expanded="true" data-parent="#accordion" data-toggle="collapse"
+                       href="#collapseDiff" role="button">
                         <i class="more-less glyphicon glyphicon-plus"></i>
                         Diff
                     </a>
                 </h4>
             </div>
-            <div id="collapseDiff" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingDiff">
+            <div aria-labelledby="headingDiff" class="panel-collapse collapse" id="collapseDiff" role="tabpanel">
                 <div class="panel-body">
                     <pre id="diff"></pre>
                 </div>
@@ -138,23 +145,23 @@
 </div>
 <script type="text/javascript">
     var original_test_case = atob("{{ encoded_original_test_case }}"),
-    crash_test_case = atob("{{ encoded_crash_test_case }}"),
-    color = '',
-    span = null;
+        crash_test_case = atob("{{ encoded_crash_test_case }}"),
+        color = '',
+        span = null;
 
     var Diff = JsDiff.diffChars(crash_test_case, original_test_case),
         diff = document.getElementById('diff'),
         fragment = document.createDocumentFragment();
 
-    Diff.forEach(function(part){
+    Diff.forEach(function (part) {
         // green for additions, red for deletions
         // grey for common parts
         color = part.added ? 'green' :
-        part.removed ? 'red' : 'grey';
+            part.removed ? 'red' : 'grey';
         span = document.createElement('span');
         span.style.color = color;
         span.appendChild(document
-        .createTextNode(part.value));
+            .createTextNode(part.value));
         fragment.appendChild(span);
     });
 
@@ -164,17 +171,20 @@
 
 {% if crash.additional %}
 <div class="row">
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div aria-multiselectable="true" class="panel-group" id="accordion" role="tablist">
         <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="headingAdditional">
+            <div class="panel-heading" id="headingAdditional" role="tab">
                 <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAdditional" aria-expanded="true" aria-controls="collapseAdditional">
+                    <a aria-controls="collapseAdditional" aria-expanded="true" data-parent="#accordion"
+                       data-toggle="collapse"
+                       href="#collapseAdditional" role="button">
                         <i class="more-less glyphicon glyphicon-plus"></i>
                         Additional
                     </a>
                 </h4>
             </div>
-            <div id="collapseAdditional" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAdditional">
+            <div aria-labelledby="headingAdditional" class="panel-collapse collapse" id="collapseAdditional"
+                 role="tabpanel">
                 <div class="panel-body">
                     <pre>
                         {{ crash.additional }}

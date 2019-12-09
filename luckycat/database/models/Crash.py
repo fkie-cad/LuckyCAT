@@ -1,6 +1,7 @@
 import datetime
+
 from mongoengine import Document
-from mongoengine.fields import IntField, StringField, DateTimeField,\
+from mongoengine.fields import IntField, StringField, DateTimeField, \
     BooleanField, ObjectIdField, BinaryField
 
 

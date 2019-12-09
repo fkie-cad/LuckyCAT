@@ -1,5 +1,5 @@
-FROM phusion/baseimage:0.10.0
-MAINTAINER Thomas Barabosch <thomas.barabosch@fkie.fraunhofer.de>
+FROM phusion/baseimage:0.11
+MAINTAINER Christopher Krah <christopher.krah@fkie.fraunhofer.de>
 
 # install dependencies 
 RUN apt-get update -y && apt-get install -y gcc cmake make wget screen gdb \
@@ -20,7 +20,7 @@ COPY . /opt/luckycat
 COPY docker/frontend/start_frontend.sh /opt/luckycat/
 
 # pull further dependencies
-RUN wget https://github.com/chartjs/Chart.js/releases/download/v2.7.2/Chart.bundle.js -P /opt/luckycat/luckycat/frontend/static/
+RUN wget https://github.com/chartjs/Chart.js/releases/download/v2.9.3/Chart.bundle.js -P /opt/luckycat/luckycat/frontend/static/
 RUN wget https://raw.githubusercontent.com/mephux/hexdump.js/master/src/hexdump.js -P /opt/luckycat/luckycat/frontend/static/
 RUN wget http://incaseofstairs.com/jsdiff/diff.js -P /opt/luckycat/luckycat/frontend/static/
 

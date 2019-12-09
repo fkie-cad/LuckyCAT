@@ -6,7 +6,7 @@ from multiprocessing import Process
 from mongoengine import connect
 from mongoengine.queryset import DoesNotExist
 
-from luckycat import f3c_global_config
+from luckycat import luckycat_global_config
 from luckycat.backend import WorkQueue
 from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
@@ -90,23 +90,22 @@ class CrashReceiver(Process):
         iteration = 0
         if 'classification' in crash_data:
             syzkaller_crash = Crash(job_id=job.id,
-                              crash_signal=crash_data['signal'],
-                              test_case=crash_data['test_case'].encode(),
-                              verified=crash_data['verified'],
-                              crash_hash=crash_data['hash'],
-                              exploitability=crash_data['classification'],
-                              additional=crash_data['description'],
-                              iteration=iteration)
+                                    crash_signal=crash_data['signal'],
+                                    test_case=crash_data['test_case'].encode(),
+                                    verified=crash_data['verified'],
+                                    crash_hash=crash_data['hash'],
+                                    exploitability=crash_data['classification'],
+                                    additional=crash_data['description'],
+                                    iteration=iteration)
         else:
             syzkaller_crash = Crash(job_id=job.id,
-                              crash_signal=crash_data['signal'],
-                              test_case=crash_data['test_case'].encode(),
-                              verified=crash_data['verified'],
-                              iteration=iteration)
+                                    crash_signal=crash_data['signal'],
+                                    test_case=crash_data['test_case'].encode(),
+                                    verified=crash_data['verified'],
+                                    iteration=iteration)
 
         syzkaller_crash.save()
         logger.debug('Crash stored')
-
 
     def on_message(self, channel, method_frame, header_frame, body):
         crash_info = json.loads(body.decode('utf-8'))
@@ -121,7 +120,7 @@ class CrashReceiver(Process):
 
     def run(self):
         logger.info('Starting CrashReceiver...')
-        connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
+        connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         self.channel.basic_consume(self.on_message, self.queue_name)
         try:
             self.channel.start_consuming()

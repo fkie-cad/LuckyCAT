@@ -1,5 +1,6 @@
 import subprocess
 
+
 class EmailSender():
     def send_mail(self, email, recipient):
         subprocess.call('echo "' + email + '" | mail -s "Fuzzing Stats" ' + recipient, shell=True)

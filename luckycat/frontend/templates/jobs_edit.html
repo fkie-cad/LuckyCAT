@@ -4,65 +4,66 @@
 
 {% block content %}
 <table>
-<h2>Edit Job</h2>
-  <form action="/jobs/edit/{{ job.id }}" method="POST">
-  <input type="hidden" name="id" value="{{ job.id }}"/>
-  <table>
-   <tr>
-    <td><label>Name</label></td>
-    <td><input type="text" name="name" size="50" value="{{ job.name }}"></td>
-    <td><i>Short name of the new project.</i></td>
-   </tr>
-   <tr>
-    <td valign="top"><label>Description</label></td>
-    <td><textarea rows="10" cols="50" name="description">{{ job.description }}</textarea></td>
-    <td valign="top"><i>Description of the project. Use this field to specify the version, operating systems, CPU, etc...</i></td>
-   </tr>
-   <tr>
-     <td><label>Fuzzer</label></td>
-      <td>
-        <select required name="fuzzer" size="{{fuzzers|length}}">
-          {% for fuzzer in fuzzers %}
-            <option value="{{fuzzer}}">{{fuzzer}}</option>
-          {% endfor %}
-        </select>
-      </td>
-      <td><i>The fuzzer to use for fuzzing.</i></td>
-   </tr>
-    <tr>
-     <td><label>Mutation engine</label></td>
-      <td>
-        <select required name="mutation_engine" size="{{engines|length}}">
-	   {% for engine in engines %}
-       <option value="{{engine}}">{{engine}}</option>
-       {% endfor %}
-        </select>
-      </td>
-      <td><i>The mutation engine to use for sample generation.</i></td>
-   </tr>
-      <tr>
-     <td><label>Verifier</label></td>
-      <td>
-        <select required name="verifier" size="{{verifiers|length}}">
-	   {% for verifier in verifiers %}
-       <option value="{{verifier}}">{{verifier}}</option>
-       {% endfor %}
-        </select>
-      </td>
-      <td><i>The mutation engine to use for sample generation.</i></td>
-   </tr>
-   <tr>
-    <td>Start date</td>
-    <td>{{ job.date }}</td>
-    <td><i>Date when the project was created.</i></td>
-   </tr>
-   <tr>
-     <td colspan="3">
-      <input type="submit" value="Update Job">
-      <input type="button" value="Cancel" onclick="javascript:location.href='/jobs/show'"/>
-     </td>
-   </tr>
-  </table>
-  </form>
+    <h2>Edit Job</h2>
+    <form action="/jobs/edit/{{ job.id }}" method="POST">
+        <input name="id" type="hidden" value="{{ job.id }}"/>
+        <table>
+            <tr>
+                <td><label>Name</label></td>
+                <td><input name="name" size="50" type="text" value="{{ job.name }}"></td>
+                <td><i>Short name of the new project.</i></td>
+            </tr>
+            <tr>
+                <td valign="top"><label>Description</label></td>
+                <td><textarea cols="50" name="description" rows="10">{{ job.description }}</textarea></td>
+                <td valign="top"><i>Description of the project. Use this field to specify the version, operating
+                    systems, CPU, etc...</i></td>
+            </tr>
+            <tr>
+                <td><label>Fuzzer</label></td>
+                <td>
+                    <select name="fuzzer" required size="{{fuzzers|length}}">
+                        {% for fuzzer in fuzzers %}
+                        <option value="{{fuzzer}}">{{fuzzer}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><i>The fuzzer to use for fuzzing.</i></td>
+            </tr>
+            <tr>
+                <td><label>Mutation engine</label></td>
+                <td>
+                    <select name="mutation_engine" required size="{{engines|length}}">
+                        {% for engine in engines %}
+                        <option value="{{engine}}">{{engine}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><i>The mutation engine to use for sample generation.</i></td>
+            </tr>
+            <tr>
+                <td><label>Verifier</label></td>
+                <td>
+                    <select name="verifier" required size="{{verifiers|length}}">
+                        {% for verifier in verifiers %}
+                        <option value="{{verifier}}">{{verifier}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><i>The mutation engine to use for sample generation.</i></td>
+            </tr>
+            <tr>
+                <td>Start date</td>
+                <td>{{ job.date }}</td>
+                <td><i>Date when the project was created.</i></td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <input type="submit" value="Update Job">
+                    <input onclick="javascript:location.href='/jobs/show'" type="button" value="Cancel"/>
+                </td>
+            </tr>
+        </table>
+    </form>
 </table>
 {% endblock %}

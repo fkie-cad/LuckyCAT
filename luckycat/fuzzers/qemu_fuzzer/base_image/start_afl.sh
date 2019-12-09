@@ -2,7 +2,6 @@
 
 #ip link set down eth0
 
-
 FIRMWARE_DIR=/fuzz_ramdisk/firmware_root
 
 # AFL setup
@@ -18,17 +17,15 @@ shift
 FULL_PATH=$FIRMWARE_DIR$1
 shift
 
-
 # setup master
 afl-fuzz -Q -M MASTER -m 2048 -i /fuzz_ramdisk/test_cases -o /fuzz_ramdisk/output -- $FULL_PATH $@ &
 echo "Started master in background"
 
 # setup slaves
-SLAVE_COUNT=`expr $CORES - 1`
-for i in `seq 1 $SLAVE_COUNT`;
-do
-    afl-fuzz -Q -S SLAVE$i -m 2048 -i /fuzz_ramdisk/test_cases -o /fuzz_ramdisk/output -- $FULL_PATH $@ &
-    echo "Set up slave $i in background"
+SLAVE_COUNT=$(expr $CORES - 1)
+for i in $(seq 1 $SLAVE_COUNT); do
+  afl-fuzz -Q -S SLAVE$i -m 2048 -i /fuzz_ramdisk/test_cases -o /fuzz_ramdisk/output -- $FULL_PATH $@ &
+  echo "Set up slave $i in background"
 done
 
 # endless loop to keep container alive, afl-utils started stuff in screen sessions

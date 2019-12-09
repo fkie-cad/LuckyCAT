@@ -1,129 +1,136 @@
 {% extends "base.html" %}
 
-  {% set active_page = "Crashes" %}
+{% set active_page = "Crashes" %}
 
 {% block content %}
 
 <h2>Fuzzing results</h2>
 
 <!--<form name="fmFilter">-->
-  <!--<label><b class="label">Show</b> results matching field</label>-->
-  <!--<input type="hidden" id="idSelected" value="">-->
-  <!--<select name="field" id="idSelect">-->
-    <!--<option value="date">Date</option>-->
-    <!--<option value="exploitability">Exploitable</option>-->
-    <!--<option value="disassembly">Disassembly</option>-->
-    <!--<option value="program_counter">Program counter</option>-->
-    <!--<option value="crash_signal">Signal</option>-->
-    <!--<option value="crash_hash">Crash hash</option>-->
-  <!--</select>-->
-  <!--<label>with value similar to</label>-->
-  <!--<input type="text" name="fieldValue" id="idFieldValue" value="">-->
-  <!--<input type="submit" value="Apply">-->
-  <!--<input type="button" value="Reset" onclick="javascript:window.location.href='/results';">-->
+<!--<label><b class="label">Show</b> results matching field</label>-->
+<!--<input type="hidden" id="idSelected" value="">-->
+<!--<select name="field" id="idSelect">-->
+<!--<option value="date">Date</option>-->
+<!--<option value="exploitability">Exploitable</option>-->
+<!--<option value="disassembly">Disassembly</option>-->
+<!--<option value="program_counter">Program counter</option>-->
+<!--<option value="crash_signal">Signal</option>-->
+<!--<option value="crash_hash">Crash hash</option>-->
+<!--</select>-->
+<!--<label>with value similar to</label>-->
+<!--<input type="text" name="fieldValue" id="idFieldValue" value="">-->
+<!--<input type="submit" value="Apply">-->
+<!--<input type="button" value="Reset" onclick="javascript:window.location.href='/results';">-->
 
-  <!--<br/>-->
+<!--<br/>-->
 
-  <!--<label><b class="label">Hide</b> results matching field</label>-->
-  <!--<input type="hidden" id="idNoSelected" value="">-->
-  <!--<select name="no_field" id="idNoSelect">-->
-    <!--<option value="crash_signal">Signal</option>-->
-    <!--<option value="exploitability">Exploitable</option>-->
-    <!--<option value="date">Date</option>-->
-    <!--<option value="disassembly">Disassembly</option>-->
-    <!--<option value="program_counter">Program counter</option>-->
-    <!--<option value="crash_hash">Crash hash</option>-->
-  <!--</select>-->
-  <!--<label>with value similar to</label>-->
-  <!--<input type="text" name="no_fieldValue" id="idNoFieldValue" value="">-->
+<!--<label><b class="label">Hide</b> results matching field</label>-->
+<!--<input type="hidden" id="idNoSelected" value="">-->
+<!--<select name="no_field" id="idNoSelect">-->
+<!--<option value="crash_signal">Signal</option>-->
+<!--<option value="exploitability">Exploitable</option>-->
+<!--<option value="date">Date</option>-->
+<!--<option value="disassembly">Disassembly</option>-->
+<!--<option value="program_counter">Program counter</option>-->
+<!--<option value="crash_hash">Crash hash</option>-->
+<!--</select>-->
+<!--<label>with value similar to</label>-->
+<!--<input type="text" name="no_fieldValue" id="idNoFieldValue" value="">-->
 
-  <!--<input type="checkbox" name="hideDup" id="hideDup" ""/>-->
-  <!--<label for"hideDup">Hide duplicates</label>-->
-  <!--<input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>-->
-  <!--<label for"hideNonVerified">Hide Non Verified Crashes</label>-->
+<!--<input type="checkbox" name="hideDup" id="hideDup" ""/>-->
+<!--<label for"hideDup">Hide duplicates</label>-->
+<!--<input type="checkbox" name="hide_non_verified" id="hide_non_verified" ""/>-->
+<!--<label for"hideNonVerified">Hide Non Verified Crashes</label>-->
 
-  <!--<br/>-->
+<!--<br/>-->
 
-  <!--<label><b class="label">Sort</b> results matching field</label>-->
-  <!--<input type="hidden" id="idSavedSort" value="$sort_value">-->
-  <!--<select name="sortValue" id="idSortSelect">-->
-    <!--<option value="crash_signal">Signal</option>-->
-    <!--<option value="exploitability">Exploitable</option>-->
-    <!--<option value="date" selected>Date</option>-->
-    <!--<option value="disassembly">Disassembly</option>-->
-    <!--<option value="program_counter">Program counter</option>-->
-    <!--<option value="crash_hash">Crash hash</option>-->
-  <!--</select>-->
+<!--<label><b class="label">Sort</b> results matching field</label>-->
+<!--<input type="hidden" id="idSavedSort" value="$sort_value">-->
+<!--<select name="sortValue" id="idSortSelect">-->
+<!--<option value="crash_signal">Signal</option>-->
+<!--<option value="exploitability">Exploitable</option>-->
+<!--<option value="date" selected>Date</option>-->
+<!--<option value="disassembly">Disassembly</option>-->
+<!--<option value="program_counter">Program counter</option>-->
+<!--<option value="crash_hash">Crash hash</option>-->
+<!--</select>-->
 
 
 <!--</form>-->
 
 
+{% if results|length > 0 %}
+{% for crashes in results %}
+<div aria-multiselectable="true" class="panel-group" id="accordion" role="tablist">
 
-  {% if results|length > 0 %}
-      {% for crashes in results %}
-          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-
-              <div class="panel panel-default">
-                  <div class="panel-heading" role="tab" id="heading{{crashes[0]}}">
-                      <h4 class="panel-title">
-                          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{crashes[0]}}" aria-expanded="true" aria-controls="collapse{{crashes[0]}}">
-                              <i class="more-less glyphicon glyphicon-plus"></i>
-                              Project {{crashes[0]}} - {{ crashes[1]|length }} crashes
-                          </a>
-                      </h4>
-                  </div>
-                  <div id="collapse{{crashes[0]}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{crashes[0]}}">
-                      <div class="panel-body">
-                          {% if crashes|length > 0 %}
-                              <a href="/download/job/{{ crashes[1][0].job_id }}" class="btn btn-sm btn-green white" role="button" >Download Project Results <span class="glyphicon glyphicon-download"></span></a>
-                              <table class="table table-responsive table-hover table-bordered" style="border-spacing: 10px; width: 100%;" id="data">
-                                  <tr>
-                                      <th>Action</th>
-                                      <th>Exploitable</th>
-                                      <th>Signal</th>
-                                      <th>Crash Hash</th>
-                                      <th>Date</th>
-                                  </tr>
-                                  {% for crash in crashes[1] %}
-                                      <tr>
-                                          <td align="center">
-                                              <a href="{{ url_for('crashes.show_crash', crash_id = crash['_id']) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
-                                              <a href="{{ url_for('crashes.download_crash', crash_id = crash['_id']) }}"><span class="glyphicon glyphicon-download"></span></a>
-                                              <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
-                                          </td>
-                                          <td>
-                                              {% if crash["exploitability"] %}
-                                                  <font color={{ exploitable_color(crash["exploitability"]) }}>{{crash["exploitability"] }}</font>
-                                              {% else %}
-                                                  None
-                                              {% endif %}
-                                          </td>
-                                          <td>
-                                              {{map_signal_to_string(crash["crash_signal"])}}
-                                          </td>
-                                          <td>
-                                              {% if crash["crash_hash"] %}
-                                                  {{crash["crash_hash"]}}
-                                              {% else %}
-                                                  None
-                                              {% endif %}
-                                          </td>
-                                          <td>
-                                            {{crash["date"].strftime('%Y-%m-%d %H:%M')}}
-                                          </td>
-                                      </tr>
-                                  {% endfor %}
-                              </table>
-                         {% endif %}
-                      </div>
-                  </div>
-              </div>
-          </div>
-      {% endfor %}
-  {% else %}
-      No results yet. You may want to check the <a href="/statistics/show">statistics</a> meanwhile.
-  {% endif %}
+    <div class="panel panel-default">
+        <div class="panel-heading" id="heading{{crashes[0]}}" role="tab">
+            <h4 class="panel-title">
+                <a aria-controls="collapse{{crashes[0]}}" aria-expanded="true" data-parent="#accordion"
+                   data-toggle="collapse"
+                   href="#collapse{{crashes[0]}}" role="button">
+                    <i class="more-less glyphicon glyphicon-plus"></i>
+                    Project {{crashes[0]}} - {{ crashes[1]|length }} crashes
+                </a>
+            </h4>
+        </div>
+        <div aria-labelledby="heading{{crashes[0]}}" class="panel-collapse collapse" id="collapse{{crashes[0]}}"
+             role="tabpanel">
+            <div class="panel-body">
+                {% if crashes|length > 0 %}
+                <a class="btn btn-sm btn-green white" href="/download/job/{{ crashes[1][0].job_id }}" role="button">Download
+                    Project Results <span class="glyphicon glyphicon-download"></span></a>
+                <table class="table table-responsive table-hover table-bordered"
+                       id="data" style="border-spacing: 10px; width: 100%;">
+                    <tr>
+                        <th>Action</th>
+                        <th>Exploitable</th>
+                        <th>Signal</th>
+                        <th>Crash Hash</th>
+                        <th>Date</th>
+                    </tr>
+                    {% for crash in crashes[1] %}
+                    <tr>
+                        <td align="center">
+                            <a href="{{ url_for('crashes.show_crash', crash_id = crash['_id']) }}"><span
+                                    class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="{{ url_for('crashes.download_crash', crash_id = crash['_id']) }}"><span
+                                    class="glyphicon glyphicon-download"></span></a>
+                            <a href="/crashes/original/{{ crash.id }}"><span class="glyphicon glyphicon-search"></span></a>
+                        </td>
+                        <td>
+                            {% if crash["exploitability"] %}
+                            <font color={{ exploitable_color(crash["exploitability"]) }}>{{crash["exploitability"]
+                            }}</font>
+                            {% else %}
+                            None
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{map_signal_to_string(crash["crash_signal"])}}
+                        </td>
+                        <td>
+                            {% if crash["crash_hash"] %}
+                            {{crash["crash_hash"]}}
+                            {% else %}
+                            None
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{crash["date"].strftime('%Y-%m-%d %H:%M')}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+No results yet. You may want to check the <a href="/statistics/show">statistics</a> meanwhile.
+{% endif %}
 
 
 {% endblock %}

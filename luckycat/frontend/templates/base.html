@@ -3,40 +3,46 @@
     <meta charset="UTF-8">
     <link href="/static/luckycat.css" rel="stylesheet" type="text/css">
     <!-- Bootstrap -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.css') }}">
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.css') }}" rel="stylesheet" type="text/css">
     <script src="{{ url_for('static', filename='bootstrap/js/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
     <script src="{{ url_for('static', filename='Chart.bundle.js') }}"></script>
     <script src="{{ url_for('static', filename='hexdump.js') }}"></script>
     <script src="{{ url_for('static', filename='diff.js') }}"></script>
 
     <!-- update url-->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/update_url_variables.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/update_url_variables.js') }}" type="text/javascript"></script>
 
     <style>
-        body{
+        body {
             padding-top: 70px;
         }
-        a:link{
-            color:#2b669a;
-            text-decoration:none;
+
+        a:link {
+            color: #2b669a;
+            text-decoration: none;
         }
+
         td.clickable {
-            cursor:pointer;
+            cursor: pointer;
         }
+
         .navbar-inner {
             background-color: #255e54; /*#607873; /* background color will be black for all browsers */
             background-image: none;
             background-repeat: no-repeat;
             filter: none;
         }
-            .navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a {
+
+        .navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a {
             color: #ddd;
         }
-            .navbar-default .navbar-brand:hover, .navbar-default .navbar-nav > li > a:hover {
+
+        .navbar-default .navbar-brand:hover, .navbar-default .navbar-nav > li > a:hover {
             color: #fff;
         }
+
         .tooltip > .tooltip-inner {
             background-color: #2b669a;
             color: #FFFFFF;
@@ -44,88 +50,95 @@
             padding: 5px;
             font-size: 15px;
         }
+
         .tooltip.top > .tooltip-arrow {
             border-top: 5px solid #2b669a;
         }
     </style>
-{% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages() %}
     {% if messages %}
-        <ul class=flashes>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
+    <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
     {% endif %}
-{% endwith %}
+    {% endwith %}
 </head>
 <body>
 
 
-<nav role="navigation" class="navbar navbar-default navbar-fixed-top navbar-inner" style="margin-bottom:0; padding: 0">
+<nav class="navbar navbar-default navbar-fixed-top navbar-inner" role="navigation" style="margin-bottom:0; padding: 0">
     <div class="container-fluid" style="padding: 0">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
-        </button>
-        <div class="navbar-brand-logo hidden-sm hidden-md" style="vertical-align: middle; margin-left: 15px">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button class="navbar-toggle" data-target="#navbarCollapse" data-toggle="collapse" type="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+            </button>
+            <div class="navbar-brand-logo hidden-sm hidden-md" style="vertical-align: middle; margin-left: 15px">
             <span>
-                <img src="{{ url_for('static', filename='Logo_LuckyCat.png') }}" height="50px" width="50px">
+                <img height="50px" src="{{ url_for('static', filename='Logo_LuckyCat.png') }}" width="50px">
             </span>
+            </div>
+            <div class="navbar-brand hidden-sm hidden-md" style="vertical-align: middle; margin-right: 5px">
+                Lucky CAT
+            </div>
         </div>
-        <div class="navbar-brand hidden-sm hidden-md" style="vertical-align: middle; margin-right: 5px">
-            Lucky CAT
-        </div>
-    </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
 
-            <li class="{{ 'active' if active_page == 'Index' else '' }}">
-                <a href="/"><span class="glyphicon glyphicon-home"></span> Index <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="{{ 'active' if active_page == 'Jobs' else '' }}">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-tasks"></span> Jobs<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="/jobs/show"><span class="glyphicon glyphicon-list"></span> Show</a></li>
-                    <li><a href="/jobs/add"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
-                </ul>
-            </li>
-            <li class="{{ 'active' if active_page == 'Crashes' else '' }}">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-flash"></span> Crashes<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="/crashes/show"><span class="glyphicon glyphicon-list"></span> Show</a></li>
-                    <li><a href="/crashes/search"><span class="glyphicon glyphicon-search"></span> Search</a></li>
-                </ul>
-            </li>
-            <li class="{{ 'active' if active_page == 'Statistics' else '' }}">
-                <a href="/statistics/show"><span class="glyphicon glyphicon-stats"></span> Statistics</a>
-            </li>
-            <li class="dropdown {{ 'active' if active_page == 'Settings' else '' }}">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-cog"></span> Settings<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="/user/manage"><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
-                    <li><a href="/user/add"><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
-                </ul>
-            </li>
-            <li class="{{ 'active' if active_page == 'About' else '' }}">
-                <a href="/about"><span class="glyphicon glyphicon-globe"></span> About</a>
-            </li>
-            <li class="{{ 'active' if active_page == 'current_user.email' else '' }}">
-                {% if current_user.is_authenticated %}
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span>&nbsp;{{ current_user.email }}<span class="caret"></span></a>
+                <li class="{{ 'active' if active_page == 'Index' else '' }}">
+                    <a href="/"><span class="glyphicon glyphicon-home"></span> Index <span
+                            class="sr-only">(current)</span></a>
+                </li>
+                <li class="{{ 'active' if active_page == 'Jobs' else '' }}">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
+                            class="glyphicon glyphicon-tasks"></span> Jobs<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/jobs/show"><span class="glyphicon glyphicon-list"></span> Show</a></li>
+                        <li><a href="/jobs/add"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
+                    </ul>
+                </li>
+                <li class="{{ 'active' if active_page == 'Crashes' else '' }}">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
+                            class="glyphicon glyphicon-flash"></span> Crashes<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/crashes/show"><span class="glyphicon glyphicon-list"></span> Show</a></li>
+                        <li><a href="/crashes/search"><span class="glyphicon glyphicon-search"></span> Search</a></li>
+                    </ul>
+                </li>
+                <li class="{{ 'active' if active_page == 'Statistics' else '' }}">
+                    <a href="/statistics/show"><span class="glyphicon glyphicon-stats"></span> Statistics</a>
+                </li>
+                <li class="dropdown {{ 'active' if active_page == 'Settings' else '' }}">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
+                            class="glyphicon glyphicon-cog"></span> Settings<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/user/manage"><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
+                        <li><a href="/user/add"><span class="glyphicon glyphicon-plus"></span> Add User</a></li>
+                    </ul>
+                </li>
+                <li class="{{ 'active' if active_page == 'About' else '' }}">
+                    <a href="/about"><span class="glyphicon glyphicon-globe"></span> About</a>
+                </li>
+                <li class="{{ 'active' if active_page == 'current_user.email' else '' }}">
+                    {% if current_user.is_authenticated %}
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
+                            class="glyphicon glyphicon-user"></span>&nbsp;{{ current_user.email }}<span
+                            class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="/user/profile"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
                         <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
                     </ul>
-                {% else %}
+                    {% else %}
                     <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a>
-                {% endif %}
-            </li>
-        </ul>
-    </div>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
 

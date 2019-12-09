@@ -10,21 +10,21 @@ tar -xvf /tmp/verify/verify.tar.gz
 rm /tmp/verify/verify.tar.gz
 
 for f in $(find . -exec file {} \; | grep -i ELF | cut -d: -f1); do
-    echo "Verifying $f"
-    /usr/bin/timeout 5 ssh max@localhost -p$2 "rm /tmp/elf_verify"
-    scp -P$2 $f max@localhost:/tmp/elf_verify
-    /usr/bin/timeout 20 ssh max@localhost -p$2 "/tmp/exec_elf.sh"
-    if /usr/bin/timeout 5 ssh max@localhost -p$2 "exit"; then
-        continue
-    else
-        echo "Kernel crash probably provoked by $f"
-        cp $f /home/thomas/code/daemons/analysis_scripts/elf_fuzzing/results/verified_$3
-        break
-    fi
+  echo "Verifying $f"
+  /usr/bin/timeout 5 ssh max@localhost -p$2 "rm /tmp/elf_verify"
+  scp -P$2 $f max@localhost:/tmp/elf_verify
+  /usr/bin/timeout 20 ssh max@localhost -p$2 "/tmp/exec_elf.sh"
+  if /usr/bin/timeout 5 ssh max@localhost -p$2 "exit"; then
+    continue
+  else
+    echo "Kernel crash probably provoked by $f"
+    cp $f /home/thomas/code/daemons/analysis_scripts/elf_fuzzing/results/verified_$3
+    break
+  fi
 done
 
 /usr/bin/timeout 10 ssh max@localhost -p$2 "rm /tmp/*.core"
 
 echo "Cleaning up temp data..."
 cd /tmp
-rm -rf /tmp/verify 
+rm -rf /tmp/verify

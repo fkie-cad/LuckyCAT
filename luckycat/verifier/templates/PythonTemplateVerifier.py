@@ -1,6 +1,6 @@
-import json
 import configparser
-import multiprocessing
+import json
+
 import pika
 
 

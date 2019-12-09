@@ -2,8 +2,10 @@ import json
 import logging
 import os
 from multiprocessing import Process
+
 from mongoengine import connect
-from luckycat import f3c_global_config
+
+from luckycat import luckycat_global_config
 from luckycat.backend import WorkQueue
 from luckycat.database.models.Crash import Crash
 
@@ -40,7 +42,7 @@ class CrashVerificationCollector(Process):
             logger.debug('[CrashVerification] Deleted crash from database.')
 
     def run(self):
-        connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
+        connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         self.channel.basic_consume(self.on_message, self.queue_name)
         try:
             self.channel.start_consuming()

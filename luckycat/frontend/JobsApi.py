@@ -1,11 +1,12 @@
 import base64
-import json
 import datetime
+import json
+
 import flask
 from flask_security import auth_token_required
 
-from luckycat.database.models.Job import Job
 from luckycat.database.models.Crash import Crash
+from luckycat.database.models.Job import Job
 
 jobs_api = flask.Blueprint('job_api', __name__)
 

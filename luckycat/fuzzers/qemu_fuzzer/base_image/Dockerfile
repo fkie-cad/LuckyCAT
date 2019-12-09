@@ -4,8 +4,8 @@
 # test cases and the whole (unpacked) root directory of
 # the firmware to the container. Both are required to
 # be specified via Docker's command line option "--build-arg="
-FROM phusion/baseimage:0.10.0
-MAINTAINER Thomas Barabosch <thomas.barabosch@fkie.fraunhofer.de>
+FROM phusion/baseimage:0.11
+MAINTAINER Christopher Krah <christopher.krah@fkie.fraunhofer.de>
 
 RUN apt-get update -y && apt-get install -y gcc cmake make libtool-bin wget \
 python automake bison libglib2.0 git libssl-dev nettle-dev flex python3 \

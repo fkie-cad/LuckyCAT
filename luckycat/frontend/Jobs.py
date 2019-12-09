@@ -1,14 +1,15 @@
 import datetime
-import logging
 import json
+import logging
 import os
+
 import flask
 from flask_security import login_required, current_user
 
-from luckycat import f3c_global_config
+from luckycat import luckycat_global_config
+from luckycat.database.models.Crash import Crash
 from luckycat.database.models.Job import Job
 from luckycat.database.models.User import User
-from luckycat.database.models.Crash import Crash
 from luckycat.frontend.InMemoryZip import InMemoryZip
 
 jobs = flask.Blueprint('jobs', __name__)
@@ -42,9 +43,9 @@ def jobs_show():
 def add_job():
     # TODO check if job with this name already exists
     if flask.request.method == 'GET':
-        engines = [x['name'] for x in f3c_global_config.mutation_engines]
-        fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
-        verifiers = [x['name'] for x in f3c_global_config.verifiers]
+        engines = [x['name'] for x in luckycat_global_config.mutation_engines]
+        fuzzers = [x['name'] for x in luckycat_global_config.fuzzers]
+        verifiers = [x['name'] for x in luckycat_global_config.verifiers]
 
         return flask.render_template("jobs_add.html",
                                      engines=engines,
@@ -76,7 +77,7 @@ def add_job():
 
         new_job = Job(name=data.get('name'),
                       description=data.get('description'),
-                      maximum_samples=f3c_global_config.maximum_samples,
+                      maximum_samples=luckycat_global_config.maximum_samples,
                       archived=False,
                       enabled=True,
                       maximum_iteration=int(data.get('maximum_iteration')),
@@ -140,9 +141,9 @@ def edit_job(job_id):
 
             return flask.redirect("/jobs/show")
         else:
-            engines = [x['name'] for x in f3c_global_config.mutation_engines]
-            fuzzers = [x['name'] for x in f3c_global_config.fuzzers]
-            verifiers = [x['name'] for x in f3c_global_config.verifiers]
+            engines = [x['name'] for x in luckycat_global_config.mutation_engines]
+            fuzzers = [x['name'] for x in luckycat_global_config.fuzzers]
+            verifiers = [x['name'] for x in luckycat_global_config.verifiers]
             return flask.render_template('jobs_edit.html',
                                          job=job,
                                          engines=engines,

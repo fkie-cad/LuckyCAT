@@ -1,13 +1,14 @@
-import random
-import string
 import datetime
 import logging
+import random
+import string
+
 from flask import Blueprint, render_template, request, abort, redirect
 from flask_security import login_required, current_user, utils, MongoEngineUserDatastore, roles_required
 
 from luckycat.database.database import db
-from luckycat.database.models.User import User
 from luckycat.database.models.Role import Role
+from luckycat.database.models.User import User
 
 users = Blueprint('users', __name__)
 user_datastore = MongoEngineUserDatastore(db, User, Role)

@@ -1,9 +1,11 @@
 import logging
-import time
 import os
+import time
 from multiprocessing import Process
+
 from mongoengine import connect
-from luckycat import f3c_global_config
+
+from luckycat import luckycat_global_config
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Statistic import Statistic
 
@@ -27,7 +29,7 @@ class JobScheduler(Process):
 
     def run(self):
         logger.info("Starting JobScheduler...")
-        connect(f3c_global_config.db_name, host=f3c_global_config.db_host)
+        connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         while 1:
             jobs = self._get_active_jobs()
             for job in jobs:
@@ -46,4 +48,4 @@ class JobScheduler(Process):
                     else:
                         logger.debug("Job %s should continue..." % job.name)
 
-            time.sleep(f3c_global_config.job_scheduler_sleeptime)
+            time.sleep(luckycat_global_config.job_scheduler_sleeptime)

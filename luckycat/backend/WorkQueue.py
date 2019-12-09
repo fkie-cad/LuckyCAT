@@ -1,7 +1,9 @@
-import pika
 import logging
 import os
-from luckycat import f3c_global_config
+
+import pika
+
+from luckycat import luckycat_global_config
 
 logger = logging.getLogger(os.path.basename(__file__).split(".")[0])
 
@@ -12,7 +14,7 @@ class WorkQueue(object):
         if host:
             self._host = host
         else:
-            self._host = f3c_global_config.queue_host
+            self._host = luckycat_global_config.queue_host
 
     def queue_exists(self, queue_name):
         conn = pika.BlockingConnection(pika.ConnectionParameters(self._host))

@@ -12,6 +12,7 @@ class StatsFetcher:
     def get_request(self, url):
         return get(url, verify=False, headers={'Authorization': self.authentication_token,
                                                'content-type': 'application/json'}).json()
+
     def fetch_general_stats(self, job_name=None):
         if job_name is None:
             url = self.stats_api_url
@@ -47,11 +48,6 @@ class StatsFetcher:
         for name in all_job_names:
             job_general_stats = self.fetch_general_stats(name)
             job_last_day_crashes_stats = self.fetch_yesterdays_crashes(name)
-            jobs_stats.append({'Job': name, 'stats': {'General Stats': job_general_stats, 'Last Day Stats': job_last_day_crashes_stats}})
+            jobs_stats.append({'Job': name, 'stats': {'General Stats': job_general_stats,
+                                                      'Last Day Stats': job_last_day_crashes_stats}})
         return jobs_stats
-
-
-
-
-
-

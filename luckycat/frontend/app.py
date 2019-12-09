@@ -1,17 +1,15 @@
-from flask import Flask, redirect, render_template, flash
+from flask import Flask, redirect, render_template
 from flask_security import login_required
 
-from luckycat.frontend.JobsApi import jobs_api
+from luckycat.database.database import db
 from luckycat.frontend.Crashes import crashes
 from luckycat.frontend.Jobs import jobs
-from luckycat.frontend.Users import users
-from luckycat.frontend.StatisticsApi import statistics_api
+from luckycat.frontend.JobsApi import jobs_api
 from luckycat.frontend.Statistics import statistics
+from luckycat.frontend.StatisticsApi import statistics_api
+from luckycat.frontend.Users import users
 from luckycat.frontend.jinja2_custom import exploitable_color, map_signal_to_string
 from luckycat.frontend.security.init_security import add_flask_security
-
-from luckycat.database.database import db
-
 
 app = Flask(__name__)
 app.config['DEBUG'] = True

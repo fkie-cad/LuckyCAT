@@ -11,6 +11,7 @@ from luckycat.frontend.Statistics import StatisticCalculator
 
 statistics_api = flask.Blueprint('statistic_api', __name__)
 
+
 @statistics_api.route('/api/stats', methods=['GET'])
 @statistics_api.route('/api/stats/<job_name_or_date>', methods=['GET'])
 @statistics_api.route('/api/stats/<job_name_or_date>/<date>', methods=['GET'])
@@ -146,11 +147,9 @@ def is_date(string):
     except ValueError:
         return False
 
-
 # curl -i -k https://localhost:5000/api/stats
 # curl -i -k -X GET https://localhost:5000/api/stats
 # curl -i -k -X GET https://localhost:5000/api/stats/2018-12-01
 # curl -i -k -X GET https://localhost:5000/api/stats/test
 # curl -i -k -X GET https://localhost:5000/api/stats/test/2018-12-01
 # curl -i -k donald@great.again:password https://localhost:5000/api/stats
-

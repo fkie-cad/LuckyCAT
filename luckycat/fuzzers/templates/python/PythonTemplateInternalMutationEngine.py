@@ -1,8 +1,9 @@
-import json
 import configparser
-import pika
+import json
 import logging
 import os
+
+import pika
 
 
 class PythonFuzzer(object):
@@ -15,7 +16,7 @@ class PythonFuzzer(object):
     '''
 
     def __init__(self, config_path=os.path.join(os.path.dirname(
-            os.path.abspath('fuzzer.cfg')), 'luckycat/fuzzers/templates/python/fuzzer.cfg')):
+        os.path.abspath('fuzzer.cfg')), 'luckycat/fuzzers/templates/python/fuzzer.cfg')):
         super(PythonFuzzer, self).__init__()
         self.config = configparser.ConfigParser()
         self.config.read(config_path)

@@ -1,15 +1,17 @@
-import logging
-import time
-import os
 import base64
-from time import gmtime, strftime
-import signal
-import sys
-import subprocess
-import sqlite3
-from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
+import logging
+import os
 import shutil
+import signal
+import sqlite3
+import subprocess
+import sys
+import time
+from time import gmtime, strftime
+
 import config
+
+from luckycat.fuzzers.templates.python.PythonTemplateInternalMutationEngine import PythonFuzzer
 
 
 def clean_up():
@@ -27,14 +29,14 @@ def clean_up():
 
 
 def check_if_afl_output_dir_is_empty():
-    afl_outout_dir = full_path(config.output_dir)
-    if os.path.exists(afl_outout_dir) and os.path.isdir(afl_outout_dir):
+    afl_output_dir = full_path(config.output_dir)
+    if os.path.exists(afl_output_dir) and os.path.isdir(afl_output_dir):
         print('Fuzzing output directory seems to be not empty.\nDelete contents? [y/N]')
         user_input = input()
         if str.lower(user_input) == 'y':
-            filelist = [f for f in os.listdir(afl_outout_dir)]
-            for f in filelist:
-                shutil.rmtree(os.path.join(afl_outout_dir, f))
+            file_list = [f for f in os.listdir(afl_output_dir)]
+            for f in file_list:
+                shutil.rmtree(os.path.join(afl_output_dir, f))
         else:
             print('Aborting...')
             sys.exit(1)
@@ -73,27 +75,27 @@ class AflFuzzer(PythonFuzzer):
     @staticmethod
     def build_afl_command(fuzzer_id):
         if fuzzer_id == 0:
-            return 'afl-fuzz -m {} -i {} -o {} -M master -- {}'.format(config.memory_limit,
-                                                                       config.input_dir,
-                                                                       config.output_dir,
-                                                                       config.cmd)
+            return f'afl-fuzz -m {config.memory_limit} ' \
+                   f'-i {config.input_dir} ' \
+                   f'-o {config.output_dir} ' \
+                   f'-M master -- {config.cmd}'
         else:
-            return 'afl-fuzz -m {} -i {} -o {} -S slave{} -- {}'.format(config.memory_limit,
-                                                                        config.input_dir,
-                                                                        config.output_dir,
-                                                                        fuzzer_id,
-                                                                        config.cmd)
+            return f'afl-fuzz -m {config.memory_limit} ' \
+                   f'-i {config.input_dir} ' \
+                   f'-o {config.output_dir} ' \
+                   f'-S slave{fuzzer_id} -- {config.cmd}'
 
     @staticmethod
     def build_new_tmux_window():
         subprocess.call('tmux new-window -t luckycatAFL', shell=True)
 
     def start_fuzzers(self):
-        logging.debug('Starting afl-fuzz with {} processes'.format(config.fuzzers))
+        logging.debug(f'Starting afl-fuzz with {config.fuzzers} processes')
         for fuzzer_id in range(config.fuzzers):
             self.build_new_tmux_window()
             afl_cmd = self.build_afl_command(fuzzer_id)
-            fuzz_task = subprocess.Popen('tmux send-keys -t luckycatAFL "{}" C-m'.format(afl_cmd), shell=True,
+            fuzz_task = subprocess.Popen(f'tmux send-keys -t luckycatAFL "{afl_cmd}" C-m',
+                                         shell=True,
                                          stdout=subprocess.PIPE)
             if fuzz_task.poll() is not None:
                 logging.debug('Failed to spawn at least one subprocess. Aborting!')
@@ -105,14 +107,13 @@ class AflFuzzer(PythonFuzzer):
     def build_afl_collect_command():
         # afl-collect/exploitable discards "Non Exploitable"-crashes right away, are not collected!!
         crashes_db = os.path.join(config.crashes_dir, 'crashes.db')
-        cmd = 'afl-collect -d {} -e gdb_script -r -rr {} {} -j {} -- {}'.format(crashes_db, config.output_dir,
-                                                                                config.crashes_dir,
-                                                                                config.collect_threads, config.cmd)
-        return cmd
+        return f'afl-collect -d {crashes_db} ' \
+               f'-e gdb_script -r -rr {config.output_dir} {config.crashes_dir} ' \
+               f'-j {config.collect_threads} -- {config.cmd}'
 
     def whats_up(self):
         stats = {}
-        cmd = 'afl-whatsup {}'.format(config.output_dir)
+        cmd = f'afl-whatsup {config.output_dir}'
         output = subprocess.check_output(cmd, shell=True)
         for line in output.splitlines():
             if b':' in line:
@@ -141,7 +142,7 @@ class AflFuzzer(PythonFuzzer):
         for crash in crashes:
             if '.db' not in crash and 'gdb' not in crash:
                 if crash not in self.CRASHES:
-                    logging.debug('Found new crash {}'.format(crash))
+                    logging.debug(f'Found new crash {crash}')
                     self.CRASHES.append(crash)
                     res.append(os.path.join(full_path(config.crashes_dir), crash))
         return res
@@ -151,7 +152,7 @@ class AflFuzzer(PythonFuzzer):
         return int(filename.split('sig:')[1].split(',')[0]) + 128
 
     def _fuzz(self):
-        logging.debug('Sleeping for {} seconds...'.format(config.sleep))
+        logging.debug(f'Sleeping for {config.sleep} seconds...')
         time.sleep(config.sleep)
         stats = self.whats_up()
         new_crashes = self.collect()
