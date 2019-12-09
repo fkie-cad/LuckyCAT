@@ -9,7 +9,7 @@ from luckycat import luckycat_global_config
 from luckycat.database.models.Job import Job
 from luckycat.database.models.Statistic import Statistic
 
-logger = logging.getLogger(os.path.basename(__file__).split(".")[0])
+logger = logging.getLogger(os.path.basename(__file__).split('.')[0])
 
 
 class JobScheduler(Process):
@@ -28,24 +28,21 @@ class JobScheduler(Process):
         return project.maximum_iteration < stats.iteration or project.timeout < stats.runtime
 
     def run(self):
-        logger.info("Starting JobScheduler...")
+        logger.info('Starting JobScheduler...')
         connect(luckycat_global_config.db_name, host=luckycat_global_config.db_host)
         while 1:
             jobs = self._get_active_jobs()
             for job in jobs:
                 res = self._get_job_statistics(job.id)
-                print(type(res), res)
+                print((type(res), res))
                 if res:
-                    logger.info("Job: %s, Iterations: %d/%d, Runtime: %d/%d" %
-                                (job.name, res.iteration, job.maximum_iteration,
-                                 res.runtime, job.timeout))
+                    logger.info(f'Job: {job.name}, Iterations: {res.iteration}/{job.maximum_iteration}, Runtime: {res.runtime}/{job.timeout}')
 
                     if self._timeout_or_max_iters(job, res):
-                        logger.info("Job %s reached either timeout of %d or maximum interations of %d" %
-                                    (job.name, job.timeout, job.maximum_iteration))
+                        logger.info(f'Job {job.name} reached either timeout of {job.timeout} or maximum interations of {job.maximum_iteration}')
                         job.update(enabled=False)
                         # TODO start next job
                     else:
-                        logger.debug("Job %s should continue..." % job.name)
+                        logger.debug(f'Job {job.name} should continue...')
 
             time.sleep(luckycat_global_config.job_scheduler_sleeptime)

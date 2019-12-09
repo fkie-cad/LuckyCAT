@@ -14,7 +14,7 @@ RUN make && make install
 
 RUN pip3 install flask-mongoengine flask-security tabulate
 
-# copy f3c source into container and install
+# copy luckycat source into container and install
 WORKDIR /opt
 RUN mkdir /opt/luckycat && mkdir /opt/luckycat/samples && mkdir /opt/luckycat/results && mkdir /opt/luckycat/results/crashes
 COPY . /opt/luckycat/

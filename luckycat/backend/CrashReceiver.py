@@ -31,7 +31,7 @@ class CrashReceiver(Process):
         if crash_data['crash']:
             with open(crash_data['filename'], 'rb') as f:
                 data = f.read()
-            logger.debug('Inserting crash: %s.' % str(crash_data))
+            logger.debug(f'Inserting crash: {str(crash_data)}.')
             cfuzz_crash = Crash(job_id=job.id,
                                 crash_signal=crash_data['signal'],
                                 test_case=data,
@@ -45,7 +45,7 @@ class CrashReceiver(Process):
         try:
             os.remove(crash_data['filename'])
         except OSError as e:
-            print('Error: %s - %s.' % (e.filename, e.strerror))
+            print(f'Error: {e.filename} - {e.strerror}.')
 
         stats = {'fuzzer': 'cfuzz',
                  'job_id': str(job.id),
@@ -54,7 +54,8 @@ class CrashReceiver(Process):
                  'total_execs': '+1'}
         self.wq.publish('stats', json.dumps(stats))
 
-    def get_iteration_of_crash(self, job):
+    @staticmethod
+    def get_iteration_of_crash(job):
         try:
             iteration = Statistic.objects.get(job_id=job.id).iteration
         except DoesNotExist:
@@ -62,7 +63,7 @@ class CrashReceiver(Process):
         return iteration
 
     def _insert_crash_afl(self, crash_data):
-        logger.debug('Inserting AFL crash with signal %i.' % crash_data['signal'])
+        logger.debug(f"Inserting AFL crash with signal {crash_data['signal']}.")
         job = Job.objects.get(name=crash_data['job_name'])
         iteration = self.get_iteration_of_crash(job)
         if 'classification' in crash_data:
@@ -84,8 +85,9 @@ class CrashReceiver(Process):
         afl_crash.save()
         logger.debug('Crash stored')
 
-    def _insert_crash_syzkaller(self, crash_data):
-        logger.debug('Inserting Syzkaller crash with signal {}.'.format(crash_data['signal']))
+    @staticmethod
+    def _insert_crash_syzkaller(crash_data):
+        logger.debug(f"Inserting Syzkaller crash with signal {crash_data['signal']}.")
         job = Job.objects.get(name=crash_data['job_name'])
         iteration = 0
         if 'classification' in crash_data:
@@ -107,7 +109,7 @@ class CrashReceiver(Process):
         syzkaller_crash.save()
         logger.debug('Crash stored')
 
-    def on_message(self, channel, method_frame, header_frame, body):
+    def on_message(self, body):
         crash_info = json.loads(body.decode('utf-8'))
         if crash_info['fuzzer'] == 'afl':
             self._insert_crash_afl(crash_info)
@@ -116,7 +118,7 @@ class CrashReceiver(Process):
         elif crash_info['fuzzer'] == 'cfuzz':
             self._insert_crash_cfuzz(crash_info)
         else:
-            logger.error('Unknown fuzzer %s' % crash_info['fuzzer'])
+            logger.error(f"Unknown fuzzer {crash_info['fuzzer']}")
 
     def run(self):
         logger.info('Starting CrashReceiver...')
