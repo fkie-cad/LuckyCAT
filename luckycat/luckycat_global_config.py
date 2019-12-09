@@ -18,8 +18,8 @@ db_user = 'cat'
 db_password = 'lucky'
 
 # frontend configuration
-secret_key = 'this_is_f3c'
-default_user_email = 'donald@great.again'
+secret_key = 'this_is_lucky_cat'
+default_user_email = 'demouser@lucky.cat'
 default_user_password = 'password'
 default_user_api_key = 'yuL4uJ4loqCGl86NDwDloPaPa5PQZs0f9hXRrLjbnJNLau3vxWKs3qS0XKN7BV3o'
 
