@@ -89,7 +89,7 @@ def create_job(args):
                                      'content-type': 'application/json'},
                             verify=args.ssl_verify)
     if response.status_code != 200 or not response.json()['success']:
-        logger.error('Could not create fuzzing job: {}' % response.text)
+        logger.error(f'Could not create fuzzing job: {response.text}')
     else:
         print(response.text)
         logger.info('Created fuzzing job.')
@@ -111,17 +111,17 @@ def find_job_id_by_name(args):
 
 
 def print_job_info(job):
-    print(f'\tname: {job["name"]}')
-    print(f'\tID: {job["job_id"]}')
-    print(f'\tdescription: {job["description"]}')
-    print(f'\tarchived: {job["archived"]}')
-    print(f'\tenabled: {job["enabled"]}')
-    print(f'\tmaximum_samples: {job["maximum_samples"]}')
-    print(f'\tmaximum_iteration: {job["maximum_iteration"]}')
-    print(f'\tfuzzer: {job["fuzzer"]}')
-    print(f'\tmutation_engine: {job["mutation_engine"]}')
-    print(f'\tverifier: {job["verifier"]}')
-    print(f'\tcommand line arguments: {job["cmd_args"]}')
+    print(f"\tname: {job['name']}")
+    print(f"\tID: {job['job_id']}")
+    print(f"\tdescription: {job['description']}")
+    print(f"\tarchived: {job['archived']}")
+    print(f"\tenabled: {job['enabled']}'")
+    print(f"\tmaximum_samples: {job['maximum_samples']}")
+    print(f"\tmaximum_iteration: {job['maximum_iteration']}")
+    print(f"\tfuzzer: {job['fuzzer']}")
+    print(f"\tmutation_engine: {job['mutation_engine']}")
+    print(f"\tverifier: {job['verifier']}")
+    print(f"\tcommand line arguments: {job['cmd_args']}")
 
 
 def delete_job(args):
@@ -129,13 +129,13 @@ def delete_job(args):
         logger.error('Please provide a valid name of a job.')
     else:
 
-        if not query_yes_no('Do you want to delete the job %s?' % args.name):
+        if not query_yes_no(f'Do you want to delete the job {args.name}?'):
             logger.error('Aborting...')
             sys.exit(1)
 
         job_id = find_job_id_by_name(args)
         if job_id:
-            url = urljoin(args.url, '/api/job/{}' % job_id)
+            url = urljoin(args.url, f'/api/job/{job_id}')
             response = requests.delete(url, headers={'Authorization': args.token,
                                                      'content-type': 'application/json'},
                                        verify=args.ssl_verify)

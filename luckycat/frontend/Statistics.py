@@ -29,20 +29,20 @@ class StatisticCalculator:
         statistic = {}
         statistic['general'] = self.calculate_general_statistics()
         statistic['job_names'] = self.list_job_names_with_stats()
-        statistic['diffierent_crash_signals'] = self.calculate_different_crash_signals()
+        statistic['different_crash_signals'] = self.calculate_different_crash_signals()
         statistic['crashes_over_time'] = {}
-        statistic['crashes_over_time']['crashes'], statistic['crashes_over_time']['iterations'] \
-            , statistic['crashes_over_time']['unique_crashes'] = self.calculate_crashes_over_time()
+        statistic['crashes_over_time']['crashes'], statistic['crashes_over_time']['iterations'], \
+            statistic['crashes_over_time']['unique_crashes'] = self.calculate_crashes_over_time()
         return statistic
 
     def calculate_statistic_for_selected_job(self, selected_job):
         statistic = {}
         statistic['general'] = self.calculate_general_statistics_for_specific_job(selected_job)
         statistic['job_names'] = self.list_job_names_with_stats()
-        statistic['diffierent_crash_signals'] = self.calculate_different_crash_signals_for_selected_job(selected_job)
+        statistic['different_crash_signals'] = self.calculate_different_crash_signals_for_selected_job(selected_job)
         statistic['crashes_over_time'] = {}
-        statistic['crashes_over_time']['crashes'], statistic['crashes_over_time']['iterations'] \
-            , statistic['crashes_over_time']['unique_crashes'] = self.calculate_crashes_over_time_for_selected_job(
+        statistic['crashes_over_time']['crashes'], statistic['crashes_over_time']['iterations'], \
+            statistic['crashes_over_time']['unique_crashes'] = self.calculate_crashes_over_time_for_selected_job(
             selected_job)
         return statistic
 
@@ -314,7 +314,8 @@ class StatisticCalculator:
             list(all_crashes))
         return all_crashes_per_time_interval, iterations_per_time_interval
 
-    def calculate_different_crash_signals_for_selected_job(self, selected_job):
+    @staticmethod
+    def calculate_different_crash_signals_for_selected_job(selected_job):
         different_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -335,14 +336,16 @@ class StatisticCalculator:
             different_crashes_with_quantity[different_crash['_id']] = different_crash['quantity']
         return different_crashes_with_quantity
 
-    def calculate_different_crash_signals(self):
+    @staticmethod
+    def calculate_different_crash_signals():
         distinct_crash_signals = Crash.objects.distinct('crash_signal')
         distinct_crash_signals_with_quantity = {}
         for crash_signal in distinct_crash_signals:
             distinct_crash_signals_with_quantity[crash_signal] = Crash.objects(crash_signal=crash_signal).count()
         return distinct_crash_signals_with_quantity
 
-    def summarize_individual_job_statistics(self):
+    @staticmethod
+    def summarize_individual_job_statistics():
         iteration = 0
         runtime = 0
         execs_per_sec = 0
@@ -375,7 +378,8 @@ class StatisticCalculator:
                 'number_of_unique_crashes': self.calculate_number_of_unique_crashes(),
                 'number_of_unique_exploitable_crashes': self.calculate_number_of_unique_and_exploitable_crashes()}
 
-    def calculate_number_of_unique_crashes(self):
+    @staticmethod
+    def calculate_number_of_unique_crashes():
         unique_crashes = Crash.objects.aggregate(*[
             {
                 '$group': {'_id': '$crash_hash'}
@@ -383,7 +387,8 @@ class StatisticCalculator:
         ])
         return len(list(unique_crashes))
 
-    def calculate_number_of_unique_and_exploitable_crashes(self):
+    @staticmethod
+    def calculate_number_of_unique_and_exploitable_crashes():
         unique_exploitable_crashes = Crash.objects.aggregate(*[
             {
                 '$match': {'exploitability': 'EXPLOITABLE'}
@@ -396,7 +401,7 @@ class StatisticCalculator:
 
     def calculate_general_statistics_for_specific_job(self, selected_job):
         # what to do if two jobs have the same name. which one should be selected?
-        job_statistic = self.get_job_information_from_Statistic_table(selected_job)
+        job_statistic = self.get_job_information_from_statistic_table(selected_job)
         return {'iteration': job_statistic['iteration'],
                 'runtime': job_statistic['runtime'],
                 'execs_per_sec': job_statistic['execs_per_sec'],
@@ -405,7 +410,8 @@ class StatisticCalculator:
                 'number_of_unique_exploitable_crashes': self.calculate_number_of_unique_and_exploitable_crashes_for_selected_job(
                     selected_job)}
 
-    def calculate_number_of_unique_and_exploitable_crashes_for_selected_job(self, selected_job):
+    @staticmethod
+    def calculate_number_of_unique_and_exploitable_crashes_for_selected_job(selected_job):
         unique_exploitable_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -423,7 +429,8 @@ class StatisticCalculator:
         ])
         return len(list(unique_exploitable_crashes))
 
-    def calculate_number_of_unique_crashes_for_selected_job(self, selected_job):
+    @staticmethod
+    def calculate_number_of_unique_crashes_for_selected_job(selected_job):
         unique_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -441,7 +448,8 @@ class StatisticCalculator:
         ])
         return len(list(unique_crashes))
 
-    def calculate_number_of_crashes_for_selected_job(self, selected_job):
+    @staticmethod
+    def calculate_number_of_crashes_for_selected_job(selected_job):
         all_crashes = Crash.objects.aggregate(*[
             {
                 '$lookup':
@@ -456,7 +464,8 @@ class StatisticCalculator:
         ])
         return len(list(all_crashes))
 
-    def get_job_information_from_Statistic_table(self, selected_job):
+    @staticmethod
+    def get_job_information_from_statistic_table(selected_job):
         job_statistic = Statistic.objects.aggregate(*[
             {
                 '$lookup':
@@ -471,119 +480,123 @@ class StatisticCalculator:
         ])
         return list(job_statistic)[0]
 
-    def get_selected_job(self):
+    @staticmethod
+    def get_selected_job():
         return flask.request.args.get('job')
 
-    def calculate_crashes_and_iterations_per_time_interval_for_selected_job(self, crashes, time_intervall=10):
+    def calculate_crashes_and_iterations_per_time_interval_for_selected_job(self, crashes, time_interval=10):
         if crashes:
-            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'],
-                                                                    time_intervall)
+            time_intervals = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'],
+                                                                    time_interval)
             crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_interval_for_selected_job(
-                time_intervalls, crashes)
+                time_intervals, crashes)
         else:
             crashes_per_time_intervall, iterations_per_time_interval = {}, {}
         return crashes_per_time_intervall, iterations_per_time_interval
 
-    def calculate_crashes_and_iterations_per_time_interval_for_all_jobs(self, crashes, time_intervall=10):
+    def calculate_crashes_and_iterations_per_time_interval_for_all_jobs(self, crashes, time_interval=10):
         if crashes:
-            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'],
-                                                                    time_intervall)
-            crashes_per_time_intervall, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_intervall_for_all_jobs(
-                time_intervalls, crashes)
+            time_intervals = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'],
+                                                                    time_interval)
+            crashes_per_time_interval, iterations_per_time_interval = self.count_crashes_and_iterations_per_time_interval_for_all_jobs(
+                time_intervals, crashes)
         else:
-            crashes_per_time_intervall, iterations_per_time_interval = {}, {}
-        return crashes_per_time_intervall, iterations_per_time_interval
+            crashes_per_time_interval, iterations_per_time_interval = {}, {}
+        return crashes_per_time_interval, iterations_per_time_interval
 
-    def calculate_crashes_per_time_interval(self, crashes, time_intervall=10):
+    def calculate_crashes_per_time_interval(self, crashes, time_interval=10):
         if crashes:
-            time_intervalls = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'],
-                                                                    time_intervall)
-            crashes_per_time_intervall = self.count_crashes_per_time_intervall(time_intervalls, crashes)
+            time_intervals = self.generate_list_of_time_intervalls(crashes[0]['date'], crashes[-1]['date'],
+                                                                    time_interval)
+            crashes_per_time_interval = self.count_crashes_per_time_interval(time_intervals, crashes)
         else:
-            crashes_per_time_intervall = {}
-        return crashes_per_time_intervall
+            crashes_per_time_interval = {}
+        return crashes_per_time_interval
 
-    def generate_list_of_time_intervalls(self, start_time, end_time, intervall_length_in_minutes):
+    @staticmethod
+    def generate_list_of_time_intervalls(start_time, end_time, interval_length_in_minutes):
         list = [start_time]
         time = start_time
         while time < end_time:
-            time = time + timedelta(minutes=intervall_length_in_minutes)
+            time = time + timedelta(minutes=interval_length_in_minutes)
             list.append(time)
         return list
 
-    def count_crashes_and_iterations_per_time_interval_for_selected_job(self, time_intervalls, crashes):
-        crashes_per_time_intervall = collections.OrderedDict()
+    def count_crashes_and_iterations_per_time_interval_for_selected_job(self, time_intervals, crashes):
+        crashes_per_time_interval = collections.OrderedDict()
         iterations_per_time_interval = collections.OrderedDict()
         crashes_copy = list(crashes)
-        for i in range(len(time_intervalls) - 1):
+        for i in range(len(time_intervals) - 1):
             for crash in crashes_copy[:]:
-                if crash['date'] >= time_intervalls[i] and crash['date'] < time_intervalls[i + 1]:
-                    crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
-                    iterations_per_time_interval[time_intervalls[i]] = crash['iteration']
+                if time_intervals[i] <= crash['date'] < time_intervals[i + 1]:
+                    crashes_per_time_interval[time_intervals[i]] = self.crash_counter
+                    iterations_per_time_interval[time_intervals[i]] = crash['iteration']
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
-        if time_intervalls[len(time_intervalls) - 1] == crashes[-1]['date']:
-            crashes_per_time_intervall[time_intervalls[len(time_intervalls) - 1]] = self.crash_counter
-            iterations_per_time_interval[time_intervalls[len(time_intervalls) - 1]] = crashes[-1]['iteration']
+        if time_intervals[len(time_intervals) - 1] == crashes[-1]['date']:
+            crashes_per_time_interval[time_intervals[len(time_intervals) - 1]] = self.crash_counter
+            iterations_per_time_interval[time_intervals[len(time_intervals) - 1]] = crashes[-1]['iteration']
             self.crash_counter += 1
-        return crashes_per_time_intervall, iterations_per_time_interval
+        return crashes_per_time_interval, iterations_per_time_interval
 
-    def count_crashes_and_iterations_per_time_intervall_for_all_jobs(self, time_intervalls, crashes):
-        crashes_per_time_intervall = collections.OrderedDict()
+    def count_crashes_and_iterations_per_time_interval_for_all_jobs(self, time_intervals, crashes):
+        crashes_per_time_interval = collections.OrderedDict()
         iterations_per_time_interval = collections.OrderedDict()
         crashes_copy = list(crashes)
         min_iterations_of_all_jobs = 0
         CRASH_IN_TIME_INTERVAL_FLAG = False
         job_id_max_iteration_per_time_interval = {}
-        for i in range(len(time_intervalls) - 1):
+        for i in range(len(time_intervals) - 1):
             iteration_of_all_jobs_per_time_interval = 0
 
             for crash in crashes_copy[:]:
-                if crash['date'] >= time_intervalls[i] and crash['date'] < time_intervalls[i + 1]:
+                if time_intervals[i] <= crash['date'] < time_intervals[i + 1]:
                     CRASH_IN_TIME_INTERVAL_FLAG = True
                     self.update_job_id_max_iteration_per_time_interval(crash, job_id_max_iteration_per_time_interval)
                     iteration_of_all_jobs_per_time_interval = sum(job_id_max_iteration_per_time_interval.values())
-                    crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
+                    crashes_per_time_interval[time_intervals[i]] = self.crash_counter
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
             if CRASH_IN_TIME_INTERVAL_FLAG:
                 if iteration_of_all_jobs_per_time_interval > min_iterations_of_all_jobs:
                     min_iterations_of_all_jobs = iteration_of_all_jobs_per_time_interval
-                iterations_per_time_interval[time_intervalls[i]] = min_iterations_of_all_jobs
+                iterations_per_time_interval[time_intervals[i]] = min_iterations_of_all_jobs
                 CRASH_IN_TIME_INTERVAL_FLAG = False
 
-        if time_intervalls[len(time_intervalls) - 1] == crashes[-1]['date']:
-            crashes_per_time_intervall[time_intervalls[len(time_intervalls) - 1]] = self.crash_counter
-            iterations_per_time_interval[time_intervalls[len(time_intervalls) - 1]] = crashes[-1]['iteration']
+        if time_intervals[len(time_intervals) - 1] == crashes[-1]['date']:
+            crashes_per_time_interval[time_intervals[len(time_intervals) - 1]] = self.crash_counter
+            iterations_per_time_interval[time_intervals[len(time_intervals) - 1]] = crashes[-1]['iteration']
             self.crash_counter += 1
 
-        return crashes_per_time_intervall, iterations_per_time_interval
+        return crashes_per_time_interval, iterations_per_time_interval
 
-    def update_job_id_max_iteration_per_time_interval(self, crash, job_id_max_iteration_per_time_interval):
+    @staticmethod
+    def update_job_id_max_iteration_per_time_interval(crash, job_id_max_iteration_per_time_interval):
         all_job_ids = [job.id for job in Job.objects]
         for job_id in all_job_ids:
             if crash.job_id == job_id:
-                if job_id in job_id_max_iteration_per_time_interval.keys():
+                if job_id in list(job_id_max_iteration_per_time_interval.keys()):
                     if crash.iteration > job_id_max_iteration_per_time_interval[job_id]:
                         job_id_max_iteration_per_time_interval[job_id] = crash.iteration
                 else:
                     job_id_max_iteration_per_time_interval[job_id] = crash.iteration
 
-    def count_crashes_per_time_intervall(self, time_intervalls, crashes):
-        crashes_per_time_intervall = collections.OrderedDict()
+    def count_crashes_per_time_interval(self, time_intervals, crashes):
+        crashes_per_time_interval = collections.OrderedDict()
         crashes_copy = list(crashes)
-        for i in range(len(time_intervalls) - 1):
+        for i in range(len(time_intervals) - 1):
             for crash in crashes_copy[:]:
-                if crash['date'] >= time_intervalls[i] and crash['date'] < time_intervalls[i + 1]:
-                    crashes_per_time_intervall[time_intervalls[i]] = self.crash_counter
+                if time_intervals[i] <= crash['date'] < time_intervals[i + 1]:
+                    crashes_per_time_interval[time_intervals[i]] = self.crash_counter
                     self.crash_counter += 1
                     crashes_copy.remove(crash)
-        if time_intervalls[len(time_intervalls) - 1] == crashes[-1]['date']:
-            crashes_per_time_intervall[time_intervalls[len(time_intervalls) - 1]] = self.crash_counter
+        if time_intervals[len(time_intervals) - 1] == crashes[-1]['date']:
+            crashes_per_time_interval[time_intervals[len(time_intervals) - 1]] = self.crash_counter
             self.crash_counter += 1
-        return crashes_per_time_intervall
+        return crashes_per_time_interval
 
-    def _get_job_ids_of_user(self):
+    @staticmethod
+    def _get_job_ids_of_user():
         job_ids = []
         for job in Job.objects:
             if job.owner and job.owner.email == current_user.email:

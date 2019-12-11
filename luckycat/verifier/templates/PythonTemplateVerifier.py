@@ -12,7 +12,7 @@ class PythonTemplateVerifier(object):
     a new verifier.
     '''
 
-    def __init__(self, config_path="verifier.cfg"):
+    def __init__(self, config_path='verifier.cfg'):
         super(PythonTemplateVerifier, self).__init__()
 
         self.config = configparser.ConfigParser()
@@ -36,7 +36,7 @@ class PythonTemplateVerifier(object):
         '''
         pass
 
-    def _on_test_case(self, channel, method_frame, header_frame, body):
+    def _on_test_case(self, channel, method_frame, body):
         crash_info = json.loads(body.decode())
         res = self._verify_one_crash(crash_info)
         channel.basic_ack(delivery_tag=method_frame.delivery_tag)

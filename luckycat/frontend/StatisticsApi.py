@@ -39,28 +39,28 @@ def get_general_stats(job_name_or_date=None, date=None):
                         crash_stats = get_crash_stats_of_date_for_selected_job(date, valid_job_name)
                         return json.dumps(crash_stats)
                     else:
-                        return "no vaild date"
+                        return 'no vaild date'
 
             else:
-                return "No valid date or job name"
+                return 'No valid date or job name'
 
 
 def get_crash_stats_of_date(date):
     number_of_crashes = Crash.objects(date__gte=date, date__lt=date + timedelta(days=1)).count()
     unique_crashes = get_unique_crashes_of_date(date)
     unique_exploitable_crashes = get_unique_exploitable_crashes_of_date(date)
-    return {"number_of_crashes": number_of_crashes,
-            "number_of_unique_crashes": len(list(unique_crashes)),
-            "number_of_unique_exploitable_crashes": len(list(unique_exploitable_crashes))}
+    return {'number_of_crashes': number_of_crashes,
+            'number_of_unique_crashes': len(list(unique_crashes)),
+            'number_of_unique_exploitable_crashes': len(list(unique_exploitable_crashes))}
 
 
 def get_unique_exploitable_crashes_of_date(date):
     unique_exploitable_crashes = Crash.objects.aggregate(*[
         {
-            "$match": {"exploitability": "EXPLOITABLE", "date": {"$gte": date, "$lt": date + timedelta(days=1)}}
+            '$match': {'exploitability': 'EXPLOITABLE', 'date': {'$gte': date, '$lt': date + timedelta(days=1)}}
         },
         {
-            "$group": {"_id": "$crash_hash"}
+            '$group': {'_id': '$crash_hash'}
         }
     ])
     return unique_exploitable_crashes
@@ -69,10 +69,10 @@ def get_unique_exploitable_crashes_of_date(date):
 def get_unique_crashes_of_date(date):
     unique_crashes = Crash.objects.aggregate(*[
         {
-            "$match": {"date": {"$gte": date, "$lt": date + timedelta(days=1)}}
+            '$match': {'date': {'$gte': date, '$lt': date + timedelta(days=1)}}
         },
         {
-            "$group": {"_id": "$crash_hash"}
+            '$group': {'_id': '$crash_hash'}
         }
     ])
     return unique_crashes
@@ -82,9 +82,9 @@ def get_crash_stats_of_date_for_selected_job(date, selected_job):
     crashes = get_crashes_of_date_for_selected_job(date, selected_job)
     unique_crashes = get_unique_crashes_of_date_for_selected_job(date, selected_job)
     unique_exploitable_crashes = get_unique_exploitable_crashes_of_date_for_selected_job(date, selected_job)
-    return {"number_of_crashes": len(list(crashes)),
-            "number_of_unique_crashes": len(list(unique_crashes)),
-            "number_of_unique_exploitable_crashes": len(list(unique_exploitable_crashes))}
+    return {'number_of_crashes': len(list(crashes)),
+            'number_of_unique_crashes': len(list(unique_crashes)),
+            'number_of_unique_exploitable_crashes': len(list(unique_exploitable_crashes))}
 
 
 def get_unique_exploitable_crashes_of_date_for_selected_job(date, selected_job):
@@ -97,11 +97,11 @@ def get_unique_exploitable_crashes_of_date_for_selected_job(date, selected_job):
                  'as': 'relation'}
         },
         {
-            "$match": {"relation.name": selected_job, "exploitability": "EXPLOITABLE",
-                       "date": {"$gte": date, "$lt": date + timedelta(days=1)}}
+            '$match': {'relation.name': selected_job, 'exploitability': 'EXPLOITABLE',
+                       'date': {'$gte': date, '$lt': date + timedelta(days=1)}}
         },
         {
-            "$group": {"_id": "$crash_hash"}
+            '$group': {'_id': '$crash_hash'}
         }
     ])
     return unique_exploitable_crashes
@@ -117,10 +117,10 @@ def get_unique_crashes_of_date_for_selected_job(date, selected_job):
                  'as': 'relation'}
         },
         {
-            "$match": {"relation.name": selected_job, "date": {"$gte": date, "$lt": date + timedelta(days=1)}}
+            '$match': {'relation.name': selected_job, 'date': {'$gte': date, '$lt': date + timedelta(days=1)}}
         },
         {
-            "$group": {"_id": "$crash_hash"}
+            '$group': {'_id': '$crash_hash'}
         }
     ])
 
@@ -135,7 +135,7 @@ def get_crashes_of_date_for_selected_job(date, selected_job):
                  'as': 'relation'}
         },
         {
-            "$match": {"relation.name": selected_job, "date": {"$gte": date, "$lt": date + timedelta(days=1)}}
+            '$match': {'relation.name': selected_job, 'date': {'$gte': date, '$lt': date + timedelta(days=1)}}
         }
     ])
 

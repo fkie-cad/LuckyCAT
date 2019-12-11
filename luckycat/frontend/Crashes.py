@@ -98,7 +98,7 @@ def get_job_name_of_job_id(job_id):
 @crashes.route('/crashes/search', methods=['GET', 'POST'])
 @login_required
 def search_crash():
-    crash_database_structure, error = _getCrashStructureFromDB()
+    crash_database_structure, error = _get_crash_structure_from_db()
 
     job_names = _get_job_names_of_user()
     if request.method == 'POST':
@@ -117,7 +117,7 @@ def search_crash():
                            error=error)
 
 
-def _getCrashStructureFromDB():
+def _get_crash_structure_from_db():
     try:
         return [item for item in Crash._get_collection().find()[0]]
     except IndexError:

@@ -23,14 +23,15 @@ class SyzkallerFuzzer(PythonFuzzer):
         self.Start_Time = time.time()
         self.Last_Crash_Timestamp = self.Start_Time
 
-    def get_dir_path_of_filepath(self, filepath):
+    @staticmethod
+    def get_dir_path_of_filepath(filepath):
         return '/'.join(filepath.split('/')[:-1])
 
     def collect(self):
         # does not collect new crashes after 100 occurences, because syzkaller counts only up to 100 crash logs/reports per crash hash dir and then starts from log0 again.
         results = []
         crash_dirs = os.listdir(config.crashes_dir)
-        tmp_Last_Crash_Timestamp = self.Last_Crash_Timestamp
+        tmp_last_crash_timestamp = self.Last_Crash_Timestamp
 
         for crash_dir in crash_dirs:
             crash_dir_path = os.path.join(config.crashes_dir, crash_dir)
@@ -42,12 +43,12 @@ class SyzkallerFuzzer(PythonFuzzer):
                     crash_time = os.stat(crash_path).st_mtime
                     if not crash_time > self.Last_Crash_Timestamp:
                         continue
-                    if crash_time > tmp_Last_Crash_Timestamp:
-                        tmp_Last_Crash_Timestamp = crash_time
+                    if crash_time > tmp_last_crash_timestamp:
+                        tmp_last_crash_timestamp = crash_time
                     self.CRASHES.append(crash_path)
-                    logging.debug('Found new crash {}'.format(crash_path))
+                    logging.debug(f'Found new crash {crash_path}')
                     results.append(crash_path)
-        self.Last_Crash_Timestamp = tmp_Last_Crash_Timestamp
+        self.Last_Crash_Timestamp = tmp_last_crash_timestamp
         return results
 
     def populate_crash_info_data(self, crash_path):
@@ -55,7 +56,7 @@ class SyzkallerFuzzer(PythonFuzzer):
         with open(crash_description_path, 'r') as fd:
             # not used by syzkaller at the moment
             crash_description = fd.read()
-            logging.debug('Crash Description: {}'.format(crash_description))
+            logging.debug(f'Crash Description: {crash_description}')
         with open(crash_path, 'r') as fd:
             crash_string = fd.read()
         test_case = crash_string
@@ -81,7 +82,7 @@ class SyzkallerFuzzer(PythonFuzzer):
                 crash_info = self.populate_crash_info_data(crash)
                 self.send_crash_info(crash_info)
         self.send_stats_data()
-        logging.debug('Sleeping for {} seconds...'.format(config.sleep))
+        logging.debug(f'Sleeping for {config.sleep} seconds...')
         time.sleep(config.sleep)
 
     def send_stats_data(self):

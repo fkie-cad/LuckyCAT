@@ -31,19 +31,19 @@ app.jinja_env.globals.update(exploitable_color=exploitable_color)
 app.jinja_env.globals.update(map_signal_to_string=map_signal_to_string)
 
 
-@app.route("/")
-@app.route("/home")
+@app.route('/')
+@app.route('/home')
 def index():
-    return render_template("home.html")
+    return render_template('home.html')
 
 
-@app.route("/about")
+@app.route('/about')
 @login_required
 def about():
-    return render_template("about.html")
+    return render_template('about.html')
 
 
-@app.route("/logout")
+@app.route('/logout')
 @login_required
 def logout():
-    return redirect("/home")
+    return redirect('/home')

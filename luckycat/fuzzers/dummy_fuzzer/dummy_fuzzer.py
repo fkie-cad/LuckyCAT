@@ -28,7 +28,7 @@ class DummyFuzzer(PythonFuzzer):
     def _fuzz_one_test_case(self, test_case_info):
         time.sleep(self.sleep_time)
         self.iterations += 1
-        print('Iterations: %d, Crashes: %d' % (self.iterations, self.crashes), end='\r', flush=True)
+        print(f'Iterations: {self.iterations}, Crashes: {self.crashes}', end='\r', flush=True)
 
         if random.randint(1, self.probability) == 1:
             self.crashes += 1

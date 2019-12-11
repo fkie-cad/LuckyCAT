@@ -66,19 +66,19 @@ def api_create_job():
         # TODO sanitize data
         if not data.get('name'):
             return json.dumps({'success': False,
-                               'msg': "No fuzz job name specified"})
+                               'msg': 'No fuzz job name specified'})
         elif not data.get('description'):
             return json.dumps({'success': False,
-                               'msg': "No fuzz job description specified"})
-        if data.get('fuzzer') == "afl" and data.get('engine') is not None:
+                               'msg': 'No fuzz job description specified'})
+        if data.get('fuzzer') == 'afl' and data.get('engine') is not None:
             return json.dumps({'success': False,
-                               'msg': "The fuzzer afl contains a mutation engine. No need to select a mutation engine"})
-        if data.get('fuzzer') == "syzkaller" and data.get('engine') is not None:
+                               'msg': 'The fuzzer afl contains a mutation engine. No need to select a mutation engine'})
+        if data.get('fuzzer') == 'syzkaller' and data.get('engine') is not None:
             return json.dumps({'success': False,
-                               'msg': "The fuzzer syzkaller contains a mutation engine. No need to select a mutation engine"})
+                               'msg': 'The fuzzer syzkaller contains a mutation engine. No need to select a mutation engine'})
         if data.get('samples') is None or data.get('fuzzing_target') is None:
             return json.dumps({'success': False,
-                               'msg': "Please provide a fuzzing target AND some initial test cases."})
+                               'msg': 'Please provide a fuzzing target AND some initial test cases.'})
 
         if data.get('firmware_root') is not None:
             firmware_root = base64.b64decode(data.get('firmware_root'))

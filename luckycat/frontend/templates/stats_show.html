@@ -73,7 +73,7 @@
         function display_different_Crashes() {
             var data = [];
             var label = [];
-            {% for crash_signal, quantity in statistics["diffierent_crash_signals"].items() %}
+            {% for crash_signal, quantity in statistics["different_crash_signals"].items() %}
                 data.push({{ quantity }});
                 label.push("{{ crash_signal }}");
             {% endfor %}

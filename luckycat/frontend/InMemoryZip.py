@@ -10,7 +10,7 @@ class InMemoryZip(object):
     def __init__(self):
         self.in_memory_data = io.BytesIO()
         self.in_memory_zip = zipfile.ZipFile(
-            self.in_memory_data, "w", zipfile.ZIP_DEFLATED, False)
+            self.in_memory_data, 'w', zipfile.ZIP_DEFLATED, False)
         self.in_memory_zip.debug = 3
 
     def append(self, filename_in_zip, file_contents):

@@ -94,7 +94,7 @@ class AflFuzzer(PythonFuzzer):
         for fuzzer_id in range(config.fuzzers):
             self.build_new_tmux_window()
             afl_cmd = self.build_afl_command(fuzzer_id)
-            fuzz_task = subprocess.Popen(f'tmux send-keys -t luckycatAFL "{afl_cmd}" C-m',
+            fuzz_task = subprocess.Popen(f"tmux send-keys -t luckycatAFL {afl_cmd} C-m",
                                          shell=True,
                                          stdout=subprocess.PIPE)
             if fuzz_task.poll() is not None:

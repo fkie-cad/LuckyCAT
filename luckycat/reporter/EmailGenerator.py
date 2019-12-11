@@ -6,10 +6,10 @@ class EmailGenerator:
         output = ''
         for job in stats:
             tabulate_input = []
-            tabulate_input.append(["Job", job['Job'], ''])
-            for key, value in job['stats'].items():
+            tabulate_input.append(['Job', job['Job'], ''])
+            for key, value in list(job['stats'].items()):
                 row = [key]
-                for key, value in job['stats'][key].items():
+                for key, value in list(job['stats'][key].items()):
                     row.append(key)
                     row.append(value)
                     tabulate_input.append(row)

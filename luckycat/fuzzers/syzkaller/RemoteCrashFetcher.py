@@ -22,30 +22,31 @@ class RemoteCrashFetcher(Process):
             ssh.connect(hostname=config.remote_system_ip)
             self.copy_crashes_dir_with_scp(ssh)
         except AuthenticationException:
-            print("Authentication failed, please verify your credentials: %s")
+            print(f'Authentication failed, please verify your credentials')
         except SSHException as sshException:
-            print("Unable to establish SSH connection: %s" % sshException)
+            print(f'Unable to establish SSH connection: {sshException}')
         except BadHostKeyException as badHostKeyException:
-            print("Unable to verify server's host key: %s" % badHostKeyException)
+            print(f'Unable to verify servers host key: {badHostKeyException}')
         finally:
-            ssh.close()
+            ssh.close() #reicht es aus die ssh-object initialisierung vor das try zu packen?
 
-    def copy_crashes_dir_with_scp(self, ssh):
+    @staticmethod
+    def copy_crashes_dir_with_scp(ssh):
         parent_dir_of_crashes_dir = os.path.dirname(config.crashes_dir)
         try:
             scp = SCPClient(ssh.get_transport())
             scp.get(remote_path=config.remote_crashes_dir, local_path=parent_dir_of_crashes_dir, recursive=True,
                     preserve_times=True)
-            print("successfully fetched!!")
+            print('successfully fetched!!')
         except SCPException as e:
-            print("Operation error: %s" % e)
+            print(f'Operation error: {e}')
         except SocketTimeout:
             """
             the fetcher will need multiple attempts if the ssh connection is bad and/or the copy dir is big
             """
             print('SocketTimeout')
         except PipeTimeout as pipetimeout:
-            print("timeout was reached on a read from a buffered Pipe: %s" % pipetimeout)
+            print(f'timeout was reached on a read from a buffered Pipe: {pipetimeout}')
         finally:
             scp.close()
 

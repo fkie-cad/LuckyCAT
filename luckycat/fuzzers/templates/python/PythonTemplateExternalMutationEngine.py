@@ -13,7 +13,7 @@ class PythonFuzzer(multiprocessing.Process):
     a new fuzzer.
     '''
 
-    def __init__(self, config_path="fuzzer.cfg"):
+    def __init__(self, config_path='fuzzer.cfg'):
         super(PythonFuzzer, self).__init__()
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
@@ -57,7 +57,7 @@ class PythonFuzzer(multiprocessing.Process):
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.config['DEFAULT']['queue_host']))
         channel = connection.channel()
         channel.basic_consume(self._on_test_case,
-                              '%s-%s' % (self.config['DEFAULT']['job_name'], 'samples'))
+                              f"{self.config['DEFAULT']['job_name']}-samples")
         try:
             channel.start_consuming()
         except KeyboardInterrupt:

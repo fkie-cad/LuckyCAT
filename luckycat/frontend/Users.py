@@ -47,7 +47,7 @@ def user_exists(email):
 @login_required
 def show_user_profile():
     if request.method == 'GET':
-        return render_template("user_profile.html", user=current_user)
+        return render_template('user_profile.html', user=current_user)
     else:
         new_password = request.form['new_password']
         new_password_confirm = request.form['new_password_confirm']
@@ -59,20 +59,20 @@ def show_user_profile():
         else:
             change_password(current_user.email, new_password)
             logging.warning('password change successful')
-        return render_template("user_profile.html", user=current_user)
+        return render_template('user_profile.html', user=current_user)
 
 
 @users.route('/user/manage')
 @roles_required('admin')
 def manage_user():
-    return render_template("user_manage.html", users=User.objects)
+    return render_template('user_manage.html', users=User.objects)
 
 
 @users.route('/user/add', methods=['GET', 'POST'])
 @roles_required('admin')
 def add_user():
     if request.method == 'GET':
-        return render_template("user_add.html", roles=Role.objects)
+        return render_template('user_add.html', roles=Role.objects)
     else:
         data = request.form
         if not is_valid_email(data.get('email')):
@@ -80,7 +80,7 @@ def add_user():
             return redirect('user/manage')
 
         if user_exists(data.get('email')):
-            logging.error('User with email %s does already exist.' % data.get('email'))
+            logging.error(f"User with email {data.get('email')} does already exist.")
             return redirect('user/manage')
 
         if data.get('password') != data.get('retype_password'):
@@ -89,7 +89,7 @@ def add_user():
 
         requested_role = Role.objects.get(name=data.get('role'))
         if not requested_role:
-            logging.error('Role %s not known' % data.get('role'))
+            logging.error(f"Role {data.get('role')} not known")
             return redirect('user/manage')
 
         user_datastore.create_user(email=data.get('email'),
@@ -98,7 +98,7 @@ def add_user():
                                    roles=[requested_role],
                                    registration_date=datetime.datetime.now())
 
-        logging.warning('Created user %s' % data.get('email'))
+        logging.warning(f"Created user {data.get('email')}")
         return redirect('user/manage')
 
 
@@ -113,7 +113,7 @@ def delete_user(user_id):
             # TODO check if not current user!
             user.delete()
             # TODO delete all jobs of user
-            logging.warning("Deleted user with user_id %s" % user_id)
+            logging.warning(f'Deleted user with user_id {user_id}')
         return redirect('user/manage')
 
 
@@ -127,5 +127,5 @@ def toggle_user_activation(user_id):
         if user:
             # TODO check if not current user!
             user.update(active=(not user.active))
-            logging.warning("Set activation of user with user_id %s to %r" % (user_id, user.active))
+            logging.warning(f'Set activation of user with user_id {user_id} to {user.active}')
         return redirect('user/manage')
