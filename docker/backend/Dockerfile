@@ -16,7 +16,7 @@ RUN git clone https://gitlab.com/akihe/radamsa.git
 WORKDIR /opt/radamsa
 RUN make && make install
 
-RUN pip3 install flask-mongoengine flask-security tabulate
+RUN pip3 install flask-mongoengine flask-security tabulate email_validator
 
 # copy luckycat source into container and install
 WORKDIR /opt
