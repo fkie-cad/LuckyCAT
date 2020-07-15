@@ -162,7 +162,6 @@ def _get_summary_for_crash(crash):
 @jobs.route('/jobs/download/<job_id>')
 @login_required
 def jobs_download(job_id):
-    # FIXME may crash if no crashes available
     if job_id is None:
         flask.flash('Invalid job ID')
         return flask.redirect('/jobs/show')
@@ -186,3 +185,6 @@ def jobs_download(job_id):
             os.remove(filename)
         imz.writetofile(filename)
         return flask.send_file(filename, as_attachment=True)
+    else:
+        flask.flash('There is no job crashes to download.')
+        return flask.redirect('/jobs/show')
