@@ -7,6 +7,10 @@
 FROM phusion/baseimage:0.11
 MAINTAINER Christopher Krah <christopher.krah@fkie.fraunhofer.de>
 
+# Configure proxy if needed
+#ENV http_proxy <http_proxy>
+#ENV https_proxy <https_proxy>
+
 RUN apt-get update -y && apt-get install -y gcc cmake make libtool-bin wget \
 python automake bison libglib2.0 git libssl-dev nettle-dev flex python3 \
 build-essential python3-setuptools python3-dev screen gdb

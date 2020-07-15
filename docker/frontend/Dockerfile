@@ -1,13 +1,17 @@
 FROM phusion/baseimage:0.11
 MAINTAINER Christopher Krah <christopher.krah@fkie.fraunhofer.de>
 
+# Configure proxy if needed
+#ENV http_proxy <http_proxy>
+#ENV https_proxy <https_proxy>
+
 # install dependencies 
 RUN apt-get update -y && apt-get install -y gcc cmake make wget screen gdb \
 python automake git htop python3 build-essential python3-setuptools python3-dev \
 python3-pip nginx
 
 RUN pip3 install --upgrade pip
-RUN pip3 install Flask flask-security flask-mongoengine bcrypt uwsgi python-dateutil
+RUN pip3 install Flask flask-security flask-mongoengine bcrypt uwsgi python-dateutil email_validator
 
 
 # create SSL certificate
