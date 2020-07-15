@@ -50,7 +50,7 @@ def show_crashes(crashes=None):
     if crashes:
         crashes = crashes
     else:
-        crashes = list(Crash.objects.aggregate(*[]))
+        crashes = list(Crash.objects.aggregate([]))
     job_ids = _get_job_ids_of_user()
     sorted_res = collections.defaultdict(list)
     for crash in crashes:
